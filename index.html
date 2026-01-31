@@ -502,7 +502,7 @@
         .richiesta-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             margin-bottom: 12px;
             flex-wrap: wrap;
             gap: 10px;
@@ -550,8 +550,8 @@
             font-size: 12px !important;
             padding: 6px 12px !important;
             font-weight: 600 !important;
-            background: #fff3e0 !important;
-            color: #e65100 !important;
+            background: #e8eaf6 !important;
+            color: #283593 !important;
             text-transform: none !important;
         }
 
@@ -562,6 +562,21 @@
             background: #e8f5e9 !important;
             color: #2e7d32 !important;
             text-transform: none !important;
+        }
+
+        .richiesta-tags-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .richiesta-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .richiesta-badge.priorita-alta { background: #fde8e8; color: #c0392b; }
@@ -7451,23 +7466,28 @@
                     'nonsicuro': 'Non sono sicuro'
                 };
                 
-                // Mappa servizi per label leggibili
+                // Mappa servizi per label leggibili (value HTML → testo completo)
                 const serviceTypeMap = {
                     'data-entry': 'Data Entry & Management',
                     'data-analysis': 'Data Analysis & Reporting',
+                    'dashboards': 'Interactive Dashboards (Power BI/Tableau)',
                     'excel-automation': 'Excel Automation',
                     'document-conversion': 'Document Conversion',
-                    'database-management': 'Database Management',
+                    'database-management': 'Database Management (SQL)',
+                    'data-cleaning': 'Data Cleaning & Preparation',
+                    'consulting': 'Strategic Consulting',
+                    'general': 'General Inquiry',
+                    'not-sure': 'Not Sure / Need Guidance',
                     'other': 'Other'
                 };
                 
                 // Mappa timeline per label leggibili
                 const timelineMap = {
-                    'asap': 'ASAP',
+                    'asap': 'ASAP (1-3 days)',
                     'within-week': 'Within 1 Week',
                     'within-2-weeks': 'Within 2 Weeks',
                     'within-month': 'Within 1 Month',
-                    'flexible': 'Flexible',
+                    'flexible': 'Flexible / No Rush',
                     '1-week': 'Entro 1 settimana',
                     '2-weeks': 'Entro 2 settimane',
                     '1-month': 'Entro 1 mese'
@@ -7529,25 +7549,27 @@
                     <div class="richiesta-card ${statoClass}">
                         <div class="richiesta-header">
                             <div class="richiesta-cliente">${nomeDisplay}</div>
-                            <div class="richiesta-meta">
-                                <span class="${isFormRequest ? 'richiesta-badge richiesta-badge-form' : 'richiesta-badge tipo-' + r.tipo}">${tipoDisplay}</span>
-                                <span class="richiesta-badge stato-${statoClass}">${statoLabel}</span>
-                                ${isFormRequest && timelineDisplay ? `<span class="richiesta-badge richiesta-badge-timeline">⏱️ ${timelineDisplay}</span>` : ''}
-                                ${budgetDisplay ? `<span class="richiesta-badge richiesta-badge-budget">💰 ${budgetDisplay}</span>` : ''}
-                            </div>
+                            <span class="richiesta-badge stato-${statoClass}">${statoLabel}</span>
                         </div>
                         <div class="richiesta-contatti">
                             📅 ${new Date(r.data).toLocaleDateString('it-IT')} | 
                             📧 <a href="mailto:${r.email}">${r.email}</a>
                             ${r.lavorazione ? ` | 🔧 ${lavorazioniMap[r.lavorazione] || r.lavorazione}` : ''}
                         </div>
+                        <div class="richiesta-tags-row">
+                            <span class="${isFormRequest ? 'richiesta-badge richiesta-badge-form' : 'richiesta-badge tipo-' + r.tipo}">${tipoDisplay}</span>
+                            ${isFormRequest && timelineDisplay ? `<span class="richiesta-badge richiesta-badge-timeline">⏱️ ${timelineDisplay}</span>` : ''}
+                        </div>
                         <div class="richiesta-messaggio">${messaggioClean}</div>
-                        <div class="richiesta-azioni">
-                            ${r.stato === 'dalavorare' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'inlavorazione')">🔄 In Lavorazione</button><button class="btn-lavorazione" onclick="spostaInPipeline('${r.id}')" style="background: #2196F3;">📊 Pipeline</button>` : ''}
-                            ${r.stato === 'inlavorazione' ? `<button class="btn-completa" onclick="cambiaStatoRichiesta('${r.id}', 'completata')">✅ Completata</button><button class="btn-lavorazione" onclick="quickAddScadenzaLavoro('${r.id}')" style="background: #ff9800;">📅 Scadenza</button>` : ''}
-                            ${r.stato === 'completata' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'dalavorare')" style="background: #6c757d;">🔙 Riapri</button>` : ''}
-                            <button class="btn-crea-cliente" onclick="creaClienteDaRichiesta('${r.id}')">👤 Crea Cliente</button>
-                            <button class="btn-elimina-richiesta" onclick="eliminaRichiesta('${r.id}')">🗑️ Elimina</button>
+                        <div class="richiesta-footer">
+                            <div class="richiesta-azioni">
+                                ${r.stato === 'dalavorare' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'inlavorazione')">🔄 In Lavorazione</button><button class="btn-lavorazione" onclick="spostaInPipeline('${r.id}')" style="background: #2196F3;">📊 Pipeline</button>` : ''}
+                                ${r.stato === 'inlavorazione' ? `<button class="btn-completa" onclick="cambiaStatoRichiesta('${r.id}', 'completata')">✅ Completata</button><button class="btn-lavorazione" onclick="quickAddScadenzaLavoro('${r.id}')" style="background: #ff9800;">📅 Scadenza</button>` : ''}
+                                ${r.stato === 'completata' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'dalavorare')" style="background: #6c757d;">🔙 Riapri</button>` : ''}
+                                <button class="btn-crea-cliente" onclick="creaClienteDaRichiesta('${r.id}')">👤 Crea Cliente</button>
+                                <button class="btn-elimina-richiesta" onclick="eliminaRichiesta('${r.id}')">🗑️ Elimina</button>
+                            </div>
+                            ${budgetDisplay ? `<span class="richiesta-badge richiesta-badge-budget">💰 ${budgetDisplay}</span>` : ''}
                         </div>
                     </div>
                 `;

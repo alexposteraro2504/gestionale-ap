@@ -516,8 +516,10 @@
 
         .richiesta-meta {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
         }
 
         .richiesta-badge {
@@ -541,6 +543,24 @@
             font-weight: 700 !important;
             background: #e3f2fd !important;
             color: #1565c0 !important;
+            text-transform: none !important;
+        }
+
+        .richiesta-badge-timeline {
+            font-size: 12px !important;
+            padding: 6px 12px !important;
+            font-weight: 600 !important;
+            background: #fff3e0 !important;
+            color: #e65100 !important;
+            text-transform: none !important;
+        }
+
+        .richiesta-badge-budget {
+            font-size: 12px !important;
+            padding: 6px 12px !important;
+            font-weight: 600 !important;
+            background: #e8f5e9 !important;
+            color: #2e7d32 !important;
             text-transform: none !important;
         }
 
@@ -7412,7 +7432,7 @@
                 let statoLabel = '';
                 let statoClass = '';
                 if (r.stato === 'dalavorare') {
-                    statoLabel = '🔴 Da Lavorare';
+                    statoLabel = '🔴 DA LAVORARE';
                     statoClass = 'dalavorare';
                 } else if (r.stato === 'inlavorazione') {
                     statoLabel = '🟡 In Lavorazione';
@@ -7431,17 +7451,89 @@
                     'nonsicuro': 'Non sono sicuro'
                 };
                 
-                // Controlla se è una richiesta dal form (tipo contiene " - ")
+                // Mappa servizi per label leggibili
+                const serviceTypeMap = {
+                    'data-entry': 'Data Entry & Management',
+                    'data-analysis': 'Data Analysis & Reporting',
+                    'excel-automation': 'Excel Automation',
+                    'document-conversion': 'Document Conversion',
+                    'database-management': 'Database Management',
+                    'other': 'Other'
+                };
+                
+                // Mappa timeline per label leggibili
+                const timelineMap = {
+                    'asap': 'ASAP',
+                    'within-week': 'Within 1 Week',
+                    'within-2-weeks': 'Within 2 Weeks',
+                    'within-month': 'Within 1 Month',
+                    'flexible': 'Flexible',
+                    '1-week': 'Entro 1 settimana',
+                    '2-weeks': 'Entro 2 settimane',
+                    '1-month': 'Entro 1 mese'
+                };
+                
+                // Controlla se è una richiesta dal form sito (tipo contiene " - ")
                 const isFormRequest = r.tipo && r.tipo.includes(' - ');
-                const tipoBadgeClass = isFormRequest ? 'richiesta-badge richiesta-badge-form' : `richiesta-badge tipo-${r.tipo}`;
+                
+                // Parsing tipo e timeline per richieste dal form
+                let tipoDisplay = r.tipo || '';
+                let timelineDisplay = '';
+                let budgetDisplay = '';
+                let companyDisplay = '';
+                
+                if (isFormRequest) {
+                    const parts = r.tipo.split(' - ');
+                    const rawService = parts[0] ? parts[0].trim() : '';
+                    const rawTimeline = parts[1] ? parts[1].trim() : '';
+                    tipoDisplay = serviceTypeMap[rawService] || rawService;
+                    timelineDisplay = timelineMap[rawTimeline] || rawTimeline;
+                }
+                
+                // Estrai company e budget dal messaggio (se presenti)
+                let messaggioClean = r.messaggio || '';
+                const companyMatch = messaggioClean.match(/\n?\n?Azienda:\s*(.+)/);
+                const budgetMatch = messaggioClean.match(/\n?Budget:\s*(.+)/);
+                const fileMatch = messaggioClean.match(/\n?File:\s*(.+)/);
+                
+                if (companyMatch) {
+                    companyDisplay = companyMatch[1].trim();
+                    messaggioClean = messaggioClean.replace(/\n?\n?Azienda:\s*.+/, '');
+                }
+                if (budgetMatch) {
+                    budgetDisplay = budgetMatch[1].trim();
+                    messaggioClean = messaggioClean.replace(/\n?Budget:\s*.+/, '');
+                }
+                if (fileMatch) {
+                    messaggioClean = messaggioClean.replace(/\n?File:\s*.+/, '');
+                }
+                messaggioClean = messaggioClean.trim();
+                
+                // Mappa budget per label leggibili
+                const budgetMap = {
+                    'under-500': '< $500',
+                    '500-1000': '$500 - $1,000',
+                    '1000-2500': '$1,000 - $2,500',
+                    '2500-5000': '$2,500 - $5,000',
+                    '5000+': '$5,000+',
+                    'not-sure': 'Not Sure'
+                };
+                if (budgetDisplay) {
+                    budgetDisplay = budgetMap[budgetDisplay] || budgetDisplay;
+                }
+                
+                // Nome con company
+                const nomeDisplay = companyDisplay ? `${r.nome} - ${companyDisplay}` : r.nome;
                 
                 return `
                     <div class="richiesta-card ${statoClass}">
                         <div class="richiesta-header">
-                            <div class="richiesta-cliente">${r.nome}</div>
+                            <div class="richiesta-cliente">${nomeDisplay}</div>
                             <div class="richiesta-meta">
-                                <span class="${tipoBadgeClass}">${r.tipo}</span>
+                                <span class="${isFormRequest ? 'richiesta-badge richiesta-badge-form' : 'richiesta-badge tipo-' + r.tipo}">${tipoDisplay}</span>
                                 <span class="richiesta-badge stato-${statoClass}">${statoLabel}</span>
+                                ${isFormRequest && timelineDisplay ? `<span class="richiesta-badge richiesta-badge-timeline">⏱️ ${timelineDisplay}</span>` : ''}
+                                ${budgetDisplay ? `<span class="richiesta-badge richiesta-badge-budget">💰 ${budgetDisplay}</span>` : ''}
                             </div>
                         </div>
                         <div class="richiesta-contatti">
@@ -7449,7 +7541,7 @@
                             📧 <a href="mailto:${r.email}">${r.email}</a>
                             ${r.lavorazione ? ` | 🔧 ${lavorazioniMap[r.lavorazione] || r.lavorazione}` : ''}
                         </div>
-                        <div class="richiesta-messaggio">${r.messaggio}</div>
+                        <div class="richiesta-messaggio">${messaggioClean}</div>
                         <div class="richiesta-azioni">
                             ${r.stato === 'dalavorare' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'inlavorazione')">🔄 In Lavorazione</button><button class="btn-lavorazione" onclick="spostaInPipeline('${r.id}')" style="background: #2196F3;">📊 Pipeline</button>` : ''}
                             ${r.stato === 'inlavorazione' ? `<button class="btn-completa" onclick="cambiaStatoRichiesta('${r.id}', 'completata')">✅ Completata</button><button class="btn-lavorazione" onclick="quickAddScadenzaLavoro('${r.id}')" style="background: #ff9800;">📅 Scadenza</button>` : ''}

@@ -550,8 +550,8 @@
             font-size: 12px !important;
             padding: 6px 12px !important;
             font-weight: 600 !important;
-            background: #e8eaf6 !important;
-            color: #283593 !important;
+            background: #f3e5f5 !important;
+            color: #7b1fa2 !important;
             text-transform: none !important;
         }
 
@@ -7549,16 +7549,16 @@
                     <div class="richiesta-card ${statoClass}">
                         <div class="richiesta-header">
                             <div class="richiesta-cliente">${nomeDisplay}</div>
-                            <span class="richiesta-badge stato-${statoClass}">${statoLabel}</span>
+                            <div class="richiesta-meta">
+                                <span class="${isFormRequest ? 'richiesta-badge richiesta-badge-form' : 'richiesta-badge tipo-' + r.tipo}">${tipoDisplay}</span>
+                                ${isFormRequest && timelineDisplay ? `<span class="richiesta-badge richiesta-badge-timeline">⏱️ ${timelineDisplay}</span>` : ''}
+                                <span class="richiesta-badge stato-${statoClass}">${statoLabel}</span>
+                            </div>
                         </div>
                         <div class="richiesta-contatti">
                             📅 ${new Date(r.data).toLocaleDateString('it-IT')} | 
                             📧 <a href="mailto:${r.email}">${r.email}</a>
                             ${r.lavorazione ? ` | 🔧 ${lavorazioniMap[r.lavorazione] || r.lavorazione}` : ''}
-                        </div>
-                        <div class="richiesta-tags-row">
-                            <span class="${isFormRequest ? 'richiesta-badge richiesta-badge-form' : 'richiesta-badge tipo-' + r.tipo}">${tipoDisplay}</span>
-                            ${isFormRequest && timelineDisplay ? `<span class="richiesta-badge richiesta-badge-timeline">⏱️ ${timelineDisplay}</span>` : ''}
                         </div>
                         <div class="richiesta-messaggio">${messaggioClean}</div>
                         <div class="richiesta-footer">

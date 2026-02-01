@@ -7479,8 +7479,15 @@
 
         // GESTIONE RICHIESTE DAL SITO
         function aggiornaListaRichieste() {
-            const filtroStato = document.getElementById('richieste-filtro-stato').value;
-            const filtroTipo = document.getElementById('richieste-filtro-tipo').value;
+            console.log('🔄 aggiornaListaRichieste chiamata, richieste:', richiesteSito.length);
+            const filtroStatoEl = document.getElementById('richieste-filtro-stato');
+            const filtroTipoEl = document.getElementById('richieste-filtro-tipo');
+            if (!filtroStatoEl || !filtroTipoEl) {
+                console.log('⚠️ Filtri richieste non trovati nel DOM');
+                return;
+            }
+            const filtroStato = filtroStatoEl.value;
+            const filtroTipo = filtroTipoEl.value;
             
             let richiesteFiltrate = [...richiesteSito];
             

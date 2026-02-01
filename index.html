@@ -4030,12 +4030,12 @@
                 const { data: noteData } = await db.from('note').select('*').eq('user_id', currentUser.id);
                 if (noteData) note = noteData.map(n => ({ id: n.id, titolo: n.titolo, contenuto: n.contenuto, data: n.data }));
 
-                const { data: mieiData } = await db.from('miei_dati').select('*').eq('user_id', currentUser.id).single();
+                const { data: mieiData } = await db.from('miei_dati').select('*').eq('user_id', currentUser.id).maybeSingle();
                 if (mieiData) {
                     mieiDati = { nome: mieiData.nome || '', piva: mieiData.piva || '', cf: mieiData.codice_fiscale || '', sdi: mieiData.sdi || '', via: mieiData.indirizzo || '', cap: mieiData.cap || '', citta: mieiData.citta || '', provincia: mieiData.provincia || '', telefono: mieiData.telefono || '', email: mieiData.email || '', pec: mieiData.pec || '', banca: mieiData.banca || '', iban: mieiData.iban || '', notePreventivo: mieiData.note_preventivo || '', noteFattura: mieiData.note_fattura || '' };
                 }
 
-                const { data: contData } = await db.from('contatori').select('*').eq('user_id', currentUser.id).single();
+                const { data: contData } = await db.from('contatori').select('*').eq('user_id', currentUser.id).maybeSingle();
                 if (contData) {
                     contatoreFatture = contData.contatore_fatture || 1;
                     contatorePreventivi = contData.contatore_preventivi || 1;
@@ -5776,7 +5776,8 @@
 
         function aggiornaReportCategorie(prefix) {
             const movimenti = azMovimenti;
-            const annoFiltro = document.getElementById(prefix + '-anno-filter').value;
+            const annoFilterEl = document.getElementById(prefix + '-anno-filter');
+            const annoFiltro = annoFilterEl ? annoFilterEl.value : 'tutti';
             
             // Filtra per anno se necessario
             let movimentiFiltrati = movimenti;

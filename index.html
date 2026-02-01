@@ -5230,8 +5230,8 @@
             document.getElementById('az-totaleFatture').textContent = fattureAnnoCorrente;
             
             // 3. Preventivi Attivi (non scaduti, non rifiutati)
-            const preventiviAttivi = preventivi.filter(p => 
-                p.stato !== 'rifiutato' && new Date(p.validita) >= new Date()
+            const preventiviAttivi = preventiviEmessi.filter(p => 
+                p.stato !== 'rifiutato'
             ).length;
             document.getElementById('az-totalePreventivi').textContent = preventiviAttivi;
             
@@ -5977,7 +5977,8 @@
         }
 
         document.getElementById('az-dataMovimento').valueAsDate = new Date();
-        document.getElementById('ps-dataMovimento').valueAsDate = new Date();
+        const psDataMov = document.getElementById('ps-dataMovimento');
+        if (psDataMov) psDataMov.valueAsDate = new Date();
 
         // ESPORTAZIONE DATI
         function esportaCSV() {

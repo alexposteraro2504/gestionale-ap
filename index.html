@@ -545,6 +545,7 @@
             background: #e3f2fd !important;
             color: #1565c0 !important;
             text-transform: none !important;
+            border-radius: 20px !important;
         }
 
         .richiesta-badge-timeline {
@@ -3935,6 +3936,8 @@
             
             await caricaDatiDaSupabase();
             
+            console.log('🔍 DEBUG - richiesteSito dopo caricamento:', richiesteSito.length, richiesteSito);
+            
             if (typeof aggiornaMovimenti === 'function') aggiornaMovimenti('az');
             if (typeof aggiornaClienti === 'function') aggiornaClienti();
             if (typeof aggiornaFornitori === 'function') aggiornaFornitori();
@@ -4013,7 +4016,9 @@
                 const { data: forData } = await db.from('fornitori').select('*').eq('user_id', currentUser.id);
                 if (forData) fornitori = forData.map(f => ({ id: f.id, nome: f.nome, piva: f.piva, email: f.email, telefono: f.telefono, indirizzo: f.indirizzo, cap: f.cap, citta: f.citta, provincia: f.provincia, note: f.note }));
 
-                const { data: richData } = await db.from('richieste').select('*').eq('user_id', currentUser.id);
+                const { data: richData, error: richError } = await db.from('richieste').select('*').eq('user_id', currentUser.id);
+                console.log('📋 Richieste caricate:', richData ? richData.length : 0, 'errore:', richError);
+                if (richError) console.error('❌ Errore caricamento richieste:', richError);
                 if (richData) richiesteSito = richData.map(r => ({ id: r.id, data: r.data, nome: r.nome, email: r.email, tipo: r.tipo, lavorazione: r.lavorazione, priorita: r.priorita, messaggio: r.messaggio, stato: r.stato }));
 
                 const { data: fattData } = await db.from('fatture').select('*').eq('user_id', currentUser.id);
@@ -7646,19 +7651,33 @@
         async function cambiaStatoRichiesta(id, nuovoStato) {
             const richiesta = richiesteSito.find(r => r.id === id);
             if (richiesta) {
+                const vecchioStato = richiesta.stato;
                 richiesta.stato = nuovoStato;
+                
+                // Aggiorna UI subito
+                aggiornaListaRichieste();
+                aggiornaBadgeRichieste();
                 
                 // Salva su Supabase
                 try {
-                    await db.from('richieste').update({ stato: nuovoStato }).eq('id', id);
-                    console.log(`✅ Stato richiesta ${id} aggiornato a ${nuovoStato}`);
+                    const { data, error } = await db.from('richieste').update({ stato: nuovoStato }).eq('id', id).select();
+                    if (error) {
+                        console.error('❌ Errore Supabase update stato:', error);
+                        showToast('Errore', 'Impossibile aggiornare stato su database: ' + error.message, 'error');
+                        // Rollback locale
+                        richiesta.stato = vecchioStato;
+                        aggiornaListaRichieste();
+                        aggiornaBadgeRichieste();
+                    } else {
+                        console.log(`✅ Stato richiesta ${id} aggiornato a ${nuovoStato}`, data);
+                        showToast('Aggiornato', `Richiesta spostata a "${nuovoStato}"`, 'success');
+                    }
                 } catch (error) {
-                    console.error('Errore aggiornamento stato su Supabase:', error);
+                    console.error('❌ Errore aggiornamento stato:', error);
+                    richiesta.stato = vecchioStato;
+                    aggiornaListaRichieste();
+                    aggiornaBadgeRichieste();
                 }
-                
-                salvaDati();
-                aggiornaListaRichieste();
-                aggiornaBadgeRichieste();
             }
         }
 

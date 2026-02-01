@@ -5681,7 +5681,8 @@
 
         function aggiornaGrafici(prefix) {
             const movimenti = azMovimenti;
-            const annoFiltro = document.getElementById(prefix + '-anno-filter').value;
+            const annoFilterEl = document.getElementById(prefix + '-anno-filter');
+            const annoFiltro = annoFilterEl ? annoFilterEl.value : 'tutti';
             
             // Filtra per anno se necessario
             let movimentiFiltrati = movimenti;

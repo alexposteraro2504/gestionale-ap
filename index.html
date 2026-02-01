@@ -554,6 +554,7 @@
             background: #f3e5f5 !important;
             color: #7b1fa2 !important;
             text-transform: none !important;
+            border-radius: 20px !important;
         }
 
         .richiesta-badge-budget {
@@ -563,6 +564,7 @@
             background: #e8f5e9 !important;
             color: #2e7d32 !important;
             text-transform: none !important;
+            border-radius: 20px !important;
         }
 
         .richiesta-tags-row {
@@ -584,10 +586,10 @@
         .richiesta-badge.priorita-normale { background: #e8f4fd; color: #2980b9; }
         .richiesta-badge.priorita-bassa { background: #f0f0f0; color: #666; }
 
-        .richiesta-badge.stato-nuova { background: #e74c3c; color: white; font-size: 12px !important; padding: 6px 12px !important; }
-        .richiesta-badge.stato-dalavorare { background: #e74c3c; color: white; font-size: 12px !important; padding: 6px 12px !important; }
-        .richiesta-badge.stato-inlavorazione { background: #f39c12; color: white; font-size: 12px !important; padding: 6px 12px !important; }
-        .richiesta-badge.stato-completata { background: #27ae60; color: white; font-size: 12px !important; padding: 6px 12px !important; }
+        .richiesta-badge.stato-nuova { background: #e74c3c; color: white; font-size: 12px !important; padding: 6px 12px !important; border-radius: 20px !important; }
+        .richiesta-badge.stato-dalavorare { background: #e74c3c; color: white; font-size: 12px !important; padding: 6px 12px !important; border-radius: 20px !important; }
+        .richiesta-badge.stato-inlavorazione { background: #f39c12; color: white; font-size: 12px !important; padding: 6px 12px !important; border-radius: 20px !important; }
+        .richiesta-badge.stato-completata { background: #27ae60; color: white; font-size: 12px !important; padding: 6px 12px !important; border-radius: 20px !important; }
 
         .richiesta-contatti {
             font-size: 13px;
@@ -7641,10 +7643,19 @@
             }
         }
 
-        function cambiaStatoRichiesta(id, nuovoStato) {
+        async function cambiaStatoRichiesta(id, nuovoStato) {
             const richiesta = richiesteSito.find(r => r.id === id);
             if (richiesta) {
                 richiesta.stato = nuovoStato;
+                
+                // Salva su Supabase
+                try {
+                    await db.from('richieste').update({ stato: nuovoStato }).eq('id', id);
+                    console.log(`✅ Stato richiesta ${id} aggiornato a ${nuovoStato}`);
+                } catch (error) {
+                    console.error('Errore aggiornamento stato su Supabase:', error);
+                }
+                
                 salvaDati();
                 aggiornaListaRichieste();
                 aggiornaBadgeRichieste();

@@ -538,24 +538,26 @@
         .richiesta-badge.tipo-altro { background: #f0f0f0; color: #666; }
 
         /* Stile per Type of Request - Timeline (richieste dal form sito web) */
-        .richiesta-badge-form {
+        .richiesta-badge.richiesta-badge-form {
             font-size: 12px !important;
-            padding: 6px 12px !important;
+            padding: 6px 14px !important;
             font-weight: 700 !important;
             background: #e3f2fd !important;
             color: #1565c0 !important;
             text-transform: none !important;
             border-radius: 20px !important;
+            line-height: 1.4 !important;
         }
 
-        .richiesta-badge-timeline {
+        .richiesta-badge.richiesta-badge-timeline {
             font-size: 12px !important;
-            padding: 6px 12px !important;
-            font-weight: 600 !important;
+            padding: 6px 14px !important;
+            font-weight: 700 !important;
             background: #f3e5f5 !important;
             color: #7b1fa2 !important;
             text-transform: none !important;
             border-radius: 20px !important;
+            line-height: 1.4 !important;
         }
 
         .richiesta-badge-budget {
@@ -587,10 +589,10 @@
         .richiesta-badge.priorita-normale { background: #e8f4fd; color: #2980b9; }
         .richiesta-badge.priorita-bassa { background: #f0f0f0; color: #666; }
 
-        .richiesta-badge.stato-nuova { background: #e74c3c; color: white; font-size: 12px !important; padding: 6px 12px !important; border-radius: 20px !important; }
-        .richiesta-badge.stato-dalavorare { background: #e74c3c; color: white; font-size: 12px !important; padding: 6px 12px !important; border-radius: 20px !important; }
-        .richiesta-badge.stato-inlavorazione { background: #f39c12; color: white; font-size: 12px !important; padding: 6px 12px !important; border-radius: 20px !important; }
-        .richiesta-badge.stato-completata { background: #27ae60; color: white; font-size: 12px !important; padding: 6px 12px !important; border-radius: 20px !important; }
+        .richiesta-badge.stato-nuova { background: #e74c3c; color: white; font-size: 12px !important; padding: 6px 14px !important; border-radius: 20px !important; font-weight: 700 !important; line-height: 1.4 !important; }
+        .richiesta-badge.stato-dalavorare { background: #e74c3c; color: white; font-size: 12px !important; padding: 6px 14px !important; border-radius: 20px !important; font-weight: 700 !important; line-height: 1.4 !important; }
+        .richiesta-badge.stato-inlavorazione { background: #f39c12; color: white; font-size: 12px !important; padding: 6px 14px !important; border-radius: 20px !important; font-weight: 700 !important; line-height: 1.4 !important; }
+        .richiesta-badge.stato-completata { background: #27ae60; color: white; font-size: 12px !important; padding: 6px 14px !important; border-radius: 20px !important; font-weight: 700 !important; line-height: 1.4 !important; }
 
         .richiesta-contatti {
             font-size: 13px;
@@ -3817,14 +3819,38 @@
             // Suona notifica
             playNotificationSound();
             
-            // Mostra toast
-            const tipoBreve = richiesta.tipo && richiesta.tipo.length > 40 
-                ? richiesta.tipo.substring(0, 40) + '...' 
-                : (richiesta.tipo || 'Nuova richiesta');
+            // Mostra toast con nome servizio leggibile
+            const toastServiceMap = {
+                'data-entry': 'Data Entry & Management',
+                'data-analysis': 'Data Analysis & Reporting',
+                'dashboards': 'Interactive Dashboards (Power BI/Tableau)',
+                'excel-automation': 'Excel Automation',
+                'document-conversion': 'Document Conversion',
+                'database-management': 'Database Management (SQL)',
+                'database': 'Database Management (SQL)',
+                'data-cleaning': 'Data Cleaning & Preparation',
+                'consulting': 'Strategic Consulting',
+                'general': 'General Inquiry',
+                'not-sure': 'Not Sure / Need Guidance'
+            };
+            const toastTimelineMap = {
+                'asap': 'ASAP (1-3 days)',
+                '1-week': 'Within 1 Week',
+                '2-weeks': 'Within 2 Weeks',
+                '1-month': 'Within 1 Month',
+                'flexible': 'Flexible / No Rush'
+            };
+            let toastTipo = richiesta.tipo || 'Nuova richiesta';
+            if (toastTipo.includes(' - ')) {
+                const parts = toastTipo.split(' - ');
+                const svc = toastServiceMap[parts[0].trim()] || parts[0].trim();
+                const tl = toastTimelineMap[parts[1].trim()] || parts[1].trim();
+                toastTipo = svc + ' • ' + tl;
+            }
             
             showToast(
                 `📧 Nuova richiesta da ${richiesta.nome}`,
-                tipoBreve,
+                toastTipo,
                 'info',
                 7000
             );

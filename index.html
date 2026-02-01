@@ -5373,7 +5373,7 @@
             
             // Grafico Incassi
             if (genChartIncassi) genChartIncassi.destroy();
-            const ctxIncassi = document.getElementById('gen-graficoIncassi').getContext('2d');
+            const canvasGenIncassi = document.getElementById('gen-graficoIncassi'); if (!canvasGenIncassi) return; const ctxIncassi = canvasGenIncassi.getContext('2d');
             const coloriIncassi = ['#27ae60', '#2ecc71', '#1abc9c', '#16a085', '#3498db', '#2980b9', '#9b59b6', '#8e44ad'];
             genChartIncassi = new Chart(ctxIncassi, {
                 type: 'doughnut',
@@ -5406,7 +5406,7 @@
             
             // Grafico Spese
             if (genChartSpese) genChartSpese.destroy();
-            const ctxSpese = document.getElementById('gen-graficoSpese').getContext('2d');
+            const canvasGenSpese = document.getElementById('gen-graficoSpese'); if (!canvasGenSpese) return; const ctxSpese = canvasGenSpese.getContext('2d');
             const coloriSpese = ['#e74c3c', '#c0392b', '#e67e22', '#d35400', '#f39c12', '#f1c40f', '#e91e63', '#9c27b0'];
             genChartSpese = new Chart(ctxSpese, {
                 type: 'doughnut',
@@ -5589,7 +5589,7 @@
 
             // Grafico IRPEF Mensile
             if (chartIrpefMensile) chartIrpefMensile.destroy();
-            const ctxIrpef = document.getElementById('grafico-irpef-mensile').getContext('2d');
+            const canvasIrpef = document.getElementById('grafico-irpef-mensile'); if (!canvasIrpef) return; const ctxIrpef = canvasIrpef.getContext('2d');
             chartIrpefMensile = new Chart(ctxIrpef, {
                 type: 'bar',
                 data: {
@@ -5613,7 +5613,7 @@
 
             // Grafico INPS Mensile
             if (chartInpsMensile) chartInpsMensile.destroy();
-            const ctxInps = document.getElementById('grafico-inps-mensile').getContext('2d');
+            const canvasInps = document.getElementById('grafico-inps-mensile'); if (!canvasInps) return; const ctxInps = canvasInps.getContext('2d');
             chartInpsMensile = new Chart(ctxInps, {
                 type: 'bar',
                 data: {
@@ -5637,7 +5637,7 @@
 
             // Grafico Confronto Annuale
             if (chartTasseAnnuale) chartTasseAnnuale.destroy();
-            const ctxAnnuale = document.getElementById('grafico-tasse-annuale').getContext('2d');
+            const canvasAnnuale = document.getElementById('grafico-tasse-annuale'); if (!canvasAnnuale) return; const ctxAnnuale = canvasAnnuale.getContext('2d');
             
             // Raggruppa per anno
             const datiAnnuali = {};
@@ -5710,7 +5710,9 @@
             // Grafico Incassi (Doughnut)
             if (azChartIncassi) azChartIncassi.destroy();
             
-            const ctxIncassi = document.getElementById('az-graficoIncassi').getContext('2d');
+            const canvasIncassi = document.getElementById('az-graficoIncassi');
+            if (!canvasIncassi) return;
+            const ctxIncassi = canvasIncassi.getContext('2d');
             const coloriIncassi = ['#27ae60', '#2ecc71', '#1abc9c', '#16a085', '#3498db', '#2980b9', '#9b59b6', '#8e44ad'];
             azChartIncassi = new Chart(ctxIncassi, {
                 type: 'doughnut',
@@ -5745,7 +5747,9 @@
             // Grafico Spese (Doughnut)
             if (azChartSpese) azChartSpese.destroy();
             
-            const ctxSpese = document.getElementById('az-graficoSpese').getContext('2d');
+            const canvasSpese = document.getElementById('az-graficoSpese');
+            if (!canvasSpese) return;
+            const ctxSpese = canvasSpese.getContext('2d');
             const coloriSpese = ['#e74c3c', '#c0392b', '#e67e22', '#d35400', '#f39c12', '#f1c40f', '#e91e63', '#9c27b0'];
             azChartSpese = new Chart(ctxSpese, {
                 type: 'doughnut',
@@ -6540,7 +6544,7 @@
             document.getElementById('confronto-diff-saldo').textContent = `€${diffSaldo.toFixed(2)}`;
             
             if (chartConfrontoAnni) chartConfrontoAnni.destroy();
-            const ctx = document.getElementById('grafico-confronto-anni').getContext('2d');
+            const canvasConfronto = document.getElementById('grafico-confronto-anni'); if (!canvasConfronto) return; const ctx = canvasConfronto.getContext('2d');
             chartConfrontoAnni = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -7408,7 +7412,7 @@
         function aggiornaGraficiGenerali(azEntrate, azUscite, azTasse) {
             // Grafico Comparativo a Barre
             if (chartGenEntrate) chartGenEntrate.destroy();
-            const ctx = document.getElementById('grafico-gen-comparazione').getContext('2d');
+            const canvasGenComp = document.getElementById('grafico-gen-comparazione'); if (!canvasGenComp) return; const ctx = canvasGenComp.getContext('2d');
             
             const saldo = azEntrate - azUscite - azTasse;
             

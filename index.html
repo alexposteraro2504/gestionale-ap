@@ -5270,7 +5270,8 @@
         }
 
         function aggiornaMovimentiDashboard() {
-            const annoFiltro = document.getElementById('az-anno-filter').value;
+            const azAnnoEl = document.getElementById('az-anno-filter');
+            const annoFiltro = azAnnoEl ? azAnnoEl.value : 'tutti';
             const tipoFiltro = document.getElementById('az-tipo-filter').value;
             
             let movimentiFiltrati = [...azMovimenti];
@@ -5317,7 +5318,8 @@
         let genChartIncassi, genChartSpese;
 
         function aggiornaTotaliMovimenti() {
-            const annoFiltro = document.getElementById('gen-totali-anno-filter').value;
+            const genTotAnnoEl = document.getElementById('gen-totali-anno-filter');
+            const annoFiltro = genTotAnnoEl ? genTotAnnoEl.value : 'tutti';
             
             let movimentiFiltrati = [...azMovimenti];
             
@@ -5337,7 +5339,8 @@
         }
 
         function aggiornaMovimentiGenerale() {
-            const annoFiltro = document.getElementById('gen-mov-anno-filter').value;
+            const genMovAnnoEl = document.getElementById('gen-mov-anno-filter');
+            const annoFiltro = genMovAnnoEl ? genMovAnnoEl.value : 'tutti';
             const tipoFiltro = document.getElementById('gen-mov-tipo-filter').value;
             
             let movimentiFiltrati = [...azMovimenti];
@@ -7362,7 +7365,8 @@
         }
 
         function aggiornaDashboardGenerale() {
-            const annoFiltro = document.getElementById('generale-anno-filter').value;
+            const genAnnoEl = document.getElementById('generale-anno-filter');
+            const annoFiltro = genAnnoEl ? genAnnoEl.value : 'tutti';
             
             // Filtra movimenti
             let azFiltrati = azMovimenti;

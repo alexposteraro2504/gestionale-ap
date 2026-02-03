@@ -8266,6 +8266,9 @@
             if (!currentUser) return;
             
             try {
+                // Prima pulisci le email nel cestino da più di 90 giorni
+                await pulisciCestinoVecchio();
+                
                 const { data, error } = await db
                     .from('emails')
                     .select('*')
@@ -8286,6 +8289,38 @@
                 
             } catch (err) {
                 console.error('❌ Errore sync email:', err);
+            }
+        }
+        
+        // Pulisce automaticamente le email nel cestino più vecchie di 90 giorni
+        async function pulisciCestinoVecchio() {
+            if (!currentUser) return;
+            
+            try {
+                const novantagiorniFa = new Date();
+                novantagiorniFa.setDate(novantagiorniFa.getDate() - 90);
+                
+                const { data: emailDaEliminare, error: selectError } = await db
+                    .from('emails')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('is_trashed', true)
+                    .lt('updated_at', novantagiorniFa.toISOString());
+                
+                if (selectError || !emailDaEliminare || emailDaEliminare.length === 0) return;
+                
+                const { error: deleteError } = await db
+                    .from('emails')
+                    .delete()
+                    .eq('user_id', currentUser.id)
+                    .eq('is_trashed', true)
+                    .lt('updated_at', novantagiorniFa.toISOString());
+                
+                if (!deleteError && emailDaEliminare.length > 0) {
+                    console.log(`🗑️ Cestino svuotato: ${emailDaEliminare.length} email eliminate (>90 giorni)`);
+                }
+            } catch (err) {
+                console.error('⚠️ Errore pulizia cestino:', err);
             }
         }
         

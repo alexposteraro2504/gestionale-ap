@@ -610,18 +610,88 @@
             overflow: hidden;
         }
         
+        .email-folder {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1d1d1f;
+            transition: background 0.2s;
+            gap: 10px;
+        }
+        
+        .email-folder:hover {
+            background: #e8e8ed;
+        }
+        
+        .email-folder.active {
+            background: #007AFF;
+            color: white;
+        }
+        
+        .email-folder-count {
+            margin-left: auto;
+            font-size: 12px;
+            background: #e0e0e0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: #666;
+        }
+        
+        .email-folder.active .email-folder-count {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        .email-toolbar-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .email-toolbar-btn:hover {
+            background: #f5f5f7;
+            border-color: #ccc;
+        }
+        
+        .email-toolbar-btn.active {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+        
         .email-item {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 12px 15px;
             border-bottom: 1px solid #f0f0f0;
             cursor: pointer;
             transition: background 0.2s;
-            gap: 15px;
+            gap: 12px;
         }
         
         .email-item:hover {
-            background: #f8f9fa;
+            background: #f5f5f7;
+        }
+        
+        .email-item.selected {
+            background: #007AFF;
+            color: white;
+        }
+        
+        .email-item.selected .email-from,
+        .email-item.selected .email-subject,
+        .email-item.selected .email-preview,
+        .email-item.selected .email-date {
+            color: white !important;
         }
         
         .email-item.unread {
@@ -2454,79 +2524,100 @@
 
                 <!-- EMAIL INBOX -->
                 <div id="azienda-email" class="tab-content">
-                    <h2 style="margin-bottom: 20px;">📧 Email Inbox</h2>
-                    <p style="color: #6c757d; margin-bottom: 20px;">Gestisci le email ricevute su info@alexposteraro.com</p>
-                    
-                    <div class="stats" style="margin-bottom: 30px;">
-                        <div class="stat-card blue">
-                            <h3>📥 Totali</h3>
-                            <div class="value" id="email-totali">0</div>
-                        </div>
-                        <div class="stat-card orange">
-                            <h3>🔴 Non Lette</h3>
-                            <div class="value" id="email-non-lette">0</div>
-                        </div>
-                        <div class="stat-card green">
-                            <h3>✅ Lette</h3>
-                            <div class="value" id="email-lette">0</div>
-                        </div>
-                        <div class="stat-card purple">
-                            <h3>⭐ Preferite</h3>
-                            <div class="value" id="email-starred">0</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Filtri Email -->
-                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
-                        <input type="text" id="email-search" placeholder="🔍 Cerca per mittente, oggetto..." style="flex: 1; min-width: 200px; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px;" oninput="filtraEmail()">
-                        <select id="email-filtro" style="padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px;" onchange="filtraEmail()">
-                            <option value="tutte">📧 Tutte</option>
-                            <option value="nonlette">🔴 Non lette</option>
-                            <option value="lette">✅ Lette</option>
-                            <option value="starred">⭐ Preferite</option>
-                            <option value="archived">📦 Archiviate</option>
-                        </select>
-                        <button onclick="syncEmailDaSupabase()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer;">🔄 Aggiorna</button>
-                    </div>
-                    
-                    <!-- Lista Email -->
-                    <div id="email-list" class="email-list">
-                        <div style="text-align: center; padding: 40px; color: #6c757d;">
-                            <p>📭 Nessuna email</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Modal Dettaglio Email -->
-                <div id="modal-email" class="modal-overlay" style="display: none;">
-                    <div class="modal email-modal" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
-                        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee;">
-                            <h3 id="email-modal-subject" style="margin: 0; font-size: 1.3em;">Oggetto Email</h3>
-                            <button onclick="chiudiModalEmail()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
-                        </div>
-                        <div class="modal-body" style="padding: 20px;">
-                            <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
-                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px;" id="email-modal-avatar">?</div>
-                                <div style="flex: 1;">
-                                    <div style="font-weight: 600; font-size: 16px;" id="email-modal-from">Mittente</div>
-                                    <div style="color: #6c757d; font-size: 14px;" id="email-modal-email">email@example.com</div>
+                    <div style="display: flex; height: calc(100vh - 250px); min-height: 500px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        
+                        <!-- Sidebar sinistra - Categorie -->
+                        <div style="width: 200px; background: #f5f5f7; border-right: 1px solid #e0e0e0; padding: 15px 0; flex-shrink: 0;">
+                            <div style="padding: 0 15px 15px; border-bottom: 1px solid #e0e0e0;">
+                                <button onclick="componiNuovaEmail()" style="width: 100%; padding: 10px; background: #007AFF; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">✉️ Nuova Email</button>
+                            </div>
+                            <div style="padding: 10px 0;">
+                                <div class="email-folder active" data-folder="inbox" onclick="cambiaCartellaEmail('inbox')">
+                                    <span>📥</span> In arrivo <span class="email-folder-count" id="count-inbox">0</span>
                                 </div>
-                                <div style="text-align: right; color: #6c757d; font-size: 14px;" id="email-modal-date">Data</div>
+                                <div class="email-folder" data-folder="unread" onclick="cambiaCartellaEmail('unread')">
+                                    <span>🔵</span> Non lette <span class="email-folder-count" id="count-unread">0</span>
+                                </div>
+                                <div class="email-folder" data-folder="starred" onclick="cambiaCartellaEmail('starred')">
+                                    <span>⭐</span> Preferite <span class="email-folder-count" id="count-starred">0</span>
+                                </div>
+                                <div class="email-folder" data-folder="archived" onclick="cambiaCartellaEmail('archived')">
+                                    <span>📦</span> Archiviate <span class="email-folder-count" id="count-archived">0</span>
+                                </div>
+                                <div class="email-folder" data-folder="trash" onclick="cambiaCartellaEmail('trash')">
+                                    <span>🗑️</span> Cestino <span class="email-folder-count" id="count-trash">0</span>
+                                </div>
                             </div>
-                            <div id="email-modal-body" style="background: #f8f9fa; padding: 20px; border-radius: 10px; white-space: pre-wrap; line-height: 1.6; font-size: 15px;">
-                                Contenuto email...
-                            </div>
-                            <div id="email-modal-attachments" style="margin-top: 15px; display: none;">
-                                <strong>📎 Allegati:</strong>
-                                <div id="email-attachments-list" style="margin-top: 10px;"></div>
+                            <div style="padding: 15px; border-top: 1px solid #e0e0e0; margin-top: auto;">
+                                <button onclick="syncEmailDaSupabase()" style="width: 100%; padding: 8px; background: #e0e0e0; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">🔄 Aggiorna</button>
                             </div>
                         </div>
-                        <div class="modal-footer" style="display: flex; gap: 10px; padding: 20px; border-top: 1px solid #eee; flex-wrap: wrap;">
-                            <button onclick="rispondiEmail()" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">↩️ Rispondi</button>
-                            <button onclick="toggleStarEmail()" id="btn-star-email" style="padding: 10px 20px; background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">⭐ Preferita</button>
-                            <button onclick="archiviaEmail()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">📦 Archivia</button>
-                            <button onclick="creaClienteDaEmail()" style="padding: 10px 20px; background: #9b59b6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">👤 Crea Cliente</button>
-                            <button onclick="eliminaEmail()" style="padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">🗑️ Elimina</button>
+                        
+                        <!-- Lista email centrale -->
+                        <div style="width: 350px; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; flex-shrink: 0;">
+                            <div style="padding: 15px; border-bottom: 1px solid #e0e0e0;">
+                                <input type="text" id="email-search" placeholder="🔍 Cerca..." style="width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px;" oninput="filtraEmail()">
+                            </div>
+                            <div id="email-list" style="flex: 1; overflow-y: auto;">
+                                <div style="text-align: center; padding: 40px; color: #6c757d;">
+                                    <p>📭 Nessuna email</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pannello lettura email (stile Apple Mail) -->
+                        <div id="email-reader" style="flex: 1; display: flex; flex-direction: column; background: #fafafa;">
+                            <div id="email-reader-empty" style="flex: 1; display: flex; align-items: center; justify-content: center; color: #999;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 64px; margin-bottom: 15px;">📧</div>
+                                    <p style="font-size: 18px;">Seleziona un'email per leggerla</p>
+                                </div>
+                            </div>
+                            <div id="email-reader-content" style="display: none; flex: 1; flex-direction: column; overflow: hidden;">
+                                <!-- Header email -->
+                                <div style="padding: 20px; background: white; border-bottom: 1px solid #e0e0e0;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                        <h2 id="reader-subject" style="margin: 0; font-size: 20px; font-weight: 600; color: #1d1d1f; flex: 1; padding-right: 15px;">Oggetto email</h2>
+                                        <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                                            <button onclick="rispondiEmailReader()" class="email-toolbar-btn" title="Rispondi">↩️</button>
+                                            <button onclick="toggleStarEmailReader()" id="reader-star-btn" class="email-toolbar-btn" title="Preferita">☆</button>
+                                            <button onclick="archiviaEmailReader()" id="reader-archive-btn" class="email-toolbar-btn" title="Archivia">📦</button>
+                                            <button onclick="spostaInCestinoReader()" id="reader-trash-btn" class="email-toolbar-btn" title="Cestino">🗑️</button>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div id="reader-avatar" style="width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">AP</div>
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <span id="reader-from-name" style="font-weight: 600; font-size: 15px; color: #1d1d1f;">Nome Mittente</span>
+                                                <span id="reader-date" style="font-size: 13px; color: #86868b;">Data</span>
+                                            </div>
+                                            <div id="reader-from-email" style="font-size: 13px; color: #86868b;">email@esempio.com</div>
+                                            <div style="font-size: 13px; color: #86868b; margin-top: 2px;">A: <span id="reader-to">info@alexposteraro.com</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Corpo email -->
+                                <div id="reader-body" style="flex: 1; overflow-y: auto; padding: 25px; background: white; font-size: 15px; line-height: 1.7; color: #1d1d1f; white-space: pre-wrap;">
+                                    Contenuto email...
+                                </div>
+                                <!-- Footer con allegati -->
+                                <div id="reader-attachments" style="display: none; padding: 15px 20px; background: #f5f5f7; border-top: 1px solid #e0e0e0;">
+                                    <div style="font-weight: 600; font-size: 13px; color: #86868b; margin-bottom: 10px;">📎 Allegati</div>
+                                    <div id="reader-attachments-list" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                                </div>
+                                <!-- Barra azioni in basso per cestino -->
+                                <div id="reader-trash-actions" style="display: none; padding: 15px 20px; background: #fff3cd; border-top: 1px solid #e0e0e0;">
+                                    <span style="color: #856404; margin-right: 15px;">⚠️ Questa email è nel cestino</span>
+                                    <button onclick="ripristinaEmailReader()" style="padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; margin-right: 10px;">♻️ Ripristina</button>
+                                    <button onclick="eliminaDefinitivamenteReader()" style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">🗑️ Elimina definitivamente</button>
+                                </div>
+                                <!-- Barra azioni per email archiviate -->
+                                <div id="reader-archived-actions" style="display: none; padding: 15px 20px; background: #e8f4fd; border-top: 1px solid #e0e0e0;">
+                                    <span style="color: #0c5460; margin-right: 15px;">📦 Questa email è archiviata</span>
+                                    <button onclick="ripristinaEmailReader()" style="padding: 8px 15px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">📥 Sposta in arrivo</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4900,7 +4991,8 @@
         let preventiviEmessi = [];
         let richiesteSito = [];
         let emailsInbox = []; // Email ricevute
-        let emailSelezionata = null; // Email attualmente aperta nel modal
+        let emailSelezionata = null; // Email attualmente aperta nel reader
+        let cartellaEmailCorrente = 'inbox'; // Cartella email attiva
         let contatoreFatture = 1;
         let contatorePreventivi = 1;
         let mieiDati = {
@@ -8136,20 +8228,56 @@
                 
                 aggiornaListaEmail();
                 aggiornaBadgeEmail();
-                aggiornaStatisticheEmail();
+                aggiornaContatoriCartelle();
                 
             } catch (err) {
                 console.error('❌ Errore sync email:', err);
             }
         }
         
+        function cambiaCartellaEmail(cartella) {
+            cartellaEmailCorrente = cartella;
+            
+            // Aggiorna UI sidebar
+            document.querySelectorAll('.email-folder').forEach(f => f.classList.remove('active'));
+            const folderEl = document.querySelector(`.email-folder[data-folder="${cartella}"]`);
+            if (folderEl) folderEl.classList.add('active');
+            
+            // Nascondi reader quando cambia cartella
+            document.getElementById('email-reader-empty').style.display = 'flex';
+            document.getElementById('email-reader-content').style.display = 'none';
+            emailSelezionata = null;
+            
+            aggiornaListaEmail();
+        }
+        
+        function aggiornaContatoriCartelle() {
+            const inbox = emailsInbox.filter(e => !e.is_archived && !e.is_trashed).length;
+            const unread = emailsInbox.filter(e => !e.is_read && !e.is_archived && !e.is_trashed).length;
+            const starred = emailsInbox.filter(e => e.is_starred && !e.is_trashed).length;
+            const archived = emailsInbox.filter(e => e.is_archived && !e.is_trashed).length;
+            const trash = emailsInbox.filter(e => e.is_trashed).length;
+            
+            const setCount = (id, count) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = count;
+                    el.style.display = count > 0 ? 'inline' : 'none';
+                }
+            };
+            
+            setCount('count-inbox', inbox);
+            setCount('count-unread', unread);
+            setCount('count-starred', starred);
+            setCount('count-archived', archived);
+            setCount('count-trash', trash);
+        }
+        
         function aggiornaListaEmail() {
             const container = document.getElementById('email-list');
             if (!container) return;
             
-            // Applica filtri
             const searchTerm = document.getElementById('email-search')?.value?.toLowerCase() || '';
-            const filtro = document.getElementById('email-filtro')?.value || 'tutte';
             
             let emailsFiltrate = emailsInbox.filter(e => {
                 // Filtro ricerca
@@ -8161,21 +8289,29 @@
                     if (!searchable.includes(searchTerm)) return false;
                 }
                 
-                // Filtro stato
-                switch (filtro) {
-                    case 'nonlette': return !e.is_read;
-                    case 'lette': return e.is_read && !e.is_archived;
-                    case 'starred': return e.is_starred;
-                    case 'archived': return e.is_archived;
-                    default: return !e.is_archived;
+                // Filtro cartella
+                switch (cartellaEmailCorrente) {
+                    case 'inbox': return !e.is_archived && !e.is_trashed;
+                    case 'unread': return !e.is_read && !e.is_archived && !e.is_trashed;
+                    case 'starred': return e.is_starred && !e.is_trashed;
+                    case 'archived': return e.is_archived && !e.is_trashed;
+                    case 'trash': return e.is_trashed;
+                    default: return !e.is_archived && !e.is_trashed;
                 }
             });
             
             if (emailsFiltrate.length === 0) {
+                const messaggi = {
+                    'inbox': 'Nessuna email in arrivo',
+                    'unread': 'Nessuna email non letta',
+                    'starred': 'Nessuna email preferita',
+                    'archived': 'Nessuna email archiviata',
+                    'trash': 'Il cestino è vuoto'
+                };
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                    <div style="text-align: center; padding: 60px 20px; color: #86868b;">
                         <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
-                        <p style="font-size: 16px;">Nessuna email trovata</p>
+                        <p style="font-size: 14px;">${messaggi[cartellaEmailCorrente] || 'Nessuna email'}</p>
                     </div>
                 `;
                 return;
@@ -8185,31 +8321,24 @@
                 const fromName = email.from_name || email.from_email || 'Sconosciuto';
                 const initials = fromName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
                 const subject = email.subject || '(Nessun oggetto)';
-                const preview = (email.body_text || '').substring(0, 80).replace(/\n/g, ' ');
+                const preview = (email.body_text || '').substring(0, 60).replace(/\n/g, ' ');
                 const date = formatEmailDate(email.received_at);
                 
                 const unreadClass = email.is_read ? '' : 'unread';
-                const starredClass = email.is_starred ? 'starred' : '';
+                const selectedClass = emailSelezionata?.id === email.id ? 'selected' : '';
                 
                 return `
-                    <div class="email-item ${unreadClass} ${starredClass}" onclick="apriEmail('${email.id}')">
-                        <div class="email-avatar">${initials}</div>
-                        <div class="email-content">
-                            <div class="email-header">
-                                <span class="email-from">${escapeHtml(fromName)}</span>
-                                <span class="email-date">${date}</span>
+                    <div class="email-item ${unreadClass} ${selectedClass}" onclick="apriEmail('${email.id}')">
+                        <div class="email-avatar" style="width: 36px; height: 36px; font-size: 13px; flex-shrink: 0;">${initials}</div>
+                        <div class="email-content" style="min-width: 0;">
+                            <div class="email-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="email-from" style="font-size: 14px; ${!email.is_read ? 'font-weight: 600;' : ''}">${escapeHtml(fromName)}</span>
+                                <span class="email-date" style="font-size: 11px; color: #86868b;">${date}</span>
                             </div>
-                            <div class="email-subject">${escapeHtml(subject)}</div>
-                            <div class="email-preview">${escapeHtml(preview)}...</div>
+                            <div class="email-subject" style="font-size: 13px; ${!email.is_read ? 'font-weight: 500;' : 'color: #86868b;'}">${escapeHtml(subject)}</div>
+                            <div class="email-preview" style="font-size: 12px; color: #86868b;">${escapeHtml(preview)}${preview.length >= 60 ? '...' : ''}</div>
                         </div>
-                        <div class="email-actions">
-                            <button class="email-action-btn ${email.is_starred ? 'starred' : ''}" onclick="event.stopPropagation(); toggleStarEmailQuick('${email.id}')" title="Preferita">
-                                ${email.is_starred ? '⭐' : '☆'}
-                            </button>
-                            <button class="email-action-btn" onclick="event.stopPropagation(); archiviaEmailQuick('${email.id}')" title="Archivia">
-                                📦
-                            </button>
-                        </div>
+                        ${email.is_starred ? '<span style="color: #f39c12;">⭐</span>' : ''}
                     </div>
                 `;
             }).join('');
@@ -8225,7 +8354,7 @@
             const diffDays = Math.floor(diffMs / 86400000);
             
             if (diffMins < 1) return 'Adesso';
-            if (diffMins < 60) return `${diffMins} min fa`;
+            if (diffMins < 60) return `${diffMins} min`;
             if (diffHours < 24 && date.getDate() === now.getDate()) {
                 return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
             }
@@ -8252,48 +8381,62 @@
             if (!email.is_read) {
                 await aggiornaEmailSupabase(id, { is_read: true });
                 email.is_read = true;
-                aggiornaListaEmail();
                 aggiornaBadgeEmail();
-                aggiornaStatisticheEmail();
+                aggiornaContatoriCartelle();
             }
             
-            // Popola il modal
+            // Aggiorna selezione nella lista
+            aggiornaListaEmail();
+            
+            // Mostra reader, nascondi placeholder
+            document.getElementById('email-reader-empty').style.display = 'none';
+            document.getElementById('email-reader-content').style.display = 'flex';
+            
+            // Popola reader
             const fromName = email.from_name || email.from_email || 'Sconosciuto';
             const initials = fromName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             
-            document.getElementById('email-modal-subject').textContent = email.subject || '(Nessun oggetto)';
-            document.getElementById('email-modal-avatar').textContent = initials;
-            document.getElementById('email-modal-from').textContent = fromName;
-            document.getElementById('email-modal-email').textContent = email.from_email || '';
-            document.getElementById('email-modal-date').textContent = new Date(email.received_at).toLocaleString('it-IT');
-            document.getElementById('email-modal-body').textContent = email.body_text || '(Nessun contenuto)';
+            document.getElementById('reader-subject').textContent = email.subject || '(Nessun oggetto)';
+            document.getElementById('reader-avatar').textContent = initials;
+            document.getElementById('reader-from-name').textContent = fromName;
+            document.getElementById('reader-from-email').textContent = email.from_email || '';
+            document.getElementById('reader-to').textContent = email.to_email || 'info@alexposteraro.com';
+            document.getElementById('reader-date').textContent = new Date(email.received_at).toLocaleString('it-IT', {
+                weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('reader-body').textContent = email.body_text || '(Nessun contenuto)';
             
-            // Aggiorna bottone stella
-            document.getElementById('btn-star-email').innerHTML = email.is_starred ? '⭐ Rimuovi Preferita' : '☆ Preferita';
+            // Aggiorna icona stella
+            document.getElementById('reader-star-btn').innerHTML = email.is_starred ? '⭐' : '☆';
+            document.getElementById('reader-star-btn').classList.toggle('active', email.is_starred);
             
-            // Mostra allegati se presenti
+            // Mostra/nascondi pulsanti in base allo stato
+            document.getElementById('reader-archive-btn').style.display = email.is_trashed ? 'none' : 'flex';
+            document.getElementById('reader-trash-btn').style.display = email.is_trashed ? 'none' : 'flex';
+            
+            // Mostra barra azioni speciale per cestino o archivio
+            document.getElementById('reader-trash-actions').style.display = email.is_trashed ? 'flex' : 'none';
+            document.getElementById('reader-archived-actions').style.display = (email.is_archived && !email.is_trashed) ? 'flex' : 'none';
+            
+            // Allegati
             const attachments = email.attachments || [];
-            const attachmentsDiv = document.getElementById('email-modal-attachments');
-            const attachmentsList = document.getElementById('email-attachments-list');
+            const attachmentsDiv = document.getElementById('reader-attachments');
+            const attachmentsList = document.getElementById('reader-attachments-list');
             
             if (attachments.length > 0) {
                 attachmentsDiv.style.display = 'block';
                 attachmentsList.innerHTML = attachments.map(a => `
-                    <span style="display: inline-block; background: #e0e0e0; padding: 5px 10px; border-radius: 5px; margin: 5px 5px 0 0; font-size: 13px;">
-                        📎 ${a.filename} (${Math.round(a.size / 1024)} KB)
-                    </span>
+                    <div style="background: white; border: 1px solid #e0e0e0; padding: 10px 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">📎</span>
+                        <div>
+                            <div style="font-size: 13px; font-weight: 500;">${a.filename}</div>
+                            <div style="font-size: 11px; color: #86868b;">${Math.round(a.size / 1024)} KB</div>
+                        </div>
+                    </div>
                 `).join('');
             } else {
                 attachmentsDiv.style.display = 'none';
             }
-            
-            // Mostra modal
-            document.getElementById('modal-email').style.display = 'flex';
-        }
-        
-        function chiudiModalEmail() {
-            document.getElementById('modal-email').style.display = 'none';
-            emailSelezionata = null;
         }
         
         async function aggiornaEmailSupabase(id, updates) {
@@ -8312,7 +8455,15 @@
             }
         }
         
-        async function toggleStarEmail() {
+        // Funzioni per il reader (pannello lettura)
+        function rispondiEmailReader() {
+            if (!emailSelezionata) return;
+            const to = emailSelezionata.from_email || '';
+            const subject = `Re: ${emailSelezionata.subject || ''}`;
+            window.open(`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}`, '_blank');
+        }
+        
+        async function toggleStarEmailReader() {
             if (!emailSelezionata) return;
             
             const nuovoStato = !emailSelezionata.is_starred;
@@ -8320,59 +8471,77 @@
             
             if (success) {
                 emailSelezionata.is_starred = nuovoStato;
-                document.getElementById('btn-star-email').innerHTML = nuovoStato ? '⭐ Rimuovi Preferita' : '☆ Preferita';
+                document.getElementById('reader-star-btn').innerHTML = nuovoStato ? '⭐' : '☆';
+                document.getElementById('reader-star-btn').classList.toggle('active', nuovoStato);
                 aggiornaListaEmail();
-                aggiornaStatisticheEmail();
+                aggiornaContatoriCartelle();
                 showToast(nuovoStato ? 'Aggiunta ai preferiti' : 'Rimossa dai preferiti', '', 'success');
             }
         }
         
-        async function toggleStarEmailQuick(id) {
-            const email = emailsInbox.find(e => e.id === id);
-            if (!email) return;
-            
-            const nuovoStato = !email.is_starred;
-            const success = await aggiornaEmailSupabase(id, { is_starred: nuovoStato });
-            
-            if (success) {
-                email.is_starred = nuovoStato;
-                aggiornaListaEmail();
-                aggiornaStatisticheEmail();
-            }
-        }
-        
-        async function archiviaEmail() {
+        async function archiviaEmailReader() {
             if (!emailSelezionata) return;
             
             const success = await aggiornaEmailSupabase(emailSelezionata.id, { is_archived: true });
             
             if (success) {
                 emailSelezionata.is_archived = true;
-                chiudiModalEmail();
+                
+                // Nascondi reader
+                document.getElementById('email-reader-empty').style.display = 'flex';
+                document.getElementById('email-reader-content').style.display = 'none';
+                emailSelezionata = null;
+                
                 aggiornaListaEmail();
-                aggiornaStatisticheEmail();
+                aggiornaContatoriCartelle();
                 showToast('Email archiviata', '', 'success');
             }
         }
         
-        async function archiviaEmailQuick(id) {
-            const email = emailsInbox.find(e => e.id === id);
-            if (!email) return;
-            
-            const success = await aggiornaEmailSupabase(id, { is_archived: true });
-            
-            if (success) {
-                email.is_archived = true;
-                aggiornaListaEmail();
-                aggiornaStatisticheEmail();
-                showToast('Email archiviata', '', 'success');
-            }
-        }
-        
-        async function eliminaEmail() {
+        async function spostaInCestinoReader() {
             if (!emailSelezionata) return;
             
-            if (!confirm('Sei sicuro di voler eliminare questa email?')) return;
+            const success = await aggiornaEmailSupabase(emailSelezionata.id, { is_trashed: true });
+            
+            if (success) {
+                emailSelezionata.is_trashed = true;
+                
+                // Nascondi reader
+                document.getElementById('email-reader-empty').style.display = 'flex';
+                document.getElementById('email-reader-content').style.display = 'none';
+                emailSelezionata = null;
+                
+                aggiornaListaEmail();
+                aggiornaContatoriCartelle();
+                aggiornaBadgeEmail();
+                showToast('Email spostata nel cestino', '', 'success');
+            }
+        }
+        
+        async function ripristinaEmailReader() {
+            if (!emailSelezionata) return;
+            
+            const success = await aggiornaEmailSupabase(emailSelezionata.id, { is_archived: false, is_trashed: false });
+            
+            if (success) {
+                emailSelezionata.is_archived = false;
+                emailSelezionata.is_trashed = false;
+                
+                // Nascondi reader
+                document.getElementById('email-reader-empty').style.display = 'flex';
+                document.getElementById('email-reader-content').style.display = 'none';
+                emailSelezionata = null;
+                
+                aggiornaListaEmail();
+                aggiornaContatoriCartelle();
+                showToast('Email ripristinata', '', 'success');
+            }
+        }
+        
+        async function eliminaDefinitivamenteReader() {
+            if (!emailSelezionata) return;
+            
+            if (!confirm('Sei sicuro di voler eliminare definitivamente questa email?')) return;
             
             try {
                 const { error } = await db
@@ -8384,11 +8553,16 @@
                 if (error) throw error;
                 
                 emailsInbox = emailsInbox.filter(e => e.id !== emailSelezionata.id);
-                chiudiModalEmail();
+                
+                // Nascondi reader
+                document.getElementById('email-reader-empty').style.display = 'flex';
+                document.getElementById('email-reader-content').style.display = 'none';
+                emailSelezionata = null;
+                
                 aggiornaListaEmail();
+                aggiornaContatoriCartelle();
                 aggiornaBadgeEmail();
-                aggiornaStatisticheEmail();
-                showToast('Email eliminata', '', 'success');
+                showToast('Email eliminata definitivamente', '', 'success');
                 
             } catch (err) {
                 console.error('❌ Errore eliminazione email:', err);
@@ -8396,44 +8570,8 @@
             }
         }
         
-        function rispondiEmail() {
-            if (!emailSelezionata) return;
-            
-            const to = emailSelezionata.from_email || '';
-            const subject = `Re: ${emailSelezionata.subject || ''}`;
-            
-            // Apri client email con mailto
-            const mailtoUrl = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}`;
-            window.open(mailtoUrl, '_blank');
-        }
-        
-        function creaClienteDaEmail() {
-            if (!emailSelezionata) return;
-            
-            const email = emailSelezionata.from_email;
-            const nome = emailSelezionata.from_name || email;
-            
-            // Controlla se esiste già
-            const esistente = clienti.find(c => c.email?.toLowerCase() === email?.toLowerCase());
-            if (esistente) {
-                alert('Esiste già un cliente con questa email: ' + esistente.nome);
-                return;
-            }
-            
-            const nuovoCliente = {
-                id: Date.now().toString(),
-                nome: nome,
-                email: email,
-                telefono: '',
-                indirizzo: '',
-                piva: '',
-                note: 'Cliente creato da email del ' + new Date(emailSelezionata.received_at).toLocaleDateString('it-IT')
-            };
-            
-            clienti.push(nuovoCliente);
-            salvaDati();
-            alert('✅ Cliente "' + nome + '" creato con successo!');
-            if (typeof aggiornaClienti === 'function') aggiornaClienti();
+        function componiNuovaEmail() {
+            window.open('mailto:', '_blank');
         }
         
         function filtraEmail() {
@@ -8441,7 +8579,7 @@
         }
         
         function aggiornaBadgeEmail() {
-            const nonLette = emailsInbox.filter(e => !e.is_read && !e.is_archived).length;
+            const nonLette = emailsInbox.filter(e => !e.is_read && !e.is_archived && !e.is_trashed).length;
             const badge = document.getElementById('badge-email');
             
             if (badge) {
@@ -8452,23 +8590,6 @@
                     badge.style.display = 'none';
                 }
             }
-        }
-        
-        function aggiornaStatisticheEmail() {
-            const totali = emailsInbox.length;
-            const nonLette = emailsInbox.filter(e => !e.is_read).length;
-            const lette = emailsInbox.filter(e => e.is_read && !e.is_archived).length;
-            const starred = emailsInbox.filter(e => e.is_starred).length;
-            
-            const elTotali = document.getElementById('email-totali');
-            const elNonLette = document.getElementById('email-non-lette');
-            const elLette = document.getElementById('email-lette');
-            const elStarred = document.getElementById('email-starred');
-            
-            if (elTotali) elTotali.textContent = totali;
-            if (elNonLette) elNonLette.textContent = nonLette;
-            if (elLette) elLette.textContent = lette;
-            if (elStarred) elStarred.textContent = starred;
         }
         
         // Realtime subscription per nuove email

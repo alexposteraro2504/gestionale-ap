@@ -8199,7 +8199,13 @@
                         aggiornaBadgeRichieste();
                     } else {
                         console.log(`✅ Stato richiesta ${id} aggiornato a ${nuovoStato}`, data);
-                        showToast('Aggiornato', `Richiesta spostata a "${nuovoStato}"`, 'success');
+                        const statoLeggibile = {
+                            'nuova': 'Nuova',
+                            'dalavorare': 'Da lavorare',
+                            'inlavorazione': 'In lavorazione',
+                            'completata': 'Completata'
+                        }[nuovoStato] || nuovoStato;
+                        showToast('Aggiornato', `Richiesta spostata a "${statoLeggibile}"`, 'success');
                     }
                 } catch (error) {
                     console.error('❌ Errore aggiornamento stato:', error);

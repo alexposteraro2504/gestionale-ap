@@ -6864,7 +6864,7 @@
                 msg += `🔴 ${s.titolo}\n`;
             });
             eventiGiorno.forEach(s => {
-                const emoji = {'lavoro': '🔵', 'followup': '🟠', 'personale': '🟢', 'fiscale': '🔴'}[s.tipo] || '🔵';
+                const emoji = {'lavoro': '🔵', 'followup': '🟠', 'personale': '🟢', 'fiscale': '🔴', 'pulizia': '🟣'}[s.tipo] || '🔵';
                 msg += `${emoji} ${s.titolo}${s.note ? ` - ${s.note}` : ''}\n`;
             });
             

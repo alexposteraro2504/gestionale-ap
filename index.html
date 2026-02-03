@@ -5169,8 +5169,18 @@
             event.target.classList.add('active');
             document.getElementById(section).classList.add('active');
             
+            // Ripristina la barra delle sottotab quando si esce dalla sezione Email
+            const aziendaTabsBar = document.querySelector('#azienda .tabs');
+            if (aziendaTabsBar) aziendaTabsBar.style.display = 'flex';
+            
             if (section === 'azienda') {
                 aggiornaStatistiche('az');
+                // Attiva il tab dashboard di default
+                const parent = document.getElementById('azienda');
+                parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                parent.querySelector('.tab').classList.add('active');
+                document.getElementById('azienda-dashboard').classList.add('active');
             } else if (section === 'generale') {
                 aggiornaAnniDisponibiliGenerale();
                 aggiornaDashboardGenerale();
@@ -5193,6 +5203,10 @@
             parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
             document.getElementById('azienda-email').classList.add('active');
+            
+            // Nascondi la barra delle sottotab quando si visualizza Email
+            const tabsBar = parent.querySelector('.tabs');
+            if (tabsBar) tabsBar.style.display = 'none';
             
             // Aggiorna la lista email
             syncEmailDaSupabase();

@@ -2537,14 +2537,14 @@
                                 <div class="email-folder" data-folder="sent" onclick="cambiaCartellaEmail('sent')">
                                     <span>📤</span> Inviate <span class="email-folder-count" id="count-sent">0</span>
                                 </div>
-                                <div class="email-folder" data-folder="unread" onclick="cambiaCartellaEmail('unread')">
-                                    <span>🔵</span> Non lette <span class="email-folder-count" id="count-unread">0</span>
+                                <div class="email-folder" data-folder="working" onclick="cambiaCartellaEmail('working')">
+                                    <span>🔄</span> In lavorazione <span class="email-folder-count" id="count-working">0</span>
                                 </div>
                                 <div class="email-folder" data-folder="starred" onclick="cambiaCartellaEmail('starred')">
                                     <span>⭐</span> Preferite <span class="email-folder-count" id="count-starred">0</span>
                                 </div>
-                                <div class="email-folder" data-folder="archived" onclick="cambiaCartellaEmail('archived')">
-                                    <span>📦</span> Archiviate <span class="email-folder-count" id="count-archived">0</span>
+                                <div class="email-folder" data-folder="completed" onclick="cambiaCartellaEmail('completed')">
+                                    <span>✅</span> Lavorate <span class="email-folder-count" id="count-completed">0</span>
                                 </div>
                                 <div class="email-folder" data-folder="trash" onclick="cambiaCartellaEmail('trash')">
                                     <span>🗑️</span> Cestino <span class="email-folder-count" id="count-trash">0</span>
@@ -2583,7 +2583,8 @@
                                         <div style="display: flex; gap: 8px; flex-shrink: 0;">
                                             <button onclick="rispondiEmailReader()" class="email-toolbar-btn" title="Rispondi">↩️</button>
                                             <button onclick="toggleStarEmailReader()" id="reader-star-btn" class="email-toolbar-btn" title="Preferita">☆</button>
-                                            <button onclick="archiviaEmailReader()" id="reader-archive-btn" class="email-toolbar-btn" title="Archivia">📦</button>
+                                            <button onclick="spostaInLavorazioneReader()" id="reader-working-btn" class="email-toolbar-btn" title="In lavorazione">🔄</button>
+                                            <button onclick="spostaInLavorateReader()" id="reader-completed-btn" class="email-toolbar-btn" title="Lavorate">✅</button>
                                             <button onclick="spostaInCestinoReader()" id="reader-trash-btn" class="email-toolbar-btn" title="Cestino">🗑️</button>
                                         </div>
                                     </div>
@@ -2611,13 +2612,19 @@
                                 <!-- Barra azioni in basso per cestino -->
                                 <div id="reader-trash-actions" style="display: none; padding: 15px 20px; background: #fff3cd; border-top: 1px solid #e0e0e0;">
                                     <span style="color: #856404; margin-right: 15px;">⚠️ Questa email è nel cestino</span>
-                                    <button onclick="ripristinaEmailReader()" style="padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; margin-right: 10px;">♻️ Ripristina</button>
+                                    <button onclick="ripristinaEmailReader()" style="padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; margin-right: 10px;">♻️ Ripristina in arrivo</button>
                                     <button onclick="eliminaDefinitivamenteReader()" style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">🗑️ Elimina definitivamente</button>
                                 </div>
-                                <!-- Barra azioni per email archiviate -->
-                                <div id="reader-archived-actions" style="display: none; padding: 15px 20px; background: #e8f4fd; border-top: 1px solid #e0e0e0;">
-                                    <span style="color: #0c5460; margin-right: 15px;">📦 Questa email è archiviata</span>
-                                    <button onclick="ripristinaEmailReader()" style="padding: 8px 15px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">📥 Sposta in arrivo</button>
+                                <!-- Barra azioni per email in lavorazione -->
+                                <div id="reader-working-actions" style="display: none; padding: 15px 20px; background: #e3f2fd; border-top: 1px solid #e0e0e0;">
+                                    <span style="color: #1565c0; margin-right: 15px;">🔄 Questa email è in lavorazione</span>
+                                    <button onclick="spostaInLavorateReader()" style="padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; margin-right: 10px;">✅ Completata</button>
+                                    <button onclick="ripristinaEmailReader()" style="padding: 8px 15px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">📥 Torna in arrivo</button>
+                                </div>
+                                <!-- Barra azioni per email lavorate -->
+                                <div id="reader-completed-actions" style="display: none; padding: 15px 20px; background: #e8f5e9; border-top: 1px solid #e0e0e0;">
+                                    <span style="color: #2e7d32; margin-right: 15px;">✅ Questa email è stata lavorata</span>
+                                    <button onclick="ripristinaEmailReader()" style="padding: 8px 15px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">📥 Torna in arrivo</button>
                                 </div>
                             </div>
                         </div>
@@ -4343,8 +4350,11 @@
             if (typeof aggiornaDocumenti === 'function') aggiornaDocumenti();
             if (typeof aggiornaListaEmail === 'function') aggiornaListaEmail();
             if (typeof aggiornaBadgeEmail === 'function') aggiornaBadgeEmail();
-            if (typeof aggiornaStatisticheEmail === 'function') aggiornaStatisticheEmail();
+            if (typeof aggiornaContatoriCartelle === 'function') aggiornaContatoriCartelle();
             if (typeof subscribeToEmails === 'function') subscribeToEmails();
+            
+            // Inizializza promemoria pulizia email (se non esistono già)
+            inizializzaPromemoriaPuliziaEmail();
             
             // Inizializza calendario avanzato
             if (typeof aggiornaSelectClientiEventi === 'function') aggiornaSelectClientiEventi();
@@ -6515,6 +6525,67 @@
             document.getElementById('search-results-table').innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">Usa i filtri per cercare</td></tr>';
         }
 
+        // Funzione per inizializzare i promemoria di pulizia email
+        function inizializzaPromemoriaPuliziaEmail() {
+            // Verifica se esistono già i promemoria
+            const esisteCestino = scadenzeAziendali.some(s => s.titolo === '🗑️ Pulizia cestino email (automatica)');
+            const esisteLavorate = scadenzeAziendali.some(s => s.titolo === '✅ Pulizia email lavorate (automatica)');
+            
+            const oggi = new Date();
+            
+            // Promemoria pulizia CESTINO (ogni 3 mesi)
+            if (!esisteCestino) {
+                // Calcola la prossima data (3 mesi da oggi)
+                const prossimaCestino = new Date(oggi);
+                prossimaCestino.setMonth(prossimaCestino.getMonth() + 3);
+                
+                scadenzeAziendali.push({
+                    id: Date.now(),
+                    titolo: '🗑️ Pulizia cestino email (automatica)',
+                    data: prossimaCestino.toISOString().split('T')[0],
+                    tipo: 'personale',
+                    importo: null,
+                    clienteId: null,
+                    promemoria: '3_giorni',
+                    note: 'Le email nel cestino più vecchie di 90 giorni vengono eliminate automaticamente. Gli originali restano su Keliweb.',
+                    ricorrente: true,
+                    frequenza: 'trimestrale',
+                    notificato3gg: false,
+                    notificatoOggi: false
+                });
+                console.log('📅 Aggiunto promemoria pulizia cestino email');
+            }
+            
+            // Promemoria pulizia LAVORATE (ogni 6 mesi)
+            if (!esisteLavorate) {
+                // Calcola la prossima data (6 mesi da oggi)
+                const prossimaLavorate = new Date(oggi);
+                prossimaLavorate.setMonth(prossimaLavorate.getMonth() + 6);
+                
+                scadenzeAziendali.push({
+                    id: Date.now() + 1,
+                    titolo: '✅ Pulizia email lavorate (automatica)',
+                    data: prossimaLavorate.toISOString().split('T')[0],
+                    tipo: 'personale',
+                    importo: null,
+                    clienteId: null,
+                    promemoria: '7_giorni',
+                    note: 'Le email nella cartella "Lavorate" più vecchie di 6 mesi vengono eliminate automaticamente. Gli originali restano su Keliweb.',
+                    ricorrente: true,
+                    frequenza: 'trimestrale', // Uso trimestrale 2 volte = 6 mesi
+                    notificato3gg: false,
+                    notificatoOggi: false
+                });
+                console.log('📅 Aggiunto promemoria pulizia email lavorate');
+            }
+            
+            // Salva se sono stati aggiunti nuovi promemoria
+            if (!esisteCestino || !esisteLavorate) {
+                salvaDati();
+                if (typeof generaCalendario === 'function') generaCalendario();
+            }
+        }
+
         // CALENDARIO SCADENZE
         document.getElementById('az-scadenza-ricorrente').addEventListener('change', function() {
             document.getElementById('az-ricorrenza-options').style.display = this.checked ? 'block' : 'none';
@@ -8266,7 +8337,7 @@
             
             try {
                 // Prima pulisci le email nel cestino da più di 90 giorni
-                await pulisciCestinoVecchio();
+                await pulisciEmailVecchie();
                 
                 const { data, error } = await db
                     .from('emails')
@@ -8291,35 +8362,59 @@
             }
         }
         
-        // Pulisce automaticamente le email nel cestino più vecchie di 90 giorni
-        async function pulisciCestinoVecchio() {
+        // Pulisce automaticamente:
+        // - Cestino: email più vecchie di 90 giorni (3 mesi)
+        // - Lavorate: email più vecchie di 180 giorni (6 mesi)
+        async function pulisciEmailVecchie() {
             if (!currentUser) return;
             
             try {
+                // Pulizia CESTINO (90 giorni)
                 const novantagiorniFa = new Date();
                 novantagiorniFa.setDate(novantagiorniFa.getDate() - 90);
                 
-                const { data: emailDaEliminare, error: selectError } = await db
+                const { data: cestinoDaEliminare, error: selectCestinoError } = await db
                     .from('emails')
                     .select('id')
                     .eq('user_id', currentUser.id)
                     .eq('is_trashed', true)
                     .lt('updated_at', novantagiorniFa.toISOString());
                 
-                if (selectError || !emailDaEliminare || emailDaEliminare.length === 0) return;
-                
-                const { error: deleteError } = await db
-                    .from('emails')
-                    .delete()
-                    .eq('user_id', currentUser.id)
-                    .eq('is_trashed', true)
-                    .lt('updated_at', novantagiorniFa.toISOString());
-                
-                if (!deleteError && emailDaEliminare.length > 0) {
-                    console.log(`🗑️ Cestino svuotato: ${emailDaEliminare.length} email eliminate (>90 giorni)`);
+                if (!selectCestinoError && cestinoDaEliminare && cestinoDaEliminare.length > 0) {
+                    await db
+                        .from('emails')
+                        .delete()
+                        .eq('user_id', currentUser.id)
+                        .eq('is_trashed', true)
+                        .lt('updated_at', novantagiorniFa.toISOString());
+                    
+                    console.log(`🗑️ Cestino svuotato: ${cestinoDaEliminare.length} email eliminate (>90 giorni)`);
                 }
+                
+                // Pulizia LAVORATE (180 giorni = 6 mesi)
+                const centottantagiorniFa = new Date();
+                centottantagiorniFa.setDate(centottantagiorniFa.getDate() - 180);
+                
+                const { data: lavorateDaEliminare, error: selectLavorateError } = await db
+                    .from('emails')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('is_completed', true)
+                    .lt('updated_at', centottantagiorniFa.toISOString());
+                
+                if (!selectLavorateError && lavorateDaEliminare && lavorateDaEliminare.length > 0) {
+                    await db
+                        .from('emails')
+                        .delete()
+                        .eq('user_id', currentUser.id)
+                        .eq('is_completed', true)
+                        .lt('updated_at', centottantagiorniFa.toISOString());
+                    
+                    console.log(`✅ Lavorate pulite: ${lavorateDaEliminare.length} email eliminate (>180 giorni)`);
+                }
+                
             } catch (err) {
-                console.error('⚠️ Errore pulizia cestino:', err);
+                console.error('⚠️ Errore pulizia email:', err);
             }
         }
         
@@ -8340,11 +8435,11 @@
         }
         
         function aggiornaContatoriCartelle() {
-            const inbox = emailsInbox.filter(e => !e.is_sent && !e.is_archived && !e.is_trashed).length;
+            const inbox = emailsInbox.filter(e => !e.is_sent && !e.is_working && !e.is_completed && !e.is_trashed).length;
             const sent = emailsInbox.filter(e => e.is_sent && !e.is_trashed).length;
-            const unread = emailsInbox.filter(e => !e.is_read && !e.is_sent && !e.is_archived && !e.is_trashed).length;
+            const working = emailsInbox.filter(e => e.is_working && !e.is_trashed).length;
             const starred = emailsInbox.filter(e => e.is_starred && !e.is_trashed).length;
-            const archived = emailsInbox.filter(e => e.is_archived && !e.is_trashed).length;
+            const completed = emailsInbox.filter(e => e.is_completed && !e.is_trashed).length;
             const trash = emailsInbox.filter(e => e.is_trashed).length;
             
             const setCount = (id, count) => {
@@ -8357,9 +8452,9 @@
             
             setCount('count-inbox', inbox);
             setCount('count-sent', sent);
-            setCount('count-unread', unread);
+            setCount('count-working', working);
             setCount('count-starred', starred);
-            setCount('count-archived', archived);
+            setCount('count-completed', completed);
             setCount('count-trash', trash);
         }
         
@@ -8382,13 +8477,13 @@
                 
                 // Filtro cartella
                 switch (cartellaEmailCorrente) {
-                    case 'inbox': return !e.is_sent && !e.is_archived && !e.is_trashed;
+                    case 'inbox': return !e.is_sent && !e.is_working && !e.is_completed && !e.is_trashed;
                     case 'sent': return e.is_sent && !e.is_trashed;
-                    case 'unread': return !e.is_read && !e.is_sent && !e.is_archived && !e.is_trashed;
+                    case 'working': return e.is_working && !e.is_trashed;
                     case 'starred': return e.is_starred && !e.is_trashed;
-                    case 'archived': return e.is_archived && !e.is_trashed;
+                    case 'completed': return e.is_completed && !e.is_trashed;
                     case 'trash': return e.is_trashed;
-                    default: return !e.is_sent && !e.is_archived && !e.is_trashed;
+                    default: return !e.is_sent && !e.is_working && !e.is_completed && !e.is_trashed;
                 }
             });
             
@@ -8396,9 +8491,9 @@
                 const messaggi = {
                     'inbox': 'Nessuna email in arrivo',
                     'sent': 'Nessuna email inviata',
-                    'unread': 'Nessuna email non letta',
+                    'working': 'Nessuna email in lavorazione',
                     'starred': 'Nessuna email preferita',
-                    'archived': 'Nessuna email archiviata',
+                    'completed': 'Nessuna email lavorata',
                     'trash': 'Il cestino è vuoto'
                 };
                 container.innerHTML = `
@@ -8508,12 +8603,20 @@
             document.getElementById('reader-star-btn').classList.toggle('active', email.is_starred);
             
             // Mostra/nascondi pulsanti in base allo stato
-            document.getElementById('reader-archive-btn').style.display = email.is_trashed ? 'none' : 'flex';
-            document.getElementById('reader-trash-btn').style.display = email.is_trashed ? 'none' : 'flex';
+            const isInTrash = email.is_trashed;
+            const isWorking = email.is_working;
+            const isCompleted = email.is_completed;
+            const isSent = email.is_sent;
             
-            // Mostra barra azioni speciale per cestino o archivio
-            document.getElementById('reader-trash-actions').style.display = email.is_trashed ? 'flex' : 'none';
-            document.getElementById('reader-archived-actions').style.display = (email.is_archived && !email.is_trashed) ? 'flex' : 'none';
+            // Pulsanti toolbar
+            document.getElementById('reader-working-btn').style.display = (isInTrash || isWorking || isCompleted || isSent) ? 'none' : 'flex';
+            document.getElementById('reader-completed-btn').style.display = (isInTrash || isCompleted || isSent) ? 'none' : 'flex';
+            document.getElementById('reader-trash-btn').style.display = isInTrash ? 'none' : 'flex';
+            
+            // Barre azioni speciali
+            document.getElementById('reader-trash-actions').style.display = isInTrash ? 'flex' : 'none';
+            document.getElementById('reader-working-actions').style.display = (isWorking && !isInTrash) ? 'flex' : 'none';
+            document.getElementById('reader-completed-actions').style.display = (isCompleted && !isInTrash) ? 'flex' : 'none';
             
             // Allegati
             const attachments = email.attachments || [];
@@ -8576,13 +8679,14 @@
             }
         }
         
-        async function archiviaEmailReader() {
+        async function spostaInLavorazioneReader() {
             if (!emailSelezionata) return;
             
-            const success = await aggiornaEmailSupabase(emailSelezionata.id, { is_archived: true });
+            const success = await aggiornaEmailSupabase(emailSelezionata.id, { is_working: true, is_completed: false });
             
             if (success) {
-                emailSelezionata.is_archived = true;
+                emailSelezionata.is_working = true;
+                emailSelezionata.is_completed = false;
                 
                 // Nascondi reader
                 document.getElementById('email-reader-empty').style.display = 'flex';
@@ -8591,7 +8695,27 @@
                 
                 aggiornaListaEmail();
                 aggiornaContatoriCartelle();
-                showToast('Email archiviata', '', 'success');
+                showToast('Email spostata in lavorazione', '', 'success');
+            }
+        }
+        
+        async function spostaInLavorateReader() {
+            if (!emailSelezionata) return;
+            
+            const success = await aggiornaEmailSupabase(emailSelezionata.id, { is_working: false, is_completed: true });
+            
+            if (success) {
+                emailSelezionata.is_working = false;
+                emailSelezionata.is_completed = true;
+                
+                // Nascondi reader
+                document.getElementById('email-reader-empty').style.display = 'flex';
+                document.getElementById('email-reader-content').style.display = 'none';
+                emailSelezionata = null;
+                
+                aggiornaListaEmail();
+                aggiornaContatoriCartelle();
+                showToast('Email completata e archiviata', '', 'success');
             }
         }
         
@@ -8618,10 +8742,11 @@
         async function ripristinaEmailReader() {
             if (!emailSelezionata) return;
             
-            const success = await aggiornaEmailSupabase(emailSelezionata.id, { is_archived: false, is_trashed: false });
+            const success = await aggiornaEmailSupabase(emailSelezionata.id, { is_working: false, is_completed: false, is_trashed: false });
             
             if (success) {
-                emailSelezionata.is_archived = false;
+                emailSelezionata.is_working = false;
+                emailSelezionata.is_completed = false;
                 emailSelezionata.is_trashed = false;
                 
                 // Nascondi reader
@@ -8631,7 +8756,7 @@
                 
                 aggiornaListaEmail();
                 aggiornaContatoriCartelle();
-                showToast('Email ripristinata', '', 'success');
+                showToast('Email ripristinata in arrivo', '', 'success');
             }
         }
         
@@ -8807,7 +8932,8 @@
         }
         
         function aggiornaBadgeEmail() {
-            const nonLette = emailsInbox.filter(e => !e.is_read && !e.is_archived && !e.is_trashed).length;
+            // Badge mostra solo email non lette in arrivo (non in lavorazione, lavorate o cestino)
+            const nonLette = emailsInbox.filter(e => !e.is_read && !e.is_sent && !e.is_working && !e.is_completed && !e.is_trashed).length;
             const badge = document.getElementById('badge-email');
             
             if (badge) {

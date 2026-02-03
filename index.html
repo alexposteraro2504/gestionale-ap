@@ -1288,8 +1288,7 @@
         }
 
         .calendar-day.has-scadenza {
-            background: #fff3cd;
-            border-color: #ffc107;
+            /* Niente sfondo giallo - mostriamo solo i pallini */
             font-weight: 600;
         }
 
@@ -1297,27 +1296,30 @@
             font-size: 14px;
         }
 
-        /* Event indicators - multiple colored dots */
+        /* Event indicators - Apple Calendar style (alto a destra) */
         .event-indicators {
             display: flex;
-            gap: 3px;
-            justify-content: center;
+            gap: 2px;
             position: absolute;
-            bottom: 4px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 4px;
+            right: 4px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            max-width: 50%;
         }
 
         .event-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
+            flex-shrink: 0;
         }
 
         .event-dot.fiscale { background: #dc3545; }
         .event-dot.lavoro { background: #2196F3; }
         .event-dot.followup { background: #ff9800; }
         .event-dot.personale { background: #4caf50; }
+        .event-dot.pulizia { background: #9b59b6; }
 
         .scadenza-indicator {
             width: 6px;
@@ -3200,6 +3202,7 @@
                                     <option value="followup">🟠 Follow-up</option>
                                     <option value="personale">🟢 Personale</option>
                                     <option value="fiscale">🔴 Fiscale</option>
+                                    <option value="pulizia">🟣 Pulizia</option>
                                 </select>
                             </div>
                         </div>
@@ -3251,6 +3254,7 @@
                         <span style="display: flex; align-items: center; gap: 5px;"><span class="event-dot lavoro" style="position: static; transform: none;"></span> Lavoro</span>
                         <span style="display: flex; align-items: center; gap: 5px;"><span class="event-dot followup" style="position: static; transform: none;"></span> Follow-up</span>
                         <span style="display: flex; align-items: center; gap: 5px;"><span class="event-dot personale" style="position: static; transform: none;"></span> Personale</span>
+                        <span style="display: flex; align-items: center; gap: 5px;"><span class="event-dot pulizia" style="position: static; transform: none;"></span> Pulizia</span>
                     </div>
 
                     <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
@@ -6543,7 +6547,7 @@
                     id: Date.now(),
                     titolo: '🗑️ Pulizia cestino email (automatica)',
                     data: prossimaCestino.toISOString().split('T')[0],
-                    tipo: 'personale',
+                    tipo: 'pulizia',
                     importo: null,
                     clienteId: null,
                     promemoria: '3_giorni',
@@ -6566,7 +6570,7 @@
                     id: Date.now() + 1,
                     titolo: '✅ Pulizia email lavorate (automatica)',
                     data: prossimaLavorate.toISOString().split('T')[0],
-                    tipo: 'personale',
+                    tipo: 'pulizia',
                     importo: null,
                     clienteId: null,
                     promemoria: '7_giorni',
@@ -6685,7 +6689,7 @@
                 const allTitles = [
                     ...fiscaliGiorno.map(s => `🔴 ${s.titolo}`),
                     ...scadenzeGiorno.map(s => {
-                        const emoji = {'lavoro': '🔵', 'followup': '🟠', 'personale': '🟢', 'fiscale': '🔴'}[s.tipo] || '🔵';
+                        const emoji = {'lavoro': '🔵', 'followup': '🟠', 'personale': '🟢', 'fiscale': '🔴', 'pulizia': '🟣'}[s.tipo] || '🔵';
                         return `${emoji} ${s.titolo}`;
                     })
                 ].join('\n');

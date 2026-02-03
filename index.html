@@ -2535,6 +2535,9 @@
                                 <div class="email-folder active" data-folder="inbox" onclick="cambiaCartellaEmail('inbox')">
                                     <span>📥</span> In arrivo <span class="email-folder-count" id="count-inbox">0</span>
                                 </div>
+                                <div class="email-folder" data-folder="sent" onclick="cambiaCartellaEmail('sent')">
+                                    <span>📤</span> Inviate <span class="email-folder-count" id="count-sent">0</span>
+                                </div>
                                 <div class="email-folder" data-folder="unread" onclick="cambiaCartellaEmail('unread')">
                                     <span>🔵</span> Non lette <span class="email-folder-count" id="count-unread">0</span>
                                 </div>
@@ -8303,8 +8306,9 @@
         }
         
         function aggiornaContatoriCartelle() {
-            const inbox = emailsInbox.filter(e => !e.is_archived && !e.is_trashed).length;
-            const unread = emailsInbox.filter(e => !e.is_read && !e.is_archived && !e.is_trashed).length;
+            const inbox = emailsInbox.filter(e => !e.is_sent && !e.is_archived && !e.is_trashed).length;
+            const sent = emailsInbox.filter(e => e.is_sent && !e.is_trashed).length;
+            const unread = emailsInbox.filter(e => !e.is_read && !e.is_sent && !e.is_archived && !e.is_trashed).length;
             const starred = emailsInbox.filter(e => e.is_starred && !e.is_trashed).length;
             const archived = emailsInbox.filter(e => e.is_archived && !e.is_trashed).length;
             const trash = emailsInbox.filter(e => e.is_trashed).length;
@@ -8318,6 +8322,7 @@
             };
             
             setCount('count-inbox', inbox);
+            setCount('count-sent', sent);
             setCount('count-unread', unread);
             setCount('count-starred', starred);
             setCount('count-archived', archived);
@@ -8335,25 +8340,28 @@
                 if (searchTerm) {
                     const fromName = e.from_name || '';
                     const fromEmail = e.from_email || '';
+                    const toEmail = e.to_email || '';
                     const subject = e.subject || '';
-                    const searchable = `${fromName} ${fromEmail} ${subject}`.toLowerCase();
+                    const searchable = `${fromName} ${fromEmail} ${toEmail} ${subject}`.toLowerCase();
                     if (!searchable.includes(searchTerm)) return false;
                 }
                 
                 // Filtro cartella
                 switch (cartellaEmailCorrente) {
-                    case 'inbox': return !e.is_archived && !e.is_trashed;
-                    case 'unread': return !e.is_read && !e.is_archived && !e.is_trashed;
+                    case 'inbox': return !e.is_sent && !e.is_archived && !e.is_trashed;
+                    case 'sent': return e.is_sent && !e.is_trashed;
+                    case 'unread': return !e.is_read && !e.is_sent && !e.is_archived && !e.is_trashed;
                     case 'starred': return e.is_starred && !e.is_trashed;
                     case 'archived': return e.is_archived && !e.is_trashed;
                     case 'trash': return e.is_trashed;
-                    default: return !e.is_archived && !e.is_trashed;
+                    default: return !e.is_sent && !e.is_archived && !e.is_trashed;
                 }
             });
             
             if (emailsFiltrate.length === 0) {
                 const messaggi = {
                     'inbox': 'Nessuna email in arrivo',
+                    'sent': 'Nessuna email inviata',
                     'unread': 'Nessuna email non letta',
                     'starred': 'Nessuna email preferita',
                     'archived': 'Nessuna email archiviata',
@@ -8369,24 +8377,28 @@
             }
             
             container.innerHTML = emailsFiltrate.map(email => {
-                const fromName = email.from_name || email.from_email || 'Sconosciuto';
-                const initials = fromName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                // Per le email inviate, mostra il destinatario invece del mittente
+                const isSent = email.is_sent;
+                const displayName = isSent ? (email.to_email || 'Destinatario') : (email.from_name || email.from_email || 'Sconosciuto');
+                const displayLabel = isSent ? 'A: ' : '';
+                const initials = displayName.split(/[@\s]/).filter(n => n)[0]?.substring(0, 2).toUpperCase() || '??';
                 const subject = email.subject || '(Nessun oggetto)';
                 const preview = (email.body_text || '').substring(0, 60).replace(/\n/g, ' ');
-                const date = formatEmailDate(email.received_at);
+                const date = formatEmailDate(isSent ? email.created_at : email.received_at);
                 
                 const unreadClass = email.is_read ? '' : 'unread';
                 const selectedClass = emailSelezionata?.id === email.id ? 'selected' : '';
+                const sentClass = isSent ? 'sent' : '';
                 
                 return `
-                    <div class="email-item ${unreadClass} ${selectedClass}" onclick="apriEmail('${email.id}')">
-                        <div class="email-avatar" style="width: 36px; height: 36px; font-size: 13px; flex-shrink: 0;">${initials}</div>
+                    <div class="email-item ${unreadClass} ${selectedClass} ${sentClass}" onclick="apriEmail('${email.id}')">
+                        <div class="email-avatar" style="width: 36px; height: 36px; font-size: 13px; flex-shrink: 0; ${isSent ? 'background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);' : ''}">${initials}</div>
                         <div class="email-content" style="min-width: 0;">
                             <div class="email-header" style="display: flex; justify-content: space-between; align-items: center;">
-                                <span class="email-from" style="font-size: 14px; ${!email.is_read ? 'font-weight: 600;' : ''}">${escapeHtml(fromName)}</span>
+                                <span class="email-from" style="font-size: 14px; ${!email.is_read && !isSent ? 'font-weight: 600;' : ''}">${displayLabel}${escapeHtml(displayName)}</span>
                                 <span class="email-date" style="font-size: 11px; color: #86868b;">${date}</span>
                             </div>
-                            <div class="email-subject" style="font-size: 13px; ${!email.is_read ? 'font-weight: 500;' : 'color: #86868b;'}">${escapeHtml(subject)}</div>
+                            <div class="email-subject" style="font-size: 13px; ${!email.is_read && !isSent ? 'font-weight: 500;' : 'color: #86868b;'}">${escapeHtml(subject)}</div>
                             <div class="email-preview" style="font-size: 12px; color: #86868b;">${escapeHtml(preview)}${preview.length >= 60 ? '...' : ''}</div>
                         </div>
                         ${email.is_starred ? '<span style="color: #f39c12;">⭐</span>' : ''}
@@ -8713,6 +8725,35 @@
                 
                 if (!response.ok) {
                     throw new Error(result.error || 'Errore invio email');
+                }
+                
+                // Salva l'email inviata nel database
+                const emailInviata = {
+                    user_id: currentUser.id,
+                    from_email: 'info@alexposteraro.com',
+                    from_name: 'Alex Posteraro',
+                    to_email: to,
+                    subject: subject,
+                    body_text: body,
+                    is_sent: true,
+                    is_read: true,
+                    received_at: new Date().toISOString(),
+                    in_reply_to: emailRispostaA?.message_id || null
+                };
+                
+                const { data: savedEmail, error: saveError } = await db
+                    .from('emails')
+                    .insert([emailInviata])
+                    .select()
+                    .single();
+                
+                if (saveError) {
+                    console.error('⚠️ Email inviata ma non salvata:', saveError);
+                } else {
+                    // Aggiungi alla lista locale
+                    emailsInbox.unshift(savedEmail);
+                    aggiornaListaEmail();
+                    aggiornaContatoriCartelle();
                 }
                 
                 showToast('Email inviata! ✉️', `A: ${to}`, 'success');

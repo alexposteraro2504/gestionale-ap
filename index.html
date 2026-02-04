@@ -2636,7 +2636,19 @@
                             </div>
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; font-size: 13px; color: #86868b; margin-bottom: 5px;">Messaggio:</label>
-                                <textarea id="componi-body" rows="12" placeholder="Scrivi il tuo messaggio..." style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; resize: vertical; font-family: inherit; line-height: 1.5;"></textarea>
+                                <textarea id="componi-body" rows="10" placeholder="Scrivi il tuo messaggio..." style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; resize: vertical; font-family: inherit; line-height: 1.5;"></textarea>
+                            </div>
+                            <!-- Campo Allegati -->
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 13px; color: #86868b; margin-bottom: 5px;">📎 Allegati:</label>
+                                <div style="border: 2px dashed #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; transition: all 0.3s;" id="allegati-dropzone">
+                                    <input type="file" id="componi-allegati" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif" style="display: none;" onchange="handleAllegatiSelect(this)">
+                                    <button type="button" onclick="document.getElementById('componi-allegati').click()" style="padding: 8px 16px; background: #f5f5f7; border: 1px solid #d0d0d0; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                                        📁 Scegli file...
+                                    </button>
+                                    <span style="color: #86868b; font-size: 12px; margin-left: 10px;">Max 10 MB totali</span>
+                                </div>
+                                <div id="allegati-lista" style="margin-top: 10px;"></div>
                             </div>
                         </div>
                         <!-- Footer -->
@@ -9141,8 +9153,85 @@
         function chiudiModalComponi() {
             document.getElementById('modal-componi-email').style.display = 'none';
             emailRispostaA = null;
+            resetAllegati();
         }
         
+        // Gestione allegati email
+        let allegatiEmail = []; // Array di {name, type, data (base64)}
+
+        function handleAllegatiSelect(input) {
+            const files = input.files;
+            const maxSize = 10 * 1024 * 1024; // 10 MB totali
+            
+            for (const file of files) {
+                // Controlla dimensione totale
+                const currentSize = allegatiEmail.reduce((sum, a) => sum + (a.size || 0), 0);
+                if (currentSize + file.size > maxSize) {
+                    showToast('Errore', 'Dimensione massima allegati: 10 MB', 'error');
+                    break;
+                }
+                
+                // Controlla duplicati
+                if (allegatiEmail.some(a => a.name === file.name)) {
+                    continue;
+                }
+                
+                // Leggi file come base64
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result.split(',')[1]; // Rimuovi prefisso data:...
+                    allegatiEmail.push({
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        data: base64
+                    });
+                    aggiornaListaAllegati();
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            // Reset input per permettere ri-selezione stesso file
+            input.value = '';
+        }
+
+        function aggiornaListaAllegati() {
+            const lista = document.getElementById('allegati-lista');
+            
+            if (allegatiEmail.length === 0) {
+                lista.innerHTML = '';
+                return;
+            }
+            
+            const totalSize = allegatiEmail.reduce((sum, a) => sum + a.size, 0);
+            const totalSizeFormatted = (totalSize / 1024 / 1024).toFixed(2);
+            
+            lista.innerHTML = allegatiEmail.map((a, i) => {
+                const sizeKB = (a.size / 1024).toFixed(1);
+                const icon = a.type.includes('pdf') ? '📄' : 
+                            a.type.includes('image') ? '🖼️' : 
+                            a.type.includes('word') || a.type.includes('document') ? '📝' :
+                            a.type.includes('sheet') || a.type.includes('excel') ? '📊' : '📎';
+                return `
+                    <div style="display: inline-flex; align-items: center; background: #e3f2fd; padding: 6px 12px; border-radius: 20px; margin: 3px; font-size: 13px;">
+                        ${icon} <span style="margin: 0 8px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${a.name}</span>
+                        <span style="color: #666; font-size: 11px;">(${sizeKB} KB)</span>
+                        <button onclick="rimuoviAllegato(${i})" style="background: none; border: none; color: #dc3545; cursor: pointer; margin-left: 5px; font-size: 14px;">×</button>
+                    </div>
+                `;
+            }).join('') + `<div style="font-size: 11px; color: #666; margin-top: 5px;">Totale: ${totalSizeFormatted} MB / 10 MB</div>`;
+        }
+
+        function rimuoviAllegato(index) {
+            allegatiEmail.splice(index, 1);
+            aggiornaListaAllegati();
+        }
+
+        function resetAllegati() {
+            allegatiEmail = [];
+            aggiornaListaAllegati();
+        }
+
         async function inviaEmail() {
             const to = document.getElementById('componi-to').value.trim();
             const subject = document.getElementById('componi-subject').value.trim();
@@ -9176,6 +9265,15 @@
                     body: body
                 };
                 
+                // Aggiungi allegati se presenti
+                if (allegatiEmail.length > 0) {
+                    payload.attachments = allegatiEmail.map(a => ({
+                        filename: a.name,
+                        contentType: a.type,
+                        content: a.data
+                    }));
+                }
+                
                 // Se è una risposta, includi il message-id originale
                 if (emailRispostaA && emailRispostaA.message_id) {
                     payload.replyToMessageId = emailRispostaA.message_id;
@@ -9196,13 +9294,14 @@
                 }
                 
                 // Salva l'email inviata nel database
+                const allegatiNomi = allegatiEmail.map(a => a.name).join(', ');
                 const emailInviata = {
                     user_id: currentUser.id,
                     from_email: 'info@alexposteraro.com',
                     from_name: 'Alex Posteraro',
                     to_email: to,
                     subject: subject,
-                    body_text: body,
+                    body_text: body + (allegatiNomi ? `\n\n📎 Allegati: ${allegatiNomi}` : ''),
                     is_sent: true,
                     is_read: true,
                     received_at: new Date().toISOString(),
@@ -9224,7 +9323,9 @@
                     aggiornaContatoriCartelle();
                 }
                 
-                showToast('Email inviata! ✉️', `A: ${to}`, 'success');
+                const msgAllegati = allegatiEmail.length > 0 ? ` (${allegatiEmail.length} allegati)` : '';
+                showToast('Email inviata! ✉️', `A: ${to}${msgAllegati}`, 'success');
+                resetAllegati();
                 chiudiModalComponi();
                 
             } catch (err) {

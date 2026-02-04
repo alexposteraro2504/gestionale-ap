@@ -3980,6 +3980,74 @@
         </div>
     </div>
 
+    <!-- Modal Ore Lavorate -->
+    <div id="modalOreLavorate" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 15px; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 20px 25px; border-radius: 15px 15px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">⏱️ Ore Lavorate</h3>
+                <button onclick="chiudiModalOre()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer;">×</button>
+            </div>
+            <div style="padding: 25px;">
+                <!-- Info Richiesta -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <strong id="ore-richiesta-nome" style="color: #2c3e50; font-size: 16px;"></strong>
+                    <div id="ore-richiesta-valore" style="color: #6c757d; font-size: 14px; margin-top: 5px;"></div>
+                </div>
+                
+                <!-- Form Aggiungi Ore -->
+                <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #f39c12;">
+                    <h4 style="margin: 0 0 15px 0; color: #856404;">➕ Aggiungi sessione</h4>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 12px; color: #666;">Ore *</label>
+                            <input type="number" id="ore-nuove-ore" step="0.5" min="0.5" placeholder="Es: 2.5" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 12px; color: #666;">Data</label>
+                            <input type="date" id="ore-nuove-data" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-size: 12px; color: #666;">Nota (opzionale)</label>
+                        <input type="text" id="ore-nuove-nota" placeholder="Es: Sviluppo dashboard..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    </div>
+                    <button onclick="aggiungiOreSessione()" class="btn btn-primary" style="width: 100%; background: #f39c12; border-color: #f39c12;">⏱️ Aggiungi Ore</button>
+                </div>
+                
+                <!-- Storico Sessioni -->
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 10px 0; color: #2c3e50;">📋 Storico sessioni</h4>
+                    <div id="ore-storico-lista" style="max-height: 200px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <!-- Sessioni qui -->
+                    </div>
+                </div>
+                
+                <!-- Riepilogo -->
+                <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 20px; border-radius: 10px; border: 2px solid #4caf50;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
+                        <div>
+                            <div style="font-size: 24px; font-weight: bold; color: #2e7d32;" id="ore-totale">0</div>
+                            <div style="font-size: 12px; color: #666;">Ore totali</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: bold; color: #1565c0;" id="ore-valore">€0</div>
+                            <div style="font-size: 12px; color: #666;">Valore progetto</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: bold;" id="ore-tariffa">-</div>
+                            <div style="font-size: 12px; color: #666;">€/ora effettivo</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pulsante Chiudi -->
+                <div style="margin-top: 20px;">
+                    <button onclick="chiudiModalOre()" class="btn" style="width: 100%; background: #6c757d; color: white;">Chiudi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
         // ==========================================
@@ -6985,6 +7053,180 @@
             showToast('Quick Add', 'Compila i dettagli della scadenza', 'info');
         }
 
+        // ==========================================
+        // ORE LAVORATE - GESTIONE MODAL
+        // ==========================================
+        let oreRichiestaCorrente = null;
+        let oreSessioni = {}; // { richiestaId: [{data, ore, nota}, ...] }
+
+        function apriModalOre(richiestaId) {
+            const richiesta = richiesteSito.find(r => r.id === richiestaId || r.id === parseInt(richiestaId));
+            if (!richiesta) {
+                console.error('Richiesta non trovata:', richiestaId);
+                return;
+            }
+            
+            oreRichiestaCorrente = richiesta;
+            
+            // Popola info richiesta
+            document.getElementById('ore-richiesta-nome').textContent = richiesta.nome;
+            
+            // Estrai valore dal budget se presente
+            const budgetMatch = richiesta.budget ? richiesta.budget.match(/[\d.,]+/) : null;
+            const valoreProgetto = budgetMatch ? parseFloat(budgetMatch[0].replace(',', '')) : 0;
+            richiesta.valoreProgetto = valoreProgetto;
+            
+            document.getElementById('ore-richiesta-valore').textContent = valoreProgetto > 0 
+                ? `💰 Valore progetto: €${valoreProgetto.toLocaleString('it-IT')}` 
+                : '💰 Valore progetto: Non definito';
+            
+            // Imposta data di oggi nel campo
+            document.getElementById('ore-nuove-data').valueAsDate = new Date();
+            document.getElementById('ore-nuove-ore').value = '';
+            document.getElementById('ore-nuove-nota').value = '';
+            
+            // Carica sessioni esistenti
+            caricaSessioniOre(richiestaId);
+            
+            // Mostra modal
+            document.getElementById('modalOreLavorate').style.display = 'flex';
+        }
+
+        function chiudiModalOre() {
+            document.getElementById('modalOreLavorate').style.display = 'none';
+            oreRichiestaCorrente = null;
+        }
+
+        function caricaSessioniOre(richiestaId) {
+            // Carica da localStorage (in futuro da Supabase)
+            const stored = localStorage.getItem('oreSessioni');
+            if (stored) {
+                oreSessioni = JSON.parse(stored);
+            }
+            
+            const sessioni = oreSessioni[richiestaId] || [];
+            aggiornaStoricoOre(sessioni);
+            aggiornaRiepilogoOre(sessioni);
+        }
+
+        function aggiornaStoricoOre(sessioni) {
+            const lista = document.getElementById('ore-storico-lista');
+            
+            if (sessioni.length === 0) {
+                lista.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">Nessuna sessione registrata</div>';
+                return;
+            }
+            
+            // Ordina per data decrescente
+            const sessioniOrdinate = [...sessioni].sort((a, b) => new Date(b.data) - new Date(a.data));
+            
+            lista.innerHTML = sessioniOrdinate.map((s, index) => {
+                const dataFormatted = new Date(s.data).toLocaleDateString('it-IT', { 
+                    day: '2-digit', 
+                    month: 'short',
+                    year: 'numeric'
+                });
+                return `
+                    <div style="padding: 12px 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: #f39c12;">${s.ore}h</strong>
+                            <span style="color: #6c757d; margin-left: 10px;">${dataFormatted}</span>
+                            ${s.nota ? `<div style="font-size: 12px; color: #666; margin-top: 3px;">${s.nota}</div>` : ''}
+                        </div>
+                        <button onclick="eliminaSessioneOre(${index})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 16px;" title="Elimina">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function aggiornaRiepilogoOre(sessioni) {
+            const totaleOre = sessioni.reduce((sum, s) => sum + s.ore, 0);
+            const valoreProgetto = oreRichiestaCorrente?.valoreProgetto || 0;
+            
+            document.getElementById('ore-totale').textContent = totaleOre.toFixed(1);
+            document.getElementById('ore-valore').textContent = valoreProgetto > 0 
+                ? `€${valoreProgetto.toLocaleString('it-IT')}` 
+                : '-';
+            
+            // Calcola tariffa effettiva
+            if (totaleOre > 0 && valoreProgetto > 0) {
+                const tariffa = valoreProgetto / totaleOre;
+                const colore = tariffa >= 70 ? '#2e7d32' : (tariffa >= 50 ? '#f39c12' : '#dc3545');
+                document.getElementById('ore-tariffa').innerHTML = `<span style="color: ${colore};">€${tariffa.toFixed(0)}</span>`;
+            } else {
+                document.getElementById('ore-tariffa').textContent = '-';
+            }
+        }
+
+        function aggiungiOreSessione() {
+            const ore = parseFloat(document.getElementById('ore-nuove-ore').value);
+            const data = document.getElementById('ore-nuove-data').value;
+            const nota = document.getElementById('ore-nuove-nota').value.trim();
+            
+            if (!ore || ore <= 0) {
+                showToast('Errore', 'Inserisci un numero di ore valido', 'error');
+                return;
+            }
+            
+            if (!data) {
+                showToast('Errore', 'Seleziona una data', 'error');
+                return;
+            }
+            
+            const richiestaId = oreRichiestaCorrente.id;
+            
+            // Inizializza array se non esiste
+            if (!oreSessioni[richiestaId]) {
+                oreSessioni[richiestaId] = [];
+            }
+            
+            // Aggiungi sessione
+            oreSessioni[richiestaId].push({
+                data: data,
+                ore: ore,
+                nota: nota,
+                timestamp: Date.now()
+            });
+            
+            // Salva in localStorage
+            localStorage.setItem('oreSessioni', JSON.stringify(oreSessioni));
+            
+            // Aggiorna UI
+            aggiornaStoricoOre(oreSessioni[richiestaId]);
+            aggiornaRiepilogoOre(oreSessioni[richiestaId]);
+            
+            // Reset form
+            document.getElementById('ore-nuove-ore').value = '';
+            document.getElementById('ore-nuove-nota').value = '';
+            
+            showToast('Ore Aggiunte', `${ore}h aggiunte al progetto`, 'success');
+        }
+
+        function eliminaSessioneOre(index) {
+            if (!confirm('Eliminare questa sessione?')) return;
+            
+            const richiestaId = oreRichiestaCorrente.id;
+            
+            // Ordina per data decrescente (come mostrato) per trovare l'indice corretto
+            const sessioniOrdinate = [...oreSessioni[richiestaId]].sort((a, b) => new Date(b.data) - new Date(a.data));
+            const sessioneDaEliminare = sessioniOrdinate[index];
+            
+            // Trova e rimuovi dall'array originale
+            const indexOriginale = oreSessioni[richiestaId].findIndex(s => s.timestamp === sessioneDaEliminare.timestamp);
+            if (indexOriginale > -1) {
+                oreSessioni[richiestaId].splice(indexOriginale, 1);
+            }
+            
+            // Salva
+            localStorage.setItem('oreSessioni', JSON.stringify(oreSessioni));
+            
+            // Aggiorna UI
+            aggiornaStoricoOre(oreSessioni[richiestaId]);
+            aggiornaRiepilogoOre(oreSessioni[richiestaId]);
+            
+            showToast('Eliminata', 'Sessione rimossa', 'success');
+        }
+
         // Controlla notifiche scadenze (chiamata al login e periodicamente)
         function controllaNotificheScadenze() {
             const oggi = new Date();
@@ -8204,7 +8446,7 @@
                         <div class="richiesta-footer">
                             <div class="richiesta-azioni">
                                 ${r.stato === 'dalavorare' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'inlavorazione')">🔄 In Lavorazione</button><button class="btn-lavorazione" onclick="spostaInPipeline('${r.id}')" style="background: #2196F3;">📊 Pipeline</button>` : ''}
-                                ${r.stato === 'inlavorazione' ? `<button class="btn-completa" onclick="cambiaStatoRichiesta('${r.id}', 'completata')">✅ Completata</button><button class="btn-lavorazione" onclick="quickAddScadenzaLavoro('${r.id}')" style="background: #ff9800;">📅 Scadenza</button>` : ''}
+                                ${r.stato === 'inlavorazione' ? `<button class="btn-completa" onclick="cambiaStatoRichiesta('${r.id}', 'completata')">✅ Completata</button><button class="btn-lavorazione" onclick="apriModalOre('${r.id}')" style="background: #f39c12;">⏱️ Ore</button><button class="btn-lavorazione" onclick="quickAddScadenzaLavoro('${r.id}')" style="background: #17a2b8;">📅 Scadenza</button>` : ''}
                                 ${r.stato === 'completata' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'dalavorare')" style="background: #6c757d;">🔙 Riapri</button>` : ''}
                                 <button class="btn-crea-cliente" onclick="creaClienteDaRichiesta('${r.id}')">👤 Crea Cliente</button>
                                 <button class="btn-elimina-richiesta" onclick="eliminaRichiesta('${r.id}')">🗑️ Elimina</button>

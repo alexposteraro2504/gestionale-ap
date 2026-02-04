@@ -7057,7 +7057,7 @@
         // ORE LAVORATE - GESTIONE MODAL
         // ==========================================
         let oreRichiestaCorrente = null;
-        let oreSessioni = {}; // { richiestaId: [{data, ore, nota}, ...] }
+        let oreSessioniCache = []; // Cache locale delle sessioni per la richiesta corrente
 
         function apriModalOre(richiestaId) {
             const richiesta = richiesteSito.find(r => r.id === richiestaId || r.id === parseInt(richiestaId));
@@ -7085,8 +7085,8 @@
             document.getElementById('ore-nuove-ore').value = '';
             document.getElementById('ore-nuove-nota').value = '';
             
-            // Carica sessioni esistenti
-            caricaSessioniOre(richiestaId);
+            // Carica sessioni da Supabase
+            caricaSessioniOreDaSupabase(richiestaId);
             
             // Mostra modal
             document.getElementById('modalOreLavorate').style.display = 'flex';
@@ -7095,32 +7095,45 @@
         function chiudiModalOre() {
             document.getElementById('modalOreLavorate').style.display = 'none';
             oreRichiestaCorrente = null;
+            oreSessioniCache = [];
         }
 
-        function caricaSessioniOre(richiestaId) {
-            // Carica da localStorage (in futuro da Supabase)
-            const stored = localStorage.getItem('oreSessioni');
-            if (stored) {
-                oreSessioni = JSON.parse(stored);
+        async function caricaSessioniOreDaSupabase(richiestaId) {
+            // Mostra loading
+            document.getElementById('ore-storico-lista').innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">Caricamento...</div>';
+            
+            try {
+                const { data, error } = await db
+                    .from('ore_lavorate')
+                    .select('*')
+                    .eq('richiesta_id', richiestaId)
+                    .eq('user_id', currentUser.id)
+                    .order('data', { ascending: false });
+                
+                if (error) {
+                    console.error('Errore caricamento ore:', error);
+                    oreSessioniCache = [];
+                } else {
+                    oreSessioniCache = data || [];
+                }
+            } catch (err) {
+                console.error('Errore caricamento ore:', err);
+                oreSessioniCache = [];
             }
             
-            const sessioni = oreSessioni[richiestaId] || [];
-            aggiornaStoricoOre(sessioni);
-            aggiornaRiepilogoOre(sessioni);
+            aggiornaStoricoOre();
+            aggiornaRiepilogoOre();
         }
 
-        function aggiornaStoricoOre(sessioni) {
+        function aggiornaStoricoOre() {
             const lista = document.getElementById('ore-storico-lista');
             
-            if (sessioni.length === 0) {
+            if (oreSessioniCache.length === 0) {
                 lista.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;">Nessuna sessione registrata</div>';
                 return;
             }
             
-            // Ordina per data decrescente
-            const sessioniOrdinate = [...sessioni].sort((a, b) => new Date(b.data) - new Date(a.data));
-            
-            lista.innerHTML = sessioniOrdinate.map((s, index) => {
+            lista.innerHTML = oreSessioniCache.map(s => {
                 const dataFormatted = new Date(s.data).toLocaleDateString('it-IT', { 
                     day: '2-digit', 
                     month: 'short',
@@ -7133,14 +7146,14 @@
                             <span style="color: #6c757d; margin-left: 10px;">${dataFormatted}</span>
                             ${s.nota ? `<div style="font-size: 12px; color: #666; margin-top: 3px;">${s.nota}</div>` : ''}
                         </div>
-                        <button onclick="eliminaSessioneOre(${index})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 16px;" title="Elimina">🗑️</button>
+                        <button onclick="eliminaSessioneOre(${s.id})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 16px;" title="Elimina">🗑️</button>
                     </div>
                 `;
             }).join('');
         }
 
-        function aggiornaRiepilogoOre(sessioni) {
-            const totaleOre = sessioni.reduce((sum, s) => sum + s.ore, 0);
+        function aggiornaRiepilogoOre() {
+            const totaleOre = oreSessioniCache.reduce((sum, s) => sum + parseFloat(s.ore), 0);
             const valoreProgetto = oreRichiestaCorrente?.valoreProgetto || 0;
             
             document.getElementById('ore-totale').textContent = totaleOre.toFixed(1);
@@ -7158,7 +7171,7 @@
             }
         }
 
-        function aggiungiOreSessione() {
+        async function aggiungiOreSessione() {
             const ore = parseFloat(document.getElementById('ore-nuove-ore').value);
             const data = document.getElementById('ore-nuove-data').value;
             const nota = document.getElementById('ore-nuove-nota').value.trim();
@@ -7175,56 +7188,69 @@
             
             const richiestaId = oreRichiestaCorrente.id;
             
-            // Inizializza array se non esiste
-            if (!oreSessioni[richiestaId]) {
-                oreSessioni[richiestaId] = [];
+            try {
+                const { data: nuovaSessione, error } = await db
+                    .from('ore_lavorate')
+                    .insert([{
+                        user_id: currentUser.id,
+                        richiesta_id: richiestaId,
+                        data: data,
+                        ore: ore,
+                        nota: nota || null
+                    }])
+                    .select()
+                    .single();
+                
+                if (error) {
+                    console.error('Errore salvataggio ore:', error);
+                    showToast('Errore', 'Impossibile salvare le ore', 'error');
+                    return;
+                }
+                
+                // Aggiungi alla cache e aggiorna UI
+                oreSessioniCache.unshift(nuovaSessione);
+                aggiornaStoricoOre();
+                aggiornaRiepilogoOre();
+                
+                // Reset form
+                document.getElementById('ore-nuove-ore').value = '';
+                document.getElementById('ore-nuove-nota').value = '';
+                
+                showToast('Ore Aggiunte', `${ore}h aggiunte al progetto`, 'success');
+                
+            } catch (err) {
+                console.error('Errore salvataggio ore:', err);
+                showToast('Errore', 'Impossibile salvare le ore', 'error');
             }
-            
-            // Aggiungi sessione
-            oreSessioni[richiestaId].push({
-                data: data,
-                ore: ore,
-                nota: nota,
-                timestamp: Date.now()
-            });
-            
-            // Salva in localStorage
-            localStorage.setItem('oreSessioni', JSON.stringify(oreSessioni));
-            
-            // Aggiorna UI
-            aggiornaStoricoOre(oreSessioni[richiestaId]);
-            aggiornaRiepilogoOre(oreSessioni[richiestaId]);
-            
-            // Reset form
-            document.getElementById('ore-nuove-ore').value = '';
-            document.getElementById('ore-nuove-nota').value = '';
-            
-            showToast('Ore Aggiunte', `${ore}h aggiunte al progetto`, 'success');
         }
 
-        function eliminaSessioneOre(index) {
+        async function eliminaSessioneOre(sessioneId) {
             if (!confirm('Eliminare questa sessione?')) return;
             
-            const richiestaId = oreRichiestaCorrente.id;
-            
-            // Ordina per data decrescente (come mostrato) per trovare l'indice corretto
-            const sessioniOrdinate = [...oreSessioni[richiestaId]].sort((a, b) => new Date(b.data) - new Date(a.data));
-            const sessioneDaEliminare = sessioniOrdinate[index];
-            
-            // Trova e rimuovi dall'array originale
-            const indexOriginale = oreSessioni[richiestaId].findIndex(s => s.timestamp === sessioneDaEliminare.timestamp);
-            if (indexOriginale > -1) {
-                oreSessioni[richiestaId].splice(indexOriginale, 1);
+            try {
+                const { error } = await db
+                    .from('ore_lavorate')
+                    .delete()
+                    .eq('id', sessioneId)
+                    .eq('user_id', currentUser.id);
+                
+                if (error) {
+                    console.error('Errore eliminazione ore:', error);
+                    showToast('Errore', 'Impossibile eliminare la sessione', 'error');
+                    return;
+                }
+                
+                // Rimuovi dalla cache e aggiorna UI
+                oreSessioniCache = oreSessioniCache.filter(s => s.id !== sessioneId);
+                aggiornaStoricoOre();
+                aggiornaRiepilogoOre();
+                
+                showToast('Eliminata', 'Sessione rimossa', 'success');
+                
+            } catch (err) {
+                console.error('Errore eliminazione ore:', err);
+                showToast('Errore', 'Impossibile eliminare la sessione', 'error');
             }
-            
-            // Salva
-            localStorage.setItem('oreSessioni', JSON.stringify(oreSessioni));
-            
-            // Aggiorna UI
-            aggiornaStoricoOre(oreSessioni[richiestaId]);
-            aggiornaRiepilogoOre(oreSessioni[richiestaId]);
-            
-            showToast('Eliminata', 'Sessione rimossa', 'success');
         }
 
         // Controlla notifiche scadenze (chiamata al login e periodicamente)

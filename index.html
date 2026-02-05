@@ -345,6 +345,15 @@
             max-width: 100%;
         }
 
+        #azienda-kpi {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 0 0 20px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -3529,62 +3538,6 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- KPI DASHBOARD -->
-                <div id="azienda-kpi" class="tab-content">
-                    <h2 style="margin-bottom: 20px;">🎯 KPI Dashboard</h2>
-                    <p style="color: #6c757d; margin-bottom: 20px;">Indicatori chiave di performance</p>
-                    
-                    <div class="stats" style="margin-bottom: 30px;">
-                        <div class="stat-card green">
-                            <h3>💰 Fatturato YTD</h3>
-                            <div class="value" id="kpi-fatturato">€0</div>
-                            <small style="color: #6c757d;">Anno corrente</small>
-                        </div>
-                        <div class="stat-card blue">
-                            <h3>📈 Crescita %</h3>
-                            <div class="value" id="kpi-crescita">0%</div>
-                            <small style="color: #6c757d;">vs anno precedente</small>
-                        </div>
-                        <div class="stat-card orange">
-                            <h3>👥 Clienti Attivi</h3>
-                            <div class="value" id="kpi-clienti">0</div>
-                            <small style="color: #6c757d;">Con fatture nell'anno</small>
-                        </div>
-                        <div class="stat-card purple">
-                            <h3>📊 Media Fattura</h3>
-                            <div class="value" id="kpi-media">€0</div>
-                            <small style="color: #6c757d;">Valore medio</small>
-                        </div>
-                    </div>
-                    
-                    <div class="stats" style="margin-bottom: 30px;">
-                        <div class="stat-card blue">
-                            <h3>⏱️ Ore Lavorate</h3>
-                            <div class="value" id="kpi-ore">0h</div>
-                            <small style="color: #6c757d;">Mese corrente</small>
-                        </div>
-                        <div class="stat-card green">
-                            <h3>💵 Tariffa Media</h3>
-                            <div class="value" id="kpi-tariffa">€0/h</div>
-                            <small style="color: #6c757d;">Per ora lavorata</small>
-                        </div>
-                        <div class="stat-card orange">
-                            <h3>🔄 Conversione</h3>
-                            <div class="value" id="kpi-conversione">0%</div>
-                            <small style="color: #6c757d;">Lead → Cliente</small>
-                        </div>
-                        <div class="stat-card red">
-                            <h3>💸 Margine Netto</h3>
-                            <div class="value" id="kpi-margine">€0</div>
-                            <small style="color: #6c757d;">Dopo tasse</small>
-                        </div>
-                    </div>
-                    
-                    <h3 style="margin: 30px 0 20px;">📊 Andamento Mensile</h3>
-                    <div class="chart-container" style="max-width: 800px;">
-                        <canvas id="grafico-kpi"></canvas>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -3760,6 +3713,63 @@
                             <tr><td colspan="4" style="text-align: center; padding: 30px;">Nessun dato disponibile</td></tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- KPI DASHBOARD -->
+                <div id="azienda-kpi" class="tab-content">
+                    <h2 style="margin-bottom: 20px;">🎯 KPI Dashboard</h2>
+                    <p style="color: #6c757d; margin-bottom: 20px;">Indicatori chiave di performance</p>
+                    
+                    <div class="stats" style="margin-bottom: 30px;">
+                        <div class="stat-card green">
+                            <h3>💰 Fatturato YTD</h3>
+                            <div class="value" id="kpi-fatturato">€0</div>
+                            <small style="color: #6c757d;">Anno corrente</small>
+                        </div>
+                        <div class="stat-card blue">
+                            <h3>📈 Crescita %</h3>
+                            <div class="value" id="kpi-crescita">0%</div>
+                            <small style="color: #6c757d;">vs anno precedente</small>
+                        </div>
+                        <div class="stat-card orange">
+                            <h3>👥 Clienti Attivi</h3>
+                            <div class="value" id="kpi-clienti">0</div>
+                            <small style="color: #6c757d;">Con fatture nell'anno</small>
+                        </div>
+                        <div class="stat-card purple">
+                            <h3>📊 Media Fattura</h3>
+                            <div class="value" id="kpi-media">€0</div>
+                            <small style="color: #6c757d;">Valore medio</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stats" style="margin-bottom: 30px;">
+                        <div class="stat-card blue">
+                            <h3>⏱️ Ore Lavorate</h3>
+                            <div class="value" id="kpi-ore">0h</div>
+                            <small style="color: #6c757d;">Mese corrente</small>
+                        </div>
+                        <div class="stat-card green">
+                            <h3>💵 Tariffa Media</h3>
+                            <div class="value" id="kpi-tariffa">€0/h</div>
+                            <small style="color: #6c757d;">Per ora lavorata</small>
+                        </div>
+                        <div class="stat-card orange">
+                            <h3>🔄 Conversione</h3>
+                            <div class="value" id="kpi-conversione">0%</div>
+                            <small style="color: #6c757d;">Lead → Cliente</small>
+                        </div>
+                        <div class="stat-card red">
+                            <h3>💸 Margine Netto</h3>
+                            <div class="value" id="kpi-margine">€0</div>
+                            <small style="color: #6c757d;">Dopo tasse</small>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin: 30px 0 20px;">📊 Andamento Mensile</h3>
+                    <div class="chart-container" style="max-width: 800px;">
+                        <canvas id="grafico-kpi"></canvas>
+                    </div>
                 </div>
             </div>
         </div>

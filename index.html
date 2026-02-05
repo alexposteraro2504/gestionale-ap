@@ -345,6 +345,15 @@
             max-width: 100%;
         }
 
+        #azienda-kpi {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 0 0 20px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -2589,8 +2598,8 @@
                                                 <span id="reader-from-name" style="font-weight: 600; font-size: 15px; color: #1d1d1f;">Nome Mittente</span>
                                                 <span id="reader-date" style="font-size: 13px; color: #86868b;">Data</span>
                                             </div>
-                                            <div id="reader-from-email" style="font-size: 13px; color: #86868b;">email@esempio.com</div>
-                                            <div style="font-size: 13px; color: #86868b; margin-top: 2px;">A: <span id="reader-to">info@alexposteraro.com</span></div>
+                                            <div id="reader-from-email" style="font-size: 13px; color: #86868b;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="12777f737b7e527761777f627b7d3c717d7f">[email&#160;protected]</a></div>
+                                            <div style="font-size: 13px; color: #86868b; margin-top: 2px;">A: <span id="reader-to"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d54535b527d5c5158454d524e49584f5c4f52135e5250">[email&#160;protected]</a></span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -4134,7 +4143,7 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
         // ==========================================
         // SUPABASE CONFIGURATION
@@ -9840,15 +9849,4 @@
                 document.getElementById('backup-file-info').textContent = 'Nessun file selezionato';
                 document.getElementById('btn-ripristina-backup').disabled = true;
                 
-                showToast('✅ Ripristino completato!', 'Tutti i dati sono stati ripristinati', 'success');
-                console.log('📦 Backup ripristinato con successo');
-                
-            } catch (err) {
-                console.error('Errore ripristino:', err);
-                showToast('Errore', 'Errore durante il ripristino: ' + err.message, 'error');
-            }
-        }
-    </script>
-</body>
-</html>
-        
+                showToast('✅ Ripristino completato!', 'Tutti i dati sono stati rip

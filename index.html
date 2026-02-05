@@ -1955,7 +1955,9 @@
                 <div class="user-info">
                     <span class="user-name">Benvenuto, <strong id="displayUsername"></strong></span>
                     <button class="users-btn" onclick="openUsersManagement()">👥 Utenti</button>
-                    <button class="users-btn" onclick="scaricaBackup()">💾 Backup</button>
+                    <button class="users-btn" onclick="esportaBackup()" title="Scarica backup completo">📥 Backup</button>
+                    <button class="users-btn" onclick="document.getElementById('header-backup-input').click()" title="Ripristina da backup">📤 Importa</button>
+                    <input type="file" id="header-backup-input" accept=".json" style="display: none;" onchange="handleBackupFileSelectHeader(this)">
                     <button class="users-btn" onclick="logout()">🚪 Esci</button>
                 </div>
             </div>
@@ -2757,6 +2759,60 @@
                         <h3 style="margin-bottom: 15px;">✅ Dati Salvati</h3>
                         <div style="background: white; padding: 25px; border-radius: 10px; border: 2px solid #27ae60;">
                             <div id="miei-dati-riepilogo"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- SEZIONE BACKUP -->
+                    <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                        <h2 style="margin-bottom: 20px;">💾 Backup & Ripristino</h2>
+                        <p style="color: #6c757d; margin-bottom: 20px;">Esporta tutti i tuoi dati in un file JSON o ripristina da un backup precedente.</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                            <!-- Esporta Backup -->
+                            <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 25px; border-radius: 15px; border: 2px solid #4caf50;">
+                                <h3 style="color: #2e7d32; margin-bottom: 15px;">📥 Esporta Backup</h3>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+                                    Scarica un file JSON con tutti i tuoi dati: clienti, richieste, fatture, preventivi, movimenti, email, ore lavorate e scadenze.
+                                </p>
+                                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                    <div style="font-size: 13px; color: #666;">
+                                        <div>📊 Clienti, Fornitori, Pipeline</div>
+                                        <div>📬 Richieste e Email</div>
+                                        <div>🧾 Fatture e Preventivi</div>
+                                        <div>💰 Movimenti</div>
+                                        <div>⏱️ Ore lavorate</div>
+                                        <div>📅 Scadenze</div>
+                                    </div>
+                                </div>
+                                <button onclick="esportaBackup()" class="btn btn-primary" style="width: 100%; background: #4caf50; border-color: #4caf50;">
+                                    📥 Scarica Backup Completo
+                                </button>
+                            </div>
+                            
+                            <!-- Ripristina Backup -->
+                            <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 25px; border-radius: 15px; border: 2px solid #ff9800;">
+                                <h3 style="color: #e65100; margin-bottom: 15px;">📤 Ripristina Backup</h3>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+                                    Carica un file di backup per ripristinare i tuoi dati. <strong style="color: #d32f2f;">Attenzione:</strong> questa operazione sostituirà i dati esistenti.
+                                </p>
+                                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                    <input type="file" id="backup-file-input" accept=".json" style="display: none;" onchange="handleBackupFileSelect(this)">
+                                    <div id="backup-file-info" style="text-align: center; color: #666; font-size: 13px;">
+                                        Nessun file selezionato
+                                    </div>
+                                </div>
+                                <button onclick="document.getElementById('backup-file-input').click()" class="btn" style="width: 100%; background: #ff9800; border-color: #ff9800; color: white; margin-bottom: 10px;">
+                                    📁 Seleziona File Backup
+                                </button>
+                                <button onclick="ripristinaBackup()" id="btn-ripristina-backup" class="btn" style="width: 100%; background: #e65100; border-color: #e65100; color: white;" disabled>
+                                    ⚠️ Ripristina Dati
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Info ultimo backup -->
+                        <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 10px; font-size: 13px; color: #666;">
+                            <strong>💡 Consiglio:</strong> Esegui un backup almeno una volta al mese e salvalo su Google Drive o un altro cloud storage per sicurezza.
                         </div>
                     </div>
                 </div>
@@ -9410,6 +9466,342 @@
         }
         if (document.getElementById('az-scadenza-data')) {
             document.getElementById('az-scadenza-data').valueAsDate = new Date();
+        }
+
+        // ==========================================
+        // BACKUP & RIPRISTINO
+        // ==========================================
+        
+        let backupFileData = null;
+
+        async function esportaBackup() {
+            showToast('Backup', 'Preparazione backup in corso...', 'info');
+            
+            try {
+                // Raccogli tutti i dati
+                const backup = {
+                    versione: '1.0',
+                    data_backup: new Date().toISOString(),
+                    utente: currentUser?.email || 'unknown',
+                    dati: {
+                        clienti: clienti || [],
+                        fornitori: fornitori || [],
+                        richieste: richiesteSito || [],
+                        pipeline: pipelineLeads || [],
+                        fatture: fattureEmesse || [],
+                        preventivi: preventiviEmessi || [],
+                        movimenti: azMovimenti || [],
+                        note: note || [],
+                        scadenze: scadenzeAziendali || [],
+                        mieiDati: mieiDati || {},
+                        contatori: {
+                            fatture: contatoreFatture || 1,
+                            preventivi: contatorePreventivi || 1
+                        }
+                    }
+                };
+                
+                // Carica ore lavorate da Supabase
+                try {
+                    const { data: oreData } = await db
+                        .from('ore_lavorate')
+                        .select('*')
+                        .eq('user_id', currentUser.id);
+                    backup.dati.ore_lavorate = oreData || [];
+                } catch (e) {
+                    backup.dati.ore_lavorate = [];
+                }
+                
+                // Carica email da Supabase (ultime 1000)
+                try {
+                    const { data: emailData } = await db
+                        .from('emails')
+                        .select('*')
+                        .eq('user_id', currentUser.id)
+                        .order('received_at', { ascending: false })
+                        .limit(1000);
+                    backup.dati.emails = emailData || [];
+                } catch (e) {
+                    backup.dati.emails = [];
+                }
+                
+                // Genera file JSON
+                const jsonString = JSON.stringify(backup, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Scarica file
+                const dataStr = new Date().toISOString().split('T')[0];
+                const filename = `backup_gestionale_${dataStr}.json`;
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Calcola statistiche
+                const stats = [
+                    `Clienti: ${backup.dati.clienti.length}`,
+                    `Richieste: ${backup.dati.richieste.length}`,
+                    `Fatture: ${backup.dati.fatture.length}`,
+                    `Email: ${backup.dati.emails.length}`
+                ].join(', ');
+                
+                showToast('✅ Backup completato!', `File: ${filename}`, 'success');
+                console.log('📦 Backup esportato:', stats);
+                
+            } catch (err) {
+                console.error('Errore backup:', err);
+                showToast('Errore', 'Impossibile creare il backup: ' + err.message, 'error');
+            }
+        }
+
+        function handleBackupFileSelect(input) {
+            const file = input.files[0];
+            if (!file) {
+                backupFileData = null;
+                document.getElementById('backup-file-info').textContent = 'Nessun file selezionato';
+                document.getElementById('btn-ripristina-backup').disabled = true;
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Verifica struttura backup
+                    if (!data.versione || !data.dati) {
+                        throw new Error('Formato backup non valido');
+                    }
+                    
+                    backupFileData = data;
+                    
+                    // Mostra info
+                    const dataBackup = new Date(data.data_backup).toLocaleDateString('it-IT');
+                    const stats = [];
+                    if (data.dati.clienti) stats.push(`${data.dati.clienti.length} clienti`);
+                    if (data.dati.richieste) stats.push(`${data.dati.richieste.length} richieste`);
+                    if (data.dati.fatture) stats.push(`${data.dati.fatture.length} fatture`);
+                    if (data.dati.emails) stats.push(`${data.dati.emails.length} email`);
+                    
+                    document.getElementById('backup-file-info').innerHTML = `
+                        <div style="color: #2e7d32; font-weight: bold;">✅ File valido</div>
+                        <div>📅 Data: ${dataBackup}</div>
+                        <div>📊 ${stats.join(', ')}</div>
+                    `;
+                    document.getElementById('btn-ripristina-backup').disabled = false;
+                    
+                } catch (err) {
+                    backupFileData = null;
+                    document.getElementById('backup-file-info').innerHTML = `
+                        <div style="color: #d32f2f;">❌ File non valido</div>
+                        <div>${err.message}</div>
+                    `;
+                    document.getElementById('btn-ripristina-backup').disabled = true;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Versione header - chiede conferma e procede direttamente
+        function handleBackupFileSelectHeader(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Verifica struttura backup
+                    if (!data.versione || !data.dati) {
+                        throw new Error('Formato backup non valido');
+                    }
+                    
+                    // Mostra anteprima e chiedi conferma
+                    const dataBackup = new Date(data.data_backup).toLocaleDateString('it-IT');
+                    const stats = [];
+                    if (data.dati.clienti) stats.push(`${data.dati.clienti.length} clienti`);
+                    if (data.dati.richieste) stats.push(`${data.dati.richieste.length} richieste`);
+                    if (data.dati.fatture) stats.push(`${data.dati.fatture.length} fatture`);
+                    if (data.dati.emails) stats.push(`${data.dati.emails.length} email`);
+                    
+                    const conferma = confirm(
+                        `📦 BACKUP TROVATO\n\n` +
+                        `📅 Data: ${dataBackup}\n` +
+                        `📊 Contenuto: ${stats.join(', ')}\n\n` +
+                        `⚠️ ATTENZIONE: Questa operazione sostituirà TUTTI i dati esistenti.\n\n` +
+                        `Vuoi procedere con il ripristino?`
+                    );
+                    
+                    if (!conferma) {
+                        input.value = '';
+                        return;
+                    }
+                    
+                    // Seconda conferma
+                    const doppiaConferma = confirm(
+                        '🔴 CONFERMA FINALE\n\n' +
+                        'I dati attuali verranno sovrascritti.\n' +
+                        'Questa azione NON può essere annullata.\n\n' +
+                        'Procedere con il ripristino?'
+                    );
+                    
+                    if (!doppiaConferma) {
+                        input.value = '';
+                        return;
+                    }
+                    
+                    // Procedi con il ripristino
+                    backupFileData = data;
+                    ripristinaBackup();
+                    input.value = '';
+                    
+                } catch (err) {
+                    showToast('Errore', 'File non valido: ' + err.message, 'error');
+                    input.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function ripristinaBackup() {
+            if (!backupFileData) {
+                showToast('Errore', 'Nessun file di backup selezionato', 'error');
+                return;
+            }
+            
+            const conferma = confirm(
+                '⚠️ ATTENZIONE!\n\n' +
+                'Questa operazione sostituirà TUTTI i dati esistenti con quelli del backup.\n\n' +
+                'Sei sicuro di voler procedere?\n\n' +
+                'Consiglio: esporta un backup dei dati attuali prima di procedere.'
+            );
+            
+            if (!conferma) return;
+            
+            const doppiaConferma = confirm(
+                '🔴 CONFERMA FINALE\n\n' +
+                'I dati attuali verranno sovrascritti.\n' +
+                'Questa azione NON può essere annullata.\n\n' +
+                'Procedere con il ripristino?'
+            );
+            
+            if (!doppiaConferma) return;
+            
+            showToast('Ripristino', 'Ripristino in corso...', 'info');
+            
+            try {
+                const dati = backupFileData.dati;
+                
+                // Ripristina dati locali
+                clienti = dati.clienti || [];
+                fornitori = dati.fornitori || [];
+                richiesteSito = dati.richieste || [];
+                pipelineLeads = dati.pipeline || [];
+                fattureEmesse = dati.fatture || [];
+                preventiviEmessi = dati.preventivi || [];
+                azMovimenti = dati.movimenti || [];
+                note = dati.note || [];
+                scadenzeAziendali = dati.scadenze || [];
+                mieiDati = dati.mieiDati || {};
+                
+                if (dati.contatori) {
+                    contatoreFatture = dati.contatori.fatture || 1;
+                    contatorePreventivi = dati.contatori.preventivi || 1;
+                }
+                
+                // Sincronizza con Supabase - Elimina e reinserisci
+                const tabelle = [
+                    { nome: 'clienti', dati: clienti },
+                    { nome: 'fornitori', dati: fornitori },
+                    { nome: 'richieste', dati: richiesteSito },
+                    { nome: 'pipeline_leads', dati: pipelineLeads },
+                    { nome: 'fatture', dati: fattureEmesse },
+                    { nome: 'preventivi', dati: preventiviEmessi },
+                    { nome: 'movimenti', dati: azMovimenti },
+                    { nome: 'note', dati: note }
+                ];
+                
+                for (const tabella of tabelle) {
+                    try {
+                        // Elimina dati esistenti
+                        await db.from(tabella.nome).delete().eq('user_id', currentUser.id);
+                        
+                        // Inserisci nuovi dati
+                        if (tabella.dati.length > 0) {
+                            const datiConUserId = tabella.dati.map(d => ({
+                                ...d,
+                                user_id: currentUser.id
+                            }));
+                            await db.from(tabella.nome).insert(datiConUserId);
+                        }
+                    } catch (e) {
+                        console.warn(`Errore ripristino ${tabella.nome}:`, e);
+                    }
+                }
+                
+                // Ripristina ore lavorate
+                if (dati.ore_lavorate && dati.ore_lavorate.length > 0) {
+                    try {
+                        await db.from('ore_lavorate').delete().eq('user_id', currentUser.id);
+                        const oreConUserId = dati.ore_lavorate.map(o => ({
+                            ...o,
+                            user_id: currentUser.id,
+                            id: undefined // Rimuovi ID per auto-generazione
+                        }));
+                        await db.from('ore_lavorate').insert(oreConUserId);
+                    } catch (e) {
+                        console.warn('Errore ripristino ore_lavorate:', e);
+                    }
+                }
+                
+                // Aggiorna contatori
+                try {
+                    await db.from('contatori').upsert({
+                        user_id: currentUser.id,
+                        contatore_fatture: contatoreFatture,
+                        contatore_preventivi: contatorePreventivi
+                    });
+                } catch (e) {
+                    console.warn('Errore aggiornamento contatori:', e);
+                }
+                
+                // Aggiorna miei dati
+                try {
+                    await db.from('miei_dati').upsert({
+                        user_id: currentUser.id,
+                        ...mieiDati
+                    });
+                } catch (e) {
+                    console.warn('Errore aggiornamento miei_dati:', e);
+                }
+                
+                // Aggiorna UI
+                if (typeof aggiornaClienti === 'function') aggiornaClienti();
+                if (typeof aggiornaFornitori === 'function') aggiornaFornitori();
+                if (typeof aggiornaListaRichieste === 'function') aggiornaListaRichieste();
+                if (typeof aggiornaPipeline === 'function') aggiornaPipeline();
+                if (typeof aggiornaMovimenti === 'function') aggiornaMovimenti('az');
+                if (typeof generaCalendario === 'function') generaCalendario();
+                
+                // Reset UI backup
+                backupFileData = null;
+                document.getElementById('backup-file-input').value = '';
+                document.getElementById('backup-file-info').textContent = 'Nessun file selezionato';
+                document.getElementById('btn-ripristina-backup').disabled = true;
+                
+                showToast('✅ Ripristino completato!', 'Tutti i dati sono stati ripristinati', 'success');
+                console.log('📦 Backup ripristinato con successo');
+                
+            } catch (err) {
+                console.error('Errore ripristino:', err);
+                showToast('Errore', 'Errore durante il ripristino: ' + err.message, 'error');
+            }
         }
     </script>
 </body>

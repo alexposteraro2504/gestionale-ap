@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AP Data Entry - Cloud</title>
+    <title>Alex Posteraro - Gestionale</title>
     
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1875,19 +1875,21 @@
     <div class="login-container" id="loginScreen">
         <div class="login-header">
             <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px;">
-                <svg width="50" height="50" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <svg width="300" height="80" viewBox="0 0 360 100" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="logoGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#667eea"/>
-                            <stop offset="100%" style="stop-color:#764ba2"/>
+                            <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
                         </linearGradient>
                     </defs>
-                    <rect x="17" y="17" width="86" height="86" rx="20" fill="url(#logoGrad1)" transform="rotate(45 60 60)"/>
-                    <text x="60" y="72" text-anchor="middle" font-size="40" fill="white">⌨️</text>
+                    <rect x="10" y="10" width="80" height="80" rx="16" fill="url(#logoGrad1)"/>
+                    <text x="50" y="47" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="white">AP</text>
+                    <polyline points="20,78 30,66 40,72 50,58 60,66 70,52 80,45" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="80" cy="45" r="4.5" fill="white"/>
+                    <text x="110" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="700" fill="#2c3e50">Business Data</text>
+                    <text x="110" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="500" fill="#7f8c8d">Analyst</text>
                 </svg>
-                <h1 style="margin: 0;">AP Data Entry</h1>
             </div>
-            <p>☁️ Gestionale Cloud</p>
         </div>
         <div class="login-body">
             <!-- Login Tabs -->
@@ -1942,23 +1944,23 @@
         <header>
             <div class="header-content">
                 <div class="header-left" style="display: flex; align-items: center; gap: 15px;">
-                    <svg width="45" height="45" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="250" height="65" viewBox="0 0 360 100" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="logoGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#667eea"/>
-                                <stop offset="100%" style="stop-color:#764ba2"/>
+                                <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
                             </linearGradient>
                         </defs>
-                        <rect x="17" y="17" width="86" height="86" rx="20" fill="url(#logoGrad2)" transform="rotate(45 60 60)"/>
-                        <text x="60" y="72" text-anchor="middle" font-size="40" fill="white">⌨️</text>
+                        <rect x="10" y="10" width="80" height="80" rx="16" fill="url(#logoGrad2)"/>
+                        <text x="50" y="47" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="white">AP</text>
+                        <polyline points="20,78 30,66 40,72 50,58 60,66 70,52 80,45" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="80" cy="45" r="4.5" fill="white"/>
+                        <text x="110" y="42" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="700" fill="white">Business Data</text>
+                        <text x="110" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="500" fill="rgba(255,255,255,0.7)">Analyst</text>
                     </svg>
-                    <div>
-                        <h1 style="margin: 0;">AP Data Entry</h1>
-                        <p style="margin: 0;">☁️ Gestionale Cloud</p>
-                    </div>
                 </div>
                 <div class="user-info">
-                    <span class="user-name">Benvenuto, <strong id="displayUsername"></strong></span>
+                    <span class="user-name">Benvenuto</span>
                     <button class="users-btn" onclick="openUsersManagement()">👥 Utenti</button>
                     <button class="users-btn" onclick="apriModalBackup()" title="Scarica backup completo">📥 Backup</button>
                     <button class="users-btn" onclick="apriModalImporta()" title="Ripristina da backup">📤 Importa</button>
@@ -4284,7 +4286,6 @@
 
         // Do Login
         async function doLogin() {
-            document.getElementById('displayUsername').textContent = currentUser.email;
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('appContainer').classList.add('active');
             const themeToggle = document.getElementById('themeToggle');

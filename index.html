@@ -2589,8 +2589,8 @@
                                                 <span id="reader-from-name" style="font-weight: 600; font-size: 15px; color: #1d1d1f;">Nome Mittente</span>
                                                 <span id="reader-date" style="font-size: 13px; color: #86868b;">Data</span>
                                             </div>
-                                            <div id="reader-from-email" style="font-size: 13px; color: #86868b;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="73161e121a1f331600161e031a1c5d101c1e">[email&#160;protected]</a></div>
-                                            <div style="font-size: 13px; color: #86868b; margin-top: 2px;">A: <span id="reader-to"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="177e79717857767b726f6778646372657665783974787a">[email&#160;protected]</a></span></div>
+                                            <div id="reader-from-email" style="font-size: 13px; color: #86868b;">email@esempio.com</div>
+                                            <div style="font-size: 13px; color: #86868b; margin-top: 2px;">A: <span id="reader-to">info@alexposteraro.com</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -4134,7 +4134,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
         // ==========================================
         // SUPABASE CONFIGURATION
@@ -9840,4 +9840,15 @@
                 document.getElementById('backup-file-info').textContent = 'Nessun file selezionato';
                 document.getElementById('btn-ripristina-backup').disabled = true;
                 
-                showToast('✅ Ripristino completato!', 'Tutti i dati sono stati rip
+                showToast('✅ Ripristino completato!', 'Tutti i dati sono stati ripristinati', 'success');
+                console.log('📦 Backup ripristinato con successo');
+                
+            } catch (err) {
+                console.error('Errore ripristino:', err);
+                showToast('Errore', 'Errore durante il ripristino: ' + err.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+        

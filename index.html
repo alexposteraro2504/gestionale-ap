@@ -3544,184 +3544,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-    </div>
-
-                <!-- MOVIMENTI AZIENDA -->
-                <div id="azienda-movimenti" class="tab-content">
-                    <h2 style="margin-bottom: 20px;">Gestione Movimenti Aziendali</h2>
-                    
-                    <form id="az-movimentoForm" style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 30px;">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Data</label>
-                                <input type="date" id="az-dataMovimento" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo</label>
-                                <select id="az-tipoMovimento" required>
-                                    <option value="">Seleziona...</option>
-                                    <option value="entrata">Entrata</option>
-                                    <option value="uscita">Uscita</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Categoria</label>
-                                <select id="az-categoriaMovimento" required>
-                                    <option value="">Seleziona...</option>
-                                    <option value="Vendita">Vendita</option>
-                                    <option value="Servizio">Servizio</option>
-                                    <option value="Consulenza">Consulenza</option>
-                                    <option value="Stipendi">Stipendi</option>
-                                    <option value="Affitto">Affitto</option>
-                                    <option value="Fornitori">Fornitori</option>
-                                    <option value="Utilities">Utilities</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="Trasporti">Trasporti</option>
-                                    <option value="Altro">Altro</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Importo (€)</label>
-                                <input type="number" id="az-importoMovimento" step="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Cliente/Fornitore</label>
-                                <input type="text" id="az-rifMovimento" placeholder="Opzionale">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Descrizione</label>
-                            <textarea id="az-descrizioneMovimento" rows="3" placeholder="Dettagli del movimento..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Aggiungi Movimento</button>
-                    </form>
-
-                    <h3>Elenco Movimenti</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Tipo</th>
-                                <th>Categoria</th>
-                                <th>Riferimento</th>
-                                <th>Descrizione</th>
-                                <th>Importo</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="az-movimentiTable">
-                            <tr><td colspan="7" style="text-align: center; padding: 30px;">Nessun movimento registrato</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- FORNITORI -->
-                <div id="azienda-fornitori" class="tab-content">
-                    <h2 style="margin-bottom: 20px;">Anagrafica Fornitori</h2>
-                    
-                    <form id="fornitoreForm" style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 30px;">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Ragione Sociale / Nome</label>
-                                <input type="text" id="nomeFornitore" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Partita IVA / Codice Fiscale</label>
-                                <input type="text" id="pivaFornitore" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" id="emailFornitore">
-                            </div>
-                            <div class="form-group">
-                                <label>Telefono</label>
-                                <input type="tel" id="telefonoFornitore">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Indirizzo</label>
-                                <input type="text" id="indirizzoFornitore">
-                            </div>
-                            <div class="form-group">
-                                <label>Categoria Servizio</label>
-                                <select id="categoriaFornitore">
-                                    <option value="">Seleziona...</option>
-                                    <option value="Materie Prime">Materie Prime</option>
-                                    <option value="Servizi">Servizi</option>
-                                    <option value="Consulenza">Consulenza</option>
-                                    <option value="Trasporti">Trasporti</option>
-                                    <option value="Utilities">Utilities</option>
-                                    <option value="Tecnologia">Tecnologia</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="Altro">Altro</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Note</label>
-                            <textarea id="noteFornitore" rows="3" placeholder="Note aggiuntive sul fornitore..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Aggiungi Fornitore</button>
-                    </form>
-
-                    <h3>Elenco Fornitori</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>P.IVA/CF</th>
-                                <th>Categoria</th>
-                                <th>Email</th>
-                                <th>Telefono</th>
-                                <th>Indirizzo</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="fornitoriTable">
-                            <tr><td colspan="7" style="text-align: center; padding: 30px;">Nessun fornitore registrato</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- REPORT AZIENDA -->
-                <div id="azienda-report" class="tab-content">
-                    <h2 style="margin-bottom: 20px;">Report e Analisi Aziendali</h2>
-                    
-                    <div class="stats">
-                        <div class="stat-card">
-                            <h3>Media Entrate Mensili</h3>
-                            <div class="value" id="az-mediaEntrate">€0,00</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Media Uscite Mensili</h3>
-                            <div class="value" id="az-mediaUscite">€0,00</div>
-                        </div>
-                    </div>
-
-                    <h3 style="margin-top: 30px;">Riepilogo per Categoria</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Categoria</th>
-                                <th>Entrate</th>
-                                <th>Uscite</th>
-                                <th>Saldo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="az-reportCategorie">
-                            <tr><td colspan="4" style="text-align: center; padding: 30px;">Nessun dato disponibile</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- KPI DASHBOARD -->
                 <div id="azienda-kpi" class="tab-content">
                     <h2 style="margin-bottom: 20px;">🎯 KPI Dashboard</h2>
                     <p style="color: #6c757d; margin-bottom: 20px;">Indicatori chiave di performance</p>
@@ -3779,8 +3601,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    </div>
 
     <!-- AI ASSISTANT BUTTON -->
     <button class="ai-button" id="aiButton" onclick="openAiModal()" title="Assistente AI" style="position: fixed; bottom: 90px; right: 20px; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); display: none; align-items: center; justify-content: center; font-size: 24px; z-index: 1000; transition: transform 0.3s;">🤖</button>
@@ -5520,6 +5340,10 @@
                 aggiornaSelectAnni();
             }
             
+            if (section === 'azienda' && tabName === 'kpi') {
+                aggiornaKPI();
+            }
+            
             if (section === 'azienda' && tabName === 'note') {
                 aggiornaNote();
             }
@@ -5933,6 +5757,183 @@
             
             aggiornaReportCategorie('az');
             aggiornaGrafici('az');
+        }
+
+        async function aggiornaKPI() {
+            const annoCorrente = new Date().getFullYear();
+            const meseCorrente = new Date().getMonth();
+            const annoPrecedente = annoCorrente - 1;
+            
+            // 1. Fatturato YTD (entrate anno corrente)
+            const entrateAnnoCorrente = azMovimenti
+                .filter(m => m.tipo === 'entrata' && new Date(m.data).getFullYear() === annoCorrente)
+                .reduce((sum, m) => sum + m.importo, 0);
+            document.getElementById('kpi-fatturato').textContent = `€${entrateAnnoCorrente.toLocaleString('it-IT', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+            
+            // 2. Crescita % vs anno precedente
+            const entrateAnnoPrecedente = azMovimenti
+                .filter(m => m.tipo === 'entrata' && new Date(m.data).getFullYear() === annoPrecedente)
+                .reduce((sum, m) => sum + m.importo, 0);
+            const crescita = entrateAnnoPrecedente > 0 
+                ? Math.round(((entrateAnnoCorrente - entrateAnnoPrecedente) / entrateAnnoPrecedente) * 100)
+                : 0;
+            document.getElementById('kpi-crescita').textContent = `${crescita > 0 ? '+' : ''}${crescita}%`;
+            
+            // 3. Clienti attivi (con fatture nell'anno)
+            const clientiConFatture = new Set(
+                fattureEmesse
+                    .filter(f => new Date(f.data).getFullYear() === annoCorrente)
+                    .map(f => f.cliente)
+            ).size;
+            document.getElementById('kpi-clienti').textContent = clientiConFatture;
+            
+            // 4. Media Fattura
+            const fattureAnno = fattureEmesse.filter(f => new Date(f.data).getFullYear() === annoCorrente);
+            const mediaFattura = fattureAnno.length > 0
+                ? fattureAnno.reduce((sum, f) => sum + (parseFloat(f.importo) || 0), 0) / fattureAnno.length
+                : 0;
+            document.getElementById('kpi-media').textContent = `€${Math.round(mediaFattura).toLocaleString('it-IT')}`;
+            
+            // 5. Ore Lavorate (mese corrente) - fetch from Supabase
+            let oreMeseCorrente = 0;
+            try {
+                if (db && currentUser) {
+                    const inizioMese = `${annoCorrente}-${String(meseCorrente + 1).padStart(2, '0')}-01`;
+                    const fineMese = meseCorrente === 11 
+                        ? `${annoCorrente + 1}-01-01`
+                        : `${annoCorrente}-${String(meseCorrente + 2).padStart(2, '0')}-01`;
+                    const { data } = await db.from('ore_lavorate')
+                        .select('ore')
+                        .eq('user_id', currentUser.id)
+                        .gte('data', inizioMese)
+                        .lt('data', fineMese);
+                    if (data) {
+                        oreMeseCorrente = data.reduce((sum, s) => sum + parseFloat(s.ore || 0), 0);
+                    }
+                }
+            } catch (e) {
+                console.warn('Errore caricamento ore KPI:', e);
+            }
+            document.getElementById('kpi-ore').textContent = `${Math.round(oreMeseCorrente)}h`;
+            
+            // 6. Tariffa Media (fatturato / ore lavorate)
+            let oreTotaliAnno = 0;
+            try {
+                if (db && currentUser) {
+                    const { data } = await db.from('ore_lavorate')
+                        .select('ore')
+                        .eq('user_id', currentUser.id)
+                        .gte('data', `${annoCorrente}-01-01`)
+                        .lt('data', `${annoCorrente + 1}-01-01`);
+                    if (data) {
+                        oreTotaliAnno = data.reduce((sum, s) => sum + parseFloat(s.ore || 0), 0);
+                    }
+                }
+            } catch (e) {
+                console.warn('Errore caricamento ore anno KPI:', e);
+            }
+            const tariffaMedia = oreTotaliAnno > 0 ? Math.round(entrateAnnoCorrente / oreTotaliAnno) : 0;
+            document.getElementById('kpi-tariffa').textContent = `€${tariffaMedia}/h`;
+            
+            // 7. Conversione Lead → Cliente
+            const leadsConvertiti = pipelineLeads.filter(l => l.stato === 'cliente' || l.stato === 'vinto').length;
+            const totalLeads = pipelineLeads.length;
+            const conversione = totalLeads > 0 ? Math.round((leadsConvertiti / totalLeads) * 100) : 0;
+            document.getElementById('kpi-conversione').textContent = `${conversione}%`;
+            
+            // 8. Margine Netto (dopo tasse forfettarie)
+            const imponibile = entrateAnnoCorrente * regimeForfettario.coefficiente;
+            const dataCorrente = new Date();
+            const anniTrascorsi = (dataCorrente - regimeForfettario.dataApertura) / (1000 * 60 * 60 * 24 * 365);
+            const aliquotaIrpef = anniTrascorsi < regimeForfettario.anniAgevolazione 
+                ? regimeForfettario.irpefAgevolata : regimeForfettario.irpefStandard;
+            const tasseTotali = imponibile * (aliquotaIrpef + regimeForfettario.inps);
+            const usciteAnno = azMovimenti
+                .filter(m => m.tipo === 'uscita' && new Date(m.data).getFullYear() === annoCorrente)
+                .reduce((sum, m) => sum + m.importo, 0);
+            const margineNetto = entrateAnnoCorrente - usciteAnno - tasseTotali;
+            document.getElementById('kpi-margine').textContent = `€${Math.round(margineNetto).toLocaleString('it-IT')}`;
+            
+            // Grafico andamento mensile
+            aggiornaGraficoKPI();
+        }
+        
+        function aggiornaGraficoKPI() {
+            const canvas = document.getElementById('grafico-kpi');
+            if (!canvas) return;
+            
+            const annoCorrente = new Date().getFullYear();
+            const mesiNomi = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+            
+            const entratePerMese = new Array(12).fill(0);
+            const uscitePerMese = new Array(12).fill(0);
+            
+            azMovimenti.forEach(m => {
+                const data = new Date(m.data);
+                if (data.getFullYear() === annoCorrente) {
+                    if (m.tipo === 'entrata') entratePerMese[data.getMonth()] += m.importo;
+                    else uscitePerMese[data.getMonth()] += m.importo;
+                }
+            });
+            
+            const profittoPerMese = entratePerMese.map((e, i) => e - uscitePerMese[i]);
+            
+            // Destroy existing chart if present
+            if (window.kpiChart) window.kpiChart.destroy();
+            
+            window.kpiChart = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: mesiNomi,
+                    datasets: [
+                        {
+                            label: 'Entrate',
+                            data: entratePerMese,
+                            backgroundColor: 'rgba(39, 174, 96, 0.7)',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Uscite',
+                            data: uscitePerMese,
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Profitto',
+                            type: 'line',
+                            data: profittoPerMese,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return `${ctx.dataset.label}: €${ctx.parsed.y.toLocaleString('it-IT')}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: val => `€${val.toLocaleString('it-IT')}`
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function aggiornaMovimentiDashboard() {

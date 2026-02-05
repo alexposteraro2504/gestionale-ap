@@ -260,16 +260,23 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        /* Tabs Azienda - disposte su griglia */
+        /* Tabs Azienda - disposte su righe */
         #azienda .tabs {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
+            display: flex;
+            flex-direction: column;
             overflow-x: visible;
+            gap: 0;
+        }
+
+        #azienda .tabs > div {
+            display: flex;
+            flex-wrap: wrap;
             gap: 2px;
+            padding: 4px 0;
         }
 
         #azienda .tab {
-            padding: 12px 10px;
+            padding: 10px 14px;
             font-size: 13px;
             text-align: center;
             border-bottom: none;
@@ -1691,18 +1698,14 @@
         }
 
         @media (max-width: 1200px) {
-            #azienda .tabs {
-                grid-template-columns: repeat(5, 1fr);
+            #azienda .tabs > div {
+                gap: 2px;
             }
         }
 
         @media (max-width: 900px) {
-            #azienda .tabs {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
             #azienda .tab {
-                padding: 10px 5px;
+                padding: 8px 10px;
                 font-size: 11px;
             }
         }

@@ -1955,9 +1955,8 @@
                 <div class="user-info">
                     <span class="user-name">Benvenuto, <strong id="displayUsername"></strong></span>
                     <button class="users-btn" onclick="openUsersManagement()">👥 Utenti</button>
-                    <button class="users-btn" onclick="esportaBackup()" title="Scarica backup completo">📥 Backup</button>
-                    <button class="users-btn" onclick="document.getElementById('header-backup-input').click()" title="Ripristina da backup">📤 Importa</button>
-                    <input type="file" id="header-backup-input" accept=".json" style="display: none;" onchange="handleBackupFileSelectHeader(this)">
+                    <button class="users-btn" onclick="apriModalBackup()" title="Scarica backup completo">📥 Backup</button>
+                    <button class="users-btn" onclick="apriModalImporta()" title="Ripristina da backup">📤 Importa</button>
                     <button class="users-btn" onclick="logout()">🚪 Esci</button>
                 </div>
             </div>
@@ -2759,60 +2758,6 @@
                         <h3 style="margin-bottom: 15px;">✅ Dati Salvati</h3>
                         <div style="background: white; padding: 25px; border-radius: 10px; border: 2px solid #27ae60;">
                             <div id="miei-dati-riepilogo"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- SEZIONE BACKUP -->
-                    <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
-                        <h2 style="margin-bottom: 20px;">💾 Backup & Ripristino</h2>
-                        <p style="color: #6c757d; margin-bottom: 20px;">Esporta tutti i tuoi dati in un file JSON o ripristina da un backup precedente.</p>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                            <!-- Esporta Backup -->
-                            <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 25px; border-radius: 15px; border: 2px solid #4caf50;">
-                                <h3 style="color: #2e7d32; margin-bottom: 15px;">📥 Esporta Backup</h3>
-                                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
-                                    Scarica un file JSON con tutti i tuoi dati: clienti, richieste, fatture, preventivi, movimenti, email, ore lavorate e scadenze.
-                                </p>
-                                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                                    <div style="font-size: 13px; color: #666;">
-                                        <div>📊 Clienti, Fornitori, Pipeline</div>
-                                        <div>📬 Richieste e Email</div>
-                                        <div>🧾 Fatture e Preventivi</div>
-                                        <div>💰 Movimenti</div>
-                                        <div>⏱️ Ore lavorate</div>
-                                        <div>📅 Scadenze</div>
-                                    </div>
-                                </div>
-                                <button onclick="esportaBackup()" class="btn btn-primary" style="width: 100%; background: #4caf50; border-color: #4caf50;">
-                                    📥 Scarica Backup Completo
-                                </button>
-                            </div>
-                            
-                            <!-- Ripristina Backup -->
-                            <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 25px; border-radius: 15px; border: 2px solid #ff9800;">
-                                <h3 style="color: #e65100; margin-bottom: 15px;">📤 Ripristina Backup</h3>
-                                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
-                                    Carica un file di backup per ripristinare i tuoi dati. <strong style="color: #d32f2f;">Attenzione:</strong> questa operazione sostituirà i dati esistenti.
-                                </p>
-                                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                                    <input type="file" id="backup-file-input" accept=".json" style="display: none;" onchange="handleBackupFileSelect(this)">
-                                    <div id="backup-file-info" style="text-align: center; color: #666; font-size: 13px;">
-                                        Nessun file selezionato
-                                    </div>
-                                </div>
-                                <button onclick="document.getElementById('backup-file-input').click()" class="btn" style="width: 100%; background: #ff9800; border-color: #ff9800; color: white; margin-bottom: 10px;">
-                                    📁 Seleziona File Backup
-                                </button>
-                                <button onclick="ripristinaBackup()" id="btn-ripristina-backup" class="btn" style="width: 100%; background: #e65100; border-color: #e65100; color: white;" disabled>
-                                    ⚠️ Ripristina Dati
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Info ultimo backup -->
-                        <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 10px; font-size: 13px; color: #666;">
-                            <strong>💡 Consiglio:</strong> Esegui un backup almeno una volta al mese e salvalo su Google Drive o un altro cloud storage per sicurezza.
                         </div>
                     </div>
                 </div>
@@ -4044,6 +3989,67 @@
                     <button onclick="salvaModificheLead()" class="btn btn-primary" style="flex: 1;">💾 Salva Modifiche</button>
                     <button onclick="chiudiModalLead()" class="btn" style="flex: 1; background: #6c757d; color: white;">Annulla</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Backup -->
+    <div id="modalBackup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;" onclick="if(event.target===this)chiudiModalBackup()">
+        <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 15px; width: 90%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 2px solid #4caf50;">
+            <div style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); color: white; padding: 20px 25px; border-radius: 13px 13px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">📥 Esporta Backup</h3>
+                <button onclick="chiudiModalBackup()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer;">×</button>
+            </div>
+            <div style="padding: 25px;">
+                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+                    Scarica un file JSON con tutti i tuoi dati.
+                </p>
+                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="font-size: 13px; color: #555; line-height: 1.8;">
+                        📊 Clienti, Fornitori, Pipeline<br>
+                        📬 Richieste e Email<br>
+                        🧾 Fatture e Preventivi<br>
+                        💰 Movimenti<br>
+                        ⏱️ Ore lavorate<br>
+                        📅 Scadenze
+                    </div>
+                </div>
+                <button onclick="esportaBackup(); chiudiModalBackup();" class="btn btn-primary" style="width: 100%; background: #4caf50; border-color: #4caf50; padding: 14px; font-size: 16px;">
+                    📥 Scarica Backup Completo
+                </button>
+                <div style="margin-top: 15px; font-size: 12px; color: #888; text-align: center;">
+                    💡 Salvalo su Google Drive per sicurezza
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Importa -->
+    <div id="modalImporta" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;" onclick="if(event.target===this)chiudiModalImporta()">
+        <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-radius: 15px; width: 90%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 2px solid #ff9800;">
+            <div style="background: linear-gradient(135deg, #ff9800 0%, #e65100 100%); color: white; padding: 20px 25px; border-radius: 13px 13px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">📤 Ripristina Backup</h3>
+                <button onclick="chiudiModalImporta()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer;">×</button>
+            </div>
+            <div style="padding: 25px;">
+                <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                    Carica un file di backup per ripristinare i tuoi dati.
+                </p>
+                <p style="color: #d32f2f; font-size: 13px; font-weight: bold; margin-bottom: 20px;">
+                    ⚠️ Questa operazione sostituirà i dati esistenti.
+                </p>
+                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; min-height: 50px; display: flex; align-items: center; justify-content: center;">
+                    <input type="file" id="backup-file-input" accept=".json" style="display: none;" onchange="handleBackupFileSelect(this)">
+                    <div id="backup-file-info" style="text-align: center; color: #666; font-size: 13px;">
+                        Nessun file selezionato
+                    </div>
+                </div>
+                <button onclick="document.getElementById('backup-file-input').click()" class="btn" style="width: 100%; background: #ff9800; border-color: #ff9800; color: white; padding: 14px; font-size: 16px; margin-bottom: 10px;">
+                    📁 Seleziona File Backup
+                </button>
+                <button onclick="ripristinaBackup()" id="btn-ripristina-backup" class="btn" style="width: 100%; background: #e65100; border-color: #e65100; color: white; padding: 14px; font-size: 16px;" disabled>
+                    ⚠️ Ripristina Dati
+                </button>
             </div>
         </div>
     </div>
@@ -9473,6 +9479,27 @@
         // ==========================================
         
         let backupFileData = null;
+
+        function apriModalBackup() {
+            document.getElementById('modalBackup').style.display = 'flex';
+        }
+
+        function chiudiModalBackup() {
+            document.getElementById('modalBackup').style.display = 'none';
+        }
+
+        function apriModalImporta() {
+            // Reset stato
+            backupFileData = null;
+            document.getElementById('backup-file-input').value = '';
+            document.getElementById('backup-file-info').textContent = 'Nessun file selezionato';
+            document.getElementById('btn-ripristina-backup').disabled = true;
+            document.getElementById('modalImporta').style.display = 'flex';
+        }
+
+        function chiudiModalImporta() {
+            document.getElementById('modalImporta').style.display = 'none';
+        }
 
         async function esportaBackup() {
             showToast('Backup', 'Preparazione backup in corso...', 'info');

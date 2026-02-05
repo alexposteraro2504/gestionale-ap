@@ -2107,26 +2107,35 @@
 
         <!-- SEZIONE AZIENDA -->
         <div id="azienda" class="main-content">
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('azienda', 'dashboard')">📊 Dashboard</button>
-                <button class="tab" onclick="switchTab('azienda', 'timetracker')">⏱️ Time Tracker</button>
-                <button class="tab" onclick="switchTab('azienda', 'pipeline')">🎯 Pipeline</button>
-                <button class="tab" onclick="switchTab('azienda', 'richieste')" id="tab-richieste">📬 Richieste <span id="badge-richieste" class="badge-notifica" style="display: none;">0</span></button>
-                <button class="tab" onclick="switchTab('azienda', 'mieidati')">🏢 I Miei Dati</button>
-                <button class="tab" onclick="switchTab('azienda', 'movimenti')">💼 Movimenti</button>
-                <button class="tab" onclick="switchTab('azienda', 'clienti')">👥 Clienti</button>
-                <button class="tab" onclick="switchTab('azienda', 'fornitori')">🏭 Fornitori</button>
-                <button class="tab" onclick="switchTab('azienda', 'documenti')">📁 Documenti</button>
-                <button class="tab" onclick="switchTab('azienda', 'preventivi')">📋 Preventivi</button>
-                <button class="tab" onclick="switchTab('azienda', 'fatture')">🧾 Fatture</button>
-                <button class="tab" onclick="switchTab('azienda', 'scadenze')">📅 Scadenze</button>
-                <button class="tab" onclick="switchTab('azienda', 'tasse')">💰 Tasse</button>
-                <button class="tab" onclick="switchTab('azienda', 'note')">📝 Note</button>
-                <button class="tab" onclick="switchTab('azienda', 'report')">📈 Report</button>
-                <button class="tab" onclick="switchTab('azienda', 'kpi')">🎯 KPI</button>
-                <button class="tab" onclick="switchTab('azienda', 'esportazione')">📥 Export</button>
-                <button class="tab" onclick="switchTab('azienda', 'ricerca')">🔍 Ricerca</button>
-                <button class="tab" onclick="switchTab('azienda', 'confronto')">📊 Confronto</button>
+            <div class="tabs" style="display: flex; flex-direction: column; gap: 2px;">
+                <!-- Riga 1: La Mia Azienda -->
+                <div style="display: flex; flex-wrap: wrap; gap: 2px; padding-bottom: 2px; border-bottom: 1px solid #e0e0e0;">
+                    <button class="tab active" onclick="switchTab('azienda', 'dashboard')">📊 Dashboard</button>
+                    <button class="tab" onclick="switchTab('azienda', 'kpi')">🎯 KPI</button>
+                    <button class="tab" onclick="switchTab('azienda', 'confronto')">📊 Confronto</button>
+                    <button class="tab" onclick="switchTab('azienda', 'movimenti')">💼 Movimenti</button>
+                    <button class="tab" onclick="switchTab('azienda', 'tasse')">💰 Tasse</button>
+                    <button class="tab" onclick="switchTab('azienda', 'scadenze')">📅 Scadenze</button>
+                    <button class="tab" onclick="switchTab('azienda', 'mieidati')">🏢 I Miei Dati</button>
+                </div>
+                <!-- Riga 2: Relazioni Esterne -->
+                <div style="display: flex; flex-wrap: wrap; gap: 2px; padding-bottom: 2px; border-bottom: 1px solid #e0e0e0;">
+                    <button class="tab" onclick="switchTab('azienda', 'clienti')">👥 Clienti</button>
+                    <button class="tab" onclick="switchTab('azienda', 'fornitori')">🏭 Fornitori</button>
+                    <button class="tab" onclick="switchTab('azienda', 'richieste')" id="tab-richieste">📬 Richieste <span id="badge-richieste" class="badge-notifica" style="display: none;">0</span></button>
+                    <button class="tab" onclick="switchTab('azienda', 'pipeline')">🎯 Pipeline</button>
+                    <button class="tab" onclick="switchTab('azienda', 'timetracker')">⏱️ Time Tracker</button>
+                    <button class="tab" onclick="switchTab('azienda', 'note')">📝 Note</button>
+                    <button class="tab" onclick="switchTab('azienda', 'documenti')">📁 Documenti</button>
+                </div>
+                <!-- Riga 3: Contabilità -->
+                <div style="display: flex; flex-wrap: wrap; gap: 2px;">
+                    <button class="tab" onclick="switchTab('azienda', 'preventivi')">📋 Preventivi</button>
+                    <button class="tab" onclick="switchTab('azienda', 'fatture')">🧾 Fatture</button>
+                    <button class="tab" onclick="switchTab('azienda', 'ricerca')">🔍 Ricerca</button>
+                    <button class="tab" onclick="switchTab('azienda', 'report')">📈 Report</button>
+                    <button class="tab" onclick="switchTab('azienda', 'esportazione')">📥 Export</button>
+                </div>
             </div>
 
             <div class="content">

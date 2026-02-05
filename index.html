@@ -2589,8 +2589,8 @@
                                                 <span id="reader-from-name" style="font-weight: 600; font-size: 15px; color: #1d1d1f;">Nome Mittente</span>
                                                 <span id="reader-date" style="font-size: 13px; color: #86868b;">Data</span>
                                             </div>
-                                            <div id="reader-from-email" style="font-size: 13px; color: #86868b;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="046169656d684461776169746d6b2a676b69">[email&#160;protected]</a></div>
-                                            <div style="font-size: 13px; color: #86868b; margin-top: 2px;">A: <span id="reader-to"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1d74737b725d7c7178656d726e69786f7c6f72337e7270">[email&#160;protected]</a></span></div>
+                                            <div id="reader-from-email" style="font-size: 13px; color: #86868b;">email@esempio.com</div>
+                                            <div style="font-size: 13px; color: #86868b; margin-top: 2px;">A: <span id="reader-to">info@alexposteraro.com</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -3529,62 +3529,6 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- KPI DASHBOARD -->
-                <div id="azienda-kpi" class="tab-content">
-                    <h2 style="margin-bottom: 20px;">🎯 KPI Dashboard</h2>
-                    <p style="color: #6c757d; margin-bottom: 20px;">Indicatori chiave di performance</p>
-                    
-                    <div class="stats" style="margin-bottom: 30px;">
-                        <div class="stat-card green">
-                            <h3>💰 Fatturato YTD</h3>
-                            <div class="value" id="kpi-fatturato">€0</div>
-                            <small style="color: #6c757d;">Anno corrente</small>
-                        </div>
-                        <div class="stat-card blue">
-                            <h3>📈 Crescita %</h3>
-                            <div class="value" id="kpi-crescita">0%</div>
-                            <small style="color: #6c757d;">vs anno precedente</small>
-                        </div>
-                        <div class="stat-card orange">
-                            <h3>👥 Clienti Attivi</h3>
-                            <div class="value" id="kpi-clienti">0</div>
-                            <small style="color: #6c757d;">Con fatture nell'anno</small>
-                        </div>
-                        <div class="stat-card purple">
-                            <h3>📊 Media Fattura</h3>
-                            <div class="value" id="kpi-media">€0</div>
-                            <small style="color: #6c757d;">Valore medio</small>
-                        </div>
-                    </div>
-                    
-                    <div class="stats" style="margin-bottom: 30px;">
-                        <div class="stat-card blue">
-                            <h3>⏱️ Ore Lavorate</h3>
-                            <div class="value" id="kpi-ore">0h</div>
-                            <small style="color: #6c757d;">Mese corrente</small>
-                        </div>
-                        <div class="stat-card green">
-                            <h3>💵 Tariffa Media</h3>
-                            <div class="value" id="kpi-tariffa">€0/h</div>
-                            <small style="color: #6c757d;">Per ora lavorata</small>
-                        </div>
-                        <div class="stat-card orange">
-                            <h3>🔄 Conversione</h3>
-                            <div class="value" id="kpi-conversione">0%</div>
-                            <small style="color: #6c757d;">Lead → Cliente</small>
-                        </div>
-                        <div class="stat-card red">
-                            <h3>💸 Margine Netto</h3>
-                            <div class="value" id="kpi-margine">€0</div>
-                            <small style="color: #6c757d;">Dopo tasse</small>
-                        </div>
-                    </div>
-                    
-                    <h3 style="margin: 30px 0 20px;">📊 Andamento Mensile</h3>
-                    <div class="chart-container" style="max-width: 800px;">
-                        <canvas id="grafico-kpi"></canvas>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -3760,6 +3704,63 @@
                             <tr><td colspan="4" style="text-align: center; padding: 30px;">Nessun dato disponibile</td></tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- KPI DASHBOARD -->
+                <div id="azienda-kpi" class="tab-content">
+                    <h2 style="margin-bottom: 20px;">🎯 KPI Dashboard</h2>
+                    <p style="color: #6c757d; margin-bottom: 20px;">Indicatori chiave di performance</p>
+                    
+                    <div class="stats" style="margin-bottom: 30px;">
+                        <div class="stat-card green">
+                            <h3>💰 Fatturato YTD</h3>
+                            <div class="value" id="kpi-fatturato">€0</div>
+                            <small style="color: #6c757d;">Anno corrente</small>
+                        </div>
+                        <div class="stat-card blue">
+                            <h3>📈 Crescita %</h3>
+                            <div class="value" id="kpi-crescita">0%</div>
+                            <small style="color: #6c757d;">vs anno precedente</small>
+                        </div>
+                        <div class="stat-card orange">
+                            <h3>👥 Clienti Attivi</h3>
+                            <div class="value" id="kpi-clienti">0</div>
+                            <small style="color: #6c757d;">Con fatture nell'anno</small>
+                        </div>
+                        <div class="stat-card purple">
+                            <h3>📊 Media Fattura</h3>
+                            <div class="value" id="kpi-media">€0</div>
+                            <small style="color: #6c757d;">Valore medio</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stats" style="margin-bottom: 30px;">
+                        <div class="stat-card blue">
+                            <h3>⏱️ Ore Lavorate</h3>
+                            <div class="value" id="kpi-ore">0h</div>
+                            <small style="color: #6c757d;">Mese corrente</small>
+                        </div>
+                        <div class="stat-card green">
+                            <h3>💵 Tariffa Media</h3>
+                            <div class="value" id="kpi-tariffa">€0/h</div>
+                            <small style="color: #6c757d;">Per ora lavorata</small>
+                        </div>
+                        <div class="stat-card orange">
+                            <h3>🔄 Conversione</h3>
+                            <div class="value" id="kpi-conversione">0%</div>
+                            <small style="color: #6c757d;">Lead → Cliente</small>
+                        </div>
+                        <div class="stat-card red">
+                            <h3>💸 Margine Netto</h3>
+                            <div class="value" id="kpi-margine">€0</div>
+                            <small style="color: #6c757d;">Dopo tasse</small>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin: 30px 0 20px;">📊 Andamento Mensile</h3>
+                    <div class="chart-container" style="max-width: 800px;">
+                        <canvas id="grafico-kpi"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4133,7 +4134,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
         // ==========================================
         // SUPABASE CONFIGURATION
@@ -9839,4 +9840,15 @@
                 document.getElementById('backup-file-info').textContent = 'Nessun file selezionato';
                 document.getElementById('btn-ripristina-backup').disabled = true;
                 
-                showToast('✅ Ripristino completato!', 'Tutti i dati sono stati rip
+                showToast('✅ Ripristino completato!', 'Tutti i dati sono stati ripristinati', 'success');
+                console.log('📦 Backup ripristinato con successo');
+                
+            } catch (err) {
+                console.error('Errore ripristino:', err);
+                showToast('Errore', 'Errore durante il ripristino: ' + err.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+        

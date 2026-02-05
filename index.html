@@ -5465,11 +5465,17 @@
 
         function switchTab(section, tabName) {
             const parent = document.getElementById(section);
+            // Rimuovi active da TUTTE le tab (anche nei div wrapper)
             parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            // Rimuovi active da TUTTI i tab-content
             parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
-            event.target.classList.add('active');
-            document.getElementById(section + '-' + tabName).classList.add('active');
+            // Trova il pulsante cliccato (potrebbe essere un figlio dell'event.target)
+            const clicked = event.target.closest('.tab');
+            if (clicked) clicked.classList.add('active');
+            
+            const targetContent = document.getElementById(section + '-' + tabName);
+            if (targetContent) targetContent.classList.add('active');
             
             if (tabName === 'dashboard' || tabName === 'report') {
                 aggiornaStatistiche('az');

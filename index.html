@@ -5044,7 +5044,8 @@
         }
 
         // Init on DOM ready
-        document.addEventListener('DOMContentLoaded', async () => {
+        // Safe init: fire immediately if DOM already loaded, otherwise wait
+        async function initApp() {
             // Time Tracker form
             const ttForm = document.getElementById('timeTrackerForm');
             if (ttForm) {
@@ -5231,7 +5232,12 @@
             } catch (err) {
                 console.error('Session check error:', err);
             }
-        });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
         // EXISTING CODE
         let azMovimenti = [];
         let clienti = [];

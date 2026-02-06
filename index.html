@@ -5587,107 +5587,125 @@
             }
         });
 
-        document.getElementById('clienteForm').addEventListener('submit', function(e) {
+        document.getElementById('clienteForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const clienteInModifica = this.dataset.clienteInModifica;
             
+            const clienteData = {
+                nome: document.getElementById('nomeCliente').value,
+                piva: document.getElementById('pivaCliente').value,
+                sdi: document.getElementById('sdiCliente').value || '0000000',
+                pec: document.getElementById('pecCliente').value,
+                email: document.getElementById('emailCliente').value,
+                telefono: document.getElementById('telefonoCliente').value,
+                indirizzo: document.getElementById('indirizzoCliente').value,
+                cap: document.getElementById('capCliente').value,
+                citta: document.getElementById('cittaCliente').value,
+                provincia: document.getElementById('provinciaCliente').value.toUpperCase(),
+                note: document.getElementById('noteCliente').value
+            };
+            
             if (clienteInModifica) {
                 // MODIFICA CLIENTE ESISTENTE
-                const clienteId = typeof clienteInModifica === 'string' ? parseInt(clienteInModifica) : clienteInModifica;
-                const cliente = clienti.find(c => {
-                    const cId = typeof c.id === 'string' ? parseInt(c.id) : c.id;
-                    return cId === clienteId;
-                });
-                
-                if (cliente) {
-                    cliente.nome = document.getElementById('nomeCliente').value;
-                    cliente.piva = document.getElementById('pivaCliente').value;
-                    cliente.sdi = document.getElementById('sdiCliente').value || '0000000';
-                    cliente.pec = document.getElementById('pecCliente').value;
-                    cliente.email = document.getElementById('emailCliente').value;
-                    cliente.telefono = document.getElementById('telefonoCliente').value;
-                    cliente.indirizzo = document.getElementById('indirizzoCliente').value;
-                    cliente.cap = document.getElementById('capCliente').value;
-                    cliente.citta = document.getElementById('cittaCliente').value;
-                    cliente.provincia = document.getElementById('provinciaCliente').value.toUpperCase();
-                    cliente.note = document.getElementById('noteCliente').value;
+                try {
+                    await aggiornaDatoSupabase('clienti', clienteInModifica, clienteData);
                     
-                    alert('✅ Cliente modificato con successo!');
+                    const cliente = clienti.find(c => c.id == clienteInModifica);
+                    if (cliente) {
+                        Object.assign(cliente, clienteData);
+                    }
+                    
+                    showToast('Cliente Aggiornato', `"${clienteData.nome}" modificato con successo`, 'success');
                     annullaModificaCliente();
+                } catch (err) {
+                    console.error('Errore modifica cliente:', err);
+                    showToast('Errore', 'Impossibile modificare il cliente', 'error');
                 }
             } else {
                 // CREA NUOVO CLIENTE
-                const cliente = {
-                    id: Date.now(),
-                    nome: document.getElementById('nomeCliente').value,
-                    piva: document.getElementById('pivaCliente').value,
-                    sdi: document.getElementById('sdiCliente').value || '0000000',
-                    pec: document.getElementById('pecCliente').value,
-                    email: document.getElementById('emailCliente').value,
-                    telefono: document.getElementById('telefonoCliente').value,
-                    indirizzo: document.getElementById('indirizzoCliente').value,
-                    cap: document.getElementById('capCliente').value,
-                    citta: document.getElementById('cittaCliente').value,
-                    provincia: document.getElementById('provinciaCliente').value.toUpperCase(),
-                    note: document.getElementById('noteCliente').value
-                };
-                
-                clienti.push(cliente);
-                this.reset();
-                alert('✅ Cliente aggiunto con successo!');
+                try {
+                    const { data, error } = await db
+                        .from('clienti')
+                        .insert([{ ...clienteData, user_id: currentUser.id }])
+                        .select()
+                        .single();
+                    
+                    if (error) {
+                        console.error('Errore salvataggio cliente:', error);
+                        showToast('Errore', 'Impossibile salvare il cliente: ' + error.message, 'error');
+                        return;
+                    }
+                    
+                    clienti.push({ id: data.id, ...clienteData });
+                    this.reset();
+                    showToast('Cliente Aggiunto', `"${clienteData.nome}" salvato con successo`, 'success');
+                } catch (err) {
+                    console.error('Errore:', err);
+                    showToast('Errore', 'Impossibile salvare il cliente', 'error');
+                }
             }
             
             aggiornaClienti();
             aggiornaStatistiche('az');
-            salvaDati();
         });
 
-        document.getElementById('fornitoreForm').addEventListener('submit', function(e) {
+        document.getElementById('fornitoreForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const fornitoreInModifica = this.dataset.fornitoreInModifica;
             
+            const fornitoreData = {
+                nome: document.getElementById('nomeFornitore').value,
+                piva: document.getElementById('pivaFornitore').value,
+                email: document.getElementById('emailFornitore').value,
+                telefono: document.getElementById('telefonoFornitore').value,
+                indirizzo: document.getElementById('indirizzoFornitore').value,
+                categoria: document.getElementById('categoriaFornitore').value,
+                note: document.getElementById('noteFornitore').value
+            };
+            
             if (fornitoreInModifica) {
                 // MODIFICA FORNITORE ESISTENTE
-                const fornitoreId = typeof fornitoreInModifica === 'string' ? parseInt(fornitoreInModifica) : fornitoreInModifica;
-                const fornitore = fornitori.find(f => {
-                    const fId = typeof f.id === 'string' ? parseInt(f.id) : f.id;
-                    return fId === fornitoreId;
-                });
-                
-                if (fornitore) {
-                    fornitore.nome = document.getElementById('nomeFornitore').value;
-                    fornitore.piva = document.getElementById('pivaFornitore').value;
-                    fornitore.email = document.getElementById('emailFornitore').value;
-                    fornitore.telefono = document.getElementById('telefonoFornitore').value;
-                    fornitore.indirizzo = document.getElementById('indirizzoFornitore').value;
-                    fornitore.categoria = document.getElementById('categoriaFornitore').value;
-                    fornitore.note = document.getElementById('noteFornitore').value;
+                try {
+                    await aggiornaDatoSupabase('fornitori', fornitoreInModifica, fornitoreData);
                     
-                    alert('✅ Fornitore modificato con successo!');
+                    const fornitore = fornitori.find(f => f.id == fornitoreInModifica);
+                    if (fornitore) {
+                        Object.assign(fornitore, fornitoreData);
+                    }
+                    
+                    showToast('Fornitore Aggiornato', `"${fornitoreData.nome}" modificato con successo`, 'success');
                     annullaModificaFornitore();
+                } catch (err) {
+                    console.error('Errore modifica fornitore:', err);
+                    showToast('Errore', 'Impossibile modificare il fornitore', 'error');
                 }
             } else {
                 // CREA NUOVO FORNITORE
-                const fornitore = {
-                    id: Date.now(),
-                    nome: document.getElementById('nomeFornitore').value,
-                    piva: document.getElementById('pivaFornitore').value,
-                    email: document.getElementById('emailFornitore').value,
-                    telefono: document.getElementById('telefonoFornitore').value,
-                    indirizzo: document.getElementById('indirizzoFornitore').value,
-                    categoria: document.getElementById('categoriaFornitore').value,
-                    note: document.getElementById('noteFornitore').value
-                };
-                
-                fornitori.push(fornitore);
-                this.reset();
-                alert('✅ Fornitore aggiunto con successo!');
+                try {
+                    const { data, error } = await db
+                        .from('fornitori')
+                        .insert([{ ...fornitoreData, user_id: currentUser.id }])
+                        .select()
+                        .single();
+                    
+                    if (error) {
+                        console.error('Errore salvataggio fornitore:', error);
+                        showToast('Errore', 'Impossibile salvare il fornitore: ' + error.message, 'error');
+                        return;
+                    }
+                    
+                    fornitori.push({ id: data.id, ...fornitoreData });
+                    this.reset();
+                    showToast('Fornitore Aggiunto', `"${fornitoreData.nome}" salvato con successo`, 'success');
+                } catch (err) {
+                    console.error('Errore:', err);
+                    showToast('Errore', 'Impossibile salvare il fornitore', 'error');
+                }
             }
             
             aggiornaFornitori();
-            salvaDati();
         });
 
         // FORM I MIEI DATI AZIENDALI
@@ -6674,12 +6692,18 @@
             }
         }
 
-        function eliminaCliente(id) {
+        async function eliminaCliente(id) {
             if (confirm('Sei sicuro di voler eliminare questo cliente?')) {
-                clienti = clienti.filter(c => c.id != id);
-                aggiornaClienti();
-                aggiornaStatistiche('az');
-                salvaDati();
+                try {
+                    await eliminaDatoSupabase('clienti', id);
+                    clienti = clienti.filter(c => c.id != id);
+                    aggiornaClienti();
+                    aggiornaStatistiche('az');
+                    showToast('Cliente Eliminato', 'Cliente rimosso con successo', 'success');
+                } catch (err) {
+                    console.error('Errore eliminazione cliente:', err);
+                    showToast('Errore', 'Impossibile eliminare il cliente', 'error');
+                }
             }
         }
 
@@ -6750,11 +6774,17 @@
             delete form.dataset.clienteInModifica;
         }
 
-        function eliminaFornitore(id) {
+        async function eliminaFornitore(id) {
             if (confirm('Sei sicuro di voler eliminare questo fornitore?')) {
-                fornitori = fornitori.filter(f => f.id != id);
-                aggiornaFornitori();
-                salvaDati();
+                try {
+                    await eliminaDatoSupabase('fornitori', id);
+                    fornitori = fornitori.filter(f => f.id != id);
+                    aggiornaFornitori();
+                    showToast('Fornitore Eliminato', 'Fornitore rimosso con successo', 'success');
+                } catch (err) {
+                    console.error('Errore eliminazione fornitore:', err);
+                    showToast('Errore', 'Impossibile eliminare il fornitore', 'error');
+                }
             }
         }
 

@@ -1736,7 +1736,7 @@
         <!-- SEZIONE AZIENDA -->
         <div id="azienda" class="main-content active">
             <div class="tabs" style="display: flex; flex-direction: column; gap: 2px;">
-                <!-- Riga 1: La Mia Azienda -->
+                <!-- Riga 1: Gestione Azienda -->
                 <div style="display: flex; flex-wrap: wrap; gap: 2px; padding-bottom: 2px; border-bottom: 1px solid #e0e0e0;">
                     <button class="tab active" onclick="switchTab('azienda', 'panoramica')">📈 Panoramica</button>
                     <button class="tab" onclick="switchTab('azienda', 'dashboard')">📊 Dashboard</button>
@@ -1746,24 +1746,21 @@
                     <button class="tab" onclick="switchTab('azienda', 'tasse')">💰 Tasse</button>
                     <button class="tab" onclick="switchTab('azienda', 'scadenze')">📅 Scadenze</button>
                     <button class="tab" onclick="switchTab('azienda', 'mieidati')">🏢 I Miei Dati</button>
-                </div>
-                <!-- Riga 2: Relazioni Esterne -->
-                <div style="display: flex; flex-wrap: wrap; gap: 2px; padding-bottom: 2px; border-bottom: 1px solid #e0e0e0;">
                     <button class="tab" onclick="switchTab('azienda', 'clienti')">👥 Clienti</button>
                     <button class="tab" onclick="switchTab('azienda', 'fornitori')">🏭 Fornitori</button>
+                    <button class="tab" onclick="switchTab('azienda', 'ricerca')">🔍 Ricerca</button>
+                    <button class="tab" onclick="switchTab('azienda', 'report')">📈 Report</button>
+                    <button class="tab" onclick="switchTab('azienda', 'esportazione')">📥 Export</button>
+                </div>
+                <!-- Riga 2: Operatività -->
+                <div style="display: flex; flex-wrap: wrap; gap: 2px;">
                     <button class="tab" onclick="switchTab('azienda', 'richieste')" id="tab-richieste">📬 Richieste <span id="badge-richieste" class="badge-notifica" style="display: none;">0</span></button>
                     <button class="tab" onclick="switchTab('azienda', 'pipeline')" id="tab-pipeline">🎯 Pipeline <span id="badge-pipeline" class="badge-notifica" style="display: none;">0</span></button>
                     <button class="tab" onclick="switchTab('azienda', 'timetracker')">⏱️ Time Tracker</button>
                     <button class="tab" onclick="switchTab('azienda', 'note')">📝 Note</button>
                     <button class="tab" onclick="switchTab('azienda', 'documenti')">📁 Documenti</button>
-                </div>
-                <!-- Riga 3: Contabilità -->
-                <div style="display: flex; flex-wrap: wrap; gap: 2px;">
                     <button class="tab" onclick="switchTab('azienda', 'preventivi')">📋 Preventivi</button>
                     <button class="tab" onclick="switchTab('azienda', 'fatture')">🧾 Fatture</button>
-                    <button class="tab" onclick="switchTab('azienda', 'ricerca')">🔍 Ricerca</button>
-                    <button class="tab" onclick="switchTab('azienda', 'report')">📈 Report</button>
-                    <button class="tab" onclick="switchTab('azienda', 'esportazione')">📥 Export</button>
                 </div>
             </div>
 
@@ -7230,9 +7227,8 @@
             // Popola info richiesta
             document.getElementById('ore-richiesta-nome').textContent = richiesta.nome;
             
-            // Estrai valore dal budget se presente
-            const budgetMatch = richiesta.budget ? richiesta.budget.match(/[\d.,]+/) : null;
-            const valoreProgetto = budgetMatch ? parseFloat(budgetMatch[0].replace(',', '')) : 0;
+            // Estrai valore dal budget usando la funzione utility
+            const valoreProgetto = parseBudget(richiesta.budget);
             richiesta.valoreProgetto = valoreProgetto;
             
             document.getElementById('ore-richiesta-valore').textContent = valoreProgetto > 0 
@@ -8788,14 +8784,8 @@
             
             if (confirm(`Spostare "${richiesta.nome}" nella pipeline commerciale?`)) {
                 try {
-                    // Estrai valore dal budget se presente
-                    let valoreProgetto = 0;
-                    if (richiesta.budget) {
-                        const budgetMatch = richiesta.budget.match(/[\d.,]+/);
-                        if (budgetMatch) {
-                            valoreProgetto = parseFloat(budgetMatch[0].replace('.', '').replace(',', '.')) || 0;
-                        }
-                    }
+                    // Estrai valore dal budget usando la funzione utility
+                    const valoreProgetto = parseBudget(richiesta.budget);
                     
                     // Prepara i dati del lead (stessa struttura del form pipeline)
                     // IMPORTANTE: stato deve corrispondere al CHECK constraint nel DB
@@ -9115,6 +9105,48 @@
                 return date.toLocaleDateString('it-IT', { weekday: 'short' });
             }
             return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
+        }
+        
+        // Utility: Parse budget string to number
+        // Gestisce formati: "2500", "€2500", "2.500", "€2.500,00", "$1,000", "1000-2000"
+        function parseBudget(budgetStr) {
+            if (!budgetStr) return 0;
+            
+            // Se è un range (es. "1000-2000"), prendi il valore più alto
+            if (budgetStr.includes('-')) {
+                const parts = budgetStr.split('-');
+                const values = parts.map(p => parseBudget(p.trim()));
+                return Math.max(...values);
+            }
+            
+            // Rimuovi simboli valuta e spazi
+            let clean = String(budgetStr).replace(/[€$£\s]/g, '');
+            
+            // Se contiene sia punto che virgola, determina il formato
+            if (clean.includes('.') && clean.includes(',')) {
+                // Formato italiano: 2.500,00 -> rimuovi punti, sostituisci virgola con punto
+                clean = clean.replace(/\./g, '').replace(',', '.');
+            } else if (clean.includes(',')) {
+                // Solo virgola: potrebbe essere 2500,00 (decimale) o 2,500 (migliaia US)
+                const parts = clean.split(',');
+                if (parts[1] && parts[1].length === 3) {
+                    // Formato US: 2,500 -> rimuovi virgola
+                    clean = clean.replace(',', '');
+                } else {
+                    // Formato decimale: 2500,00 -> sostituisci virgola con punto
+                    clean = clean.replace(',', '.');
+                }
+            } else if (clean.includes('.')) {
+                // Solo punto: potrebbe essere 2.500 (migliaia IT) o 2500.00 (decimale)
+                const parts = clean.split('.');
+                if (parts[1] && parts[1].length === 3) {
+                    // Formato italiano migliaia: 2.500 -> rimuovi punto
+                    clean = clean.replace('.', '');
+                }
+                // Altrimenti è già formato corretto (decimale)
+            }
+            
+            return parseFloat(clean) || 0;
         }
         
         function escapeHtml(text) {

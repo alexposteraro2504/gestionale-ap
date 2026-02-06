@@ -1720,147 +1720,13 @@
         <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importaDatiLocali(event)">
 
         <div class="main-tabs">
-            <button class="main-tab active" onclick="switchMainTab('generale')">📊 DASHBOARD GENERALE</button>
-            
-            <button class="main-tab" onclick="switchMainTab('azienda')">🏢 AZIENDA</button>
+            <button class="main-tab active" onclick="switchMainTab('azienda')">🏢 AZIENDA</button>
             
             <button class="main-tab" onclick="switchToEmail()">📧 EMAIL <span id="badge-email" class="badge-notifica" style="display: none;">0</span></button>
         </div>
 
-        <!-- DASHBOARD GENERALE -->
-        <div id="generale" class="main-content active">
-            <div class="tabs">
-                <button class="tab active" onclick="switchTabGenerale('panoramica')">📊 Panoramica</button>
-                <button class="tab" onclick="switchTabGenerale('movimenti')">💼 Movimenti</button>
-            </div>
-            
-            <div class="content">
-                <!-- PANORAMICA -->
-                <div id="generale-panoramica" class="tab-content active">
-                    <h2 style="margin-bottom: 20px;">📊 Panoramica Completa</h2>
-                    
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                        <label style="font-weight: 600; color: #1e3c72; margin-right: 15px;">Seleziona Anno:</label>
-                        <select id="generale-anno-filter" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;" onchange="aggiornaDashboardGenerale()">
-                            <option value="tutti">Tutti gli anni</option>
-                        </select>
-                    </div>
-                    
-                    <h3 style="color: #1e3c72; margin-bottom: 15px;">🏢 Riepilogo Azienda</h3>
-                    <div class="stats">
-                        <div class="stat-card">
-                            <h3>Entrate</h3>
-                            <div class="value" id="gen-az-entrate">€0,00</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Uscite</h3>
-                            <div class="value" id="gen-az-uscite">€0,00</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Tasse e Contributi</h3>
-                            <div class="value" id="gen-az-tasse">€0,00</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Saldo Netto</h3>
-                            <div class="value" id="gen-az-saldo">€0,00</div>
-                        </div>
-                    </div>
-                    
-                    <h3 style="margin-top: 30px;">📊 Comparazione</h3>
-                    <div class="chart-container" style="max-width: 600px; margin: 0 auto;">
-                        <canvas id="grafico-gen-comparazione"></canvas>
-                    </div>
-                    
-                    <h3 style="margin-top: 30px;">📋 Attività Recenti</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Tipo</th>
-                                <th>Categoria</th>
-                                <th>Descrizione</th>
-                                <th>Importo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gen-attivita-recenti">
-                            <tr><td colspan="5" style="text-align: center; padding: 30px;">Nessuna attività</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- MOVIMENTI -->
-                <div id="generale-movimenti" class="tab-content">
-                    <h2 style="margin-bottom: 20px;">💼 Movimenti</h2>
-                    
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                        <label for="gen-totali-anno-filter" style="font-weight: 600; margin-right: 10px; color: #1e3c72;">Filtra per anno:</label>
-                        <select id="gen-totali-anno-filter" style="padding: 10px 15px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 14px; cursor: pointer; background: white;" onchange="aggiornaTotaliMovimenti()">
-                            <option value="tutti">Tutti gli anni</option>
-                        </select>
-                    </div>
-                    
-                    <div class="stats" style="margin-bottom: 30px;">
-                        <div class="stat-card">
-                            <h3>Totale Entrate</h3>
-                            <div class="value" id="gen-totaleEntrate">€0,00</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Totale Uscite</h3>
-                            <div class="value" id="gen-totaleUscite">€0,00</div>
-                        </div>
-                    </div>
-
-                    <h3 style="margin-bottom: 20px;">Grafici per Categoria</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
-                        <div class="chart-container">
-                            <h4 style="text-align: center; margin-bottom: 15px;">Incassi per Categoria</h4>
-                            <canvas id="gen-graficoIncassi"></canvas>
-                        </div>
-                        <div class="chart-container">
-                            <h4 style="text-align: center; margin-bottom: 15px;">Spese per Categoria</h4>
-                            <canvas id="gen-graficoSpese"></canvas>
-                        </div>
-                    </div>
-
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 30px 0 20px 0; display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
-                        <div>
-                            <label style="font-weight: 600; color: #1e3c72; margin-right: 10px;">Anno:</label>
-                            <select id="gen-mov-anno-filter" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;" onchange="aggiornaMovimentiGenerale()">
-                                <option value="tutti">Tutti gli anni</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-weight: 600; color: #1e3c72; margin-right: 10px;">Tipo:</label>
-                            <select id="gen-mov-tipo-filter" style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;" onchange="aggiornaMovimentiGenerale()">
-                                <option value="tutti">Tutti</option>
-                                <option value="entrata">Solo Entrate</option>
-                                <option value="uscita">Solo Uscite</option>
-                            </select>
-                        </div>
-                        <span id="gen-movimenti-count" style="color: #6c757d; font-size: 14px;"></span>
-                    </div>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Tipo</th>
-                                <th>Categoria</th>
-                                <th>Riferimento</th>
-                                <th>Descrizione</th>
-                                <th>Importo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gen-movimentiTable">
-                            <tr><td colspan="6" style="text-align: center; padding: 30px;">Nessun movimento registrato</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
         <!-- SEZIONE AZIENDA -->
-        <div id="azienda" class="main-content">
+        <div id="azienda" class="main-content active">
             <div class="tabs" style="display: flex; flex-direction: column; gap: 2px;">
                 <!-- Riga 1: La Mia Azienda -->
                 <div style="display: flex; flex-wrap: wrap; gap: 2px; padding-bottom: 2px; border-bottom: 1px solid #e0e0e0;">
@@ -5087,8 +4953,6 @@
                     aggiornaListaRichieste();
                     aggiornaBadgeRichieste();
                     aggiornaAnniDisponibili();
-                    aggiornaAnniDisponibiliGenerale();
-                    aggiornaDashboardGenerale();
                     
                     alert('✅ Dati importati con successo!\n\nIl gestionale è stato aggiornato.');
                     
@@ -5146,9 +5010,6 @@
                 parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 parent.querySelector('.tab').classList.add('active');
                 document.getElementById('azienda-dashboard').classList.add('active');
-            } else if (section === 'generale') {
-                aggiornaAnniDisponibiliGenerale();
-                aggiornaDashboardGenerale();
             }
         }
 
@@ -5177,19 +5038,7 @@
             syncEmailDaSupabase();
         }
 
-        function switchTabGenerale(tabName) {
-            const parent = document.getElementById('generale');
-            parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById('generale-' + tabName).classList.add('active');
-            
-            if (tabName === 'movimenti') {
-                aggiornaTotaliMovimenti();
-                aggiornaMovimentiGenerale();
-            }
-        }
+        // switchTabGenerale removed - Dashboard Generale merged into Azienda
 
         function switchTab(section, tabName) {
             const parent = document.getElementById(section);
@@ -8396,135 +8245,20 @@
         }
 
         // DASHBOARD GENERALE
+        // REMOVED - Dashboard Generale merged into Azienda
         function aggiornaAnniDisponibiliGenerale() {
-            const anni = new Set();
-            azMovimenti.forEach(m => anni.add(new Date(m.data).getFullYear()));
-            
-            // Selettore principale
-            const select = document.getElementById('generale-anno-filter');
-            const valoreAttuale = select.value;
-            select.innerHTML = '<option value="tutti">Tutti gli anni</option>';
-            [...anni].sort().forEach(anno => {
-                const option = document.createElement('option');
-                option.value = anno;
-                option.textContent = anno;
-                select.appendChild(option);
-            });
-            select.value = valoreAttuale;
-            
-            // Nuovo selettore per totali movimenti
-            const selectTotali = document.getElementById('gen-totali-anno-filter');
-            if (selectTotali) {
-                const valoreTotali = selectTotali.value;
-                selectTotali.innerHTML = '<option value="tutti">Tutti gli anni</option>';
-                [...anni].sort().forEach(anno => {
-                    const option = document.createElement('option');
-                    option.value = anno;
-                    option.textContent = anno;
-                    selectTotali.appendChild(option);
-                });
-                selectTotali.value = valoreTotali;
-            }
-            
-            // Selettore per filtro movimenti sotto
-            const selectMov = document.getElementById('gen-mov-anno-filter');
-            if (selectMov) {
-                const valoreMov = selectMov.value;
-                selectMov.innerHTML = '<option value="tutti">Tutti gli anni</option>';
-                [...anni].sort().forEach(anno => {
-                    const option = document.createElement('option');
-                    option.value = anno;
-                    option.textContent = anno;
-                    selectMov.appendChild(option);
-                });
-                selectMov.value = valoreMov;
-            }
+            // Function disabled - generale section removed
+            return;
         }
 
         function aggiornaDashboardGenerale() {
-            const genAnnoEl = document.getElementById('generale-anno-filter');
-            const annoFiltro = genAnnoEl ? genAnnoEl.value : 'tutti';
-            
-            // Filtra movimenti
-            let azFiltrati = azMovimenti;
-            
-            if (annoFiltro !== 'tutti') {
-                azFiltrati = azMovimenti.filter(m => new Date(m.data).getFullYear() === parseInt(annoFiltro));
-            }
-            
-            // Calcola dati aziendali
-            const azEntrate = azFiltrati.filter(m => m.tipo === 'entrata').reduce((sum, m) => sum + m.importo, 0);
-            const azUscite = azFiltrati.filter(m => m.tipo === 'uscita').reduce((sum, m) => sum + m.importo, 0);
-            
-            // Calcola tasse aziendali
-            let azTasse = 0;
-            azFiltrati.filter(m => m.tipo === 'entrata').forEach(e => {
-                const data = new Date(e.data);
-                const imponibile = e.importo * regimeForfettario.coefficiente;
-                const anniTrascorsi = (data - regimeForfettario.dataApertura) / (1000 * 60 * 60 * 24 * 365);
-                const aliquotaIrpef = anniTrascorsi < regimeForfettario.anniAgevolazione ? 
-                    regimeForfettario.irpefAgevolata : regimeForfettario.irpefStandard;
-                azTasse += (imponibile * aliquotaIrpef) + (imponibile * regimeForfettario.inps);
-            });
-            
-            const azSaldo = azEntrate - azUscite - azTasse;
-            
-            // Aggiorna card
-            document.getElementById('gen-az-entrate').textContent = `€${azEntrate.toFixed(2)}`;
-            document.getElementById('gen-az-uscite').textContent = `€${azUscite.toFixed(2)}`;
-            document.getElementById('gen-az-tasse').textContent = `€${azTasse.toFixed(2)}`;
-            document.getElementById('gen-az-saldo').textContent = `€${azSaldo.toFixed(2)}`;
-            
-            // Grafici
-            aggiornaGraficiGenerali(azEntrate, azUscite, azTasse);
-            
-            // Attività recenti
-            aggiornaAttivitaRecenti();
+            // Function disabled - generale section removed
+            return;
         }
 
         function aggiornaGraficiGenerali(azEntrate, azUscite, azTasse) {
-            // Grafico Comparativo a Barre
-            if (chartGenEntrate) chartGenEntrate.destroy();
-            const canvasGenComp = document.getElementById('grafico-gen-comparazione'); if (!canvasGenComp) return; const ctx = canvasGenComp.getContext('2d');
-            
-            const saldo = azEntrate - azUscite - azTasse;
-            
-            chartGenEntrate = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Entrate', 'Uscite', 'Tasse', 'Netto'],
-                    datasets: [{
-                        label: 'Importo (€)',
-                        data: [azEntrate, azUscite, azTasse, saldo],
-                        backgroundColor: ['#27ae60', '#e74c3c', '#f39c12', saldo >= 0 ? '#3498db' : '#c0392b'],
-                        borderWidth: 0,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `€${context.raw.toFixed(2)}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '€' + value.toLocaleString('it-IT');
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            // Function disabled - generale section removed
+            return;
         }
 
         function aggiornaAttivitaRecenti() {

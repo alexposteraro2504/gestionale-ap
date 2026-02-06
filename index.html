@@ -5742,7 +5742,7 @@
 
         // FORM I MIEI DATI AZIENDALI
         if (document.getElementById('mieiDatiForm')) {
-            document.getElementById('mieiDatiForm').addEventListener('submit', function(e) {
+            document.getElementById('mieiDatiForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 mieiDati = {
@@ -5763,9 +5763,39 @@
                     noteFattura: document.getElementById('miei-note-fattura').value
                 };
                 
-                salvaDati();
-                aggiornaMieiDatiPreview();
-                alert('✅ Dati aziendali salvati con successo!');
+                // Salva su Supabase
+                try {
+                    const { error } = await db.from('miei_dati').upsert({
+                        user_id: currentUser.id,
+                        nome: mieiDati.nome,
+                        piva: mieiDati.piva,
+                        codice_fiscale: mieiDati.cf,
+                        sdi: mieiDati.sdi,
+                        indirizzo: mieiDati.via,
+                        cap: mieiDati.cap,
+                        citta: mieiDati.citta,
+                        provincia: mieiDati.provincia,
+                        telefono: mieiDati.telefono,
+                        email: mieiDati.email,
+                        pec: mieiDati.pec,
+                        banca: mieiDati.banca,
+                        iban: mieiDati.iban,
+                        note_preventivo: mieiDati.notePreventivo,
+                        note_fattura: mieiDati.noteFattura
+                    }, { onConflict: 'user_id' });
+                    
+                    if (error) {
+                        console.error('Errore salvataggio miei dati:', error);
+                        showToast('Errore', 'Impossibile salvare i dati: ' + error.message, 'error');
+                        return;
+                    }
+                    
+                    aggiornaMieiDatiPreview();
+                    showToast('Dati Salvati', 'I tuoi dati aziendali sono stati salvati', 'success');
+                } catch (err) {
+                    console.error('Errore:', err);
+                    showToast('Errore', 'Impossibile salvare i dati', 'error');
+                }
             });
         }
 

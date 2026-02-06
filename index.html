@@ -4505,7 +4505,7 @@
                 const { data: richData, error: richError } = await db.from('richieste').select('*').eq('user_id', currentUser.id);
                 console.log('📋 Richieste caricate:', richData ? richData.length : 0, 'errore:', richError);
                 if (richError) console.error('❌ Errore caricamento richieste:', richError);
-                if (richData) richiesteSito = richData.map(r => ({ id: r.id, data: r.data, nome: r.nome, email: r.email, tipo: r.tipo, lavorazione: r.lavorazione, priorita: r.priorita, messaggio: r.messaggio, stato: r.stato }));
+                if (richData) richiesteSito = richData.map(r => ({ id: r.id, data: r.data, nome: r.nome, email: r.email, telefono: r.telefono, tipo: r.tipo, lavorazione: r.lavorazione, budget: r.budget, timeline: r.timeline, fonte: r.fonte, priorita: r.priorita, messaggio: r.messaggio, stato: r.stato }));
 
                 const { data: fattData } = await db.from('fatture').select('*').eq('user_id', currentUser.id);
                 if (fattData) fattureEmesse = fattData.map(f => ({ id: f.id, numero: f.numero, data: f.data, cliente: f.cliente, clienteId: f.cliente_id, clienteNome: f.cliente, righe: f.righe, totale: f.totale, note: f.note, pagata: f.pagata }));
@@ -4515,6 +4515,23 @@
 
                 const { data: noteData } = await db.from('note').select('*').eq('user_id', currentUser.id);
                 if (noteData) note = noteData.map(n => ({ id: n.id, titolo: n.titolo, contenuto: n.contenuto, data: n.data }));
+
+                // Carica scadenze
+                const { data: scadData } = await db.from('scadenze').select('*').eq('user_id', currentUser.id);
+                if (scadData) scadenzeAziendali = scadData.map(s => ({ 
+                    id: s.id, 
+                    titolo: s.titolo, 
+                    data: s.data, 
+                    tipo: s.tipo, 
+                    importo: s.importo,
+                    clienteId: s.cliente_id,
+                    promemoria: s.promemoria,
+                    note: s.note,
+                    ricorrente: s.ricorrente,
+                    frequenza: s.frequenza,
+                    notificato3gg: s.notificato_3gg || false,
+                    notificatoOggi: s.notificato_oggi || false
+                }));
 
                 const { data: mieiData } = await db.from('miei_dati').select('*').eq('user_id', currentUser.id).maybeSingle();
                 if (mieiData) {
@@ -5484,11 +5501,10 @@
         }
 
         // FORM AZIENDA
-        document.getElementById('az-movimentoForm').addEventListener('submit', function(e) {
+        document.getElementById('az-movimentoForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const movimento = {
-                id: Date.now(),
+            const movimentoData = {
                 data: document.getElementById('az-dataMovimento').value,
                 tipo: document.getElementById('az-tipoMovimento').value,
                 categoria: document.getElementById('az-categoriaMovimento').value,
@@ -5497,14 +5513,30 @@
                 descrizione: document.getElementById('az-descrizioneMovimento').value
             };
             
-            azMovimenti.push(movimento);
-            this.reset();
-            document.getElementById('az-dataMovimento').valueAsDate = new Date();
-            aggiornaMovimenti('az');
-            aggiornaStatistiche('az');
-            aggiornaAnniDisponibili();
-            salvaDati();
-            alert('Movimento aziendale registrato!');
+            try {
+                const { data, error } = await db
+                    .from('movimenti')
+                    .insert([{ ...movimentoData, user_id: currentUser.id }])
+                    .select()
+                    .single();
+                
+                if (error) {
+                    console.error('Errore salvataggio movimento:', error);
+                    showToast('Errore', 'Impossibile salvare il movimento: ' + error.message, 'error');
+                    return;
+                }
+                
+                azMovimenti.push({ id: data.id, ...movimentoData });
+                this.reset();
+                document.getElementById('az-dataMovimento').valueAsDate = new Date();
+                aggiornaMovimenti('az');
+                aggiornaStatistiche('az');
+                aggiornaAnniDisponibili();
+                showToast('Movimento Salvato', `${movimentoData.tipo === 'entrata' ? 'Entrata' : 'Uscita'} di €${movimentoData.importo} registrata`, 'success');
+            } catch (err) {
+                console.error('Errore:', err);
+                showToast('Errore', 'Impossibile salvare il movimento', 'error');
+            }
         });
 
         // Form Richieste
@@ -6682,13 +6714,19 @@
             }).join('');
         }
 
-        function eliminaMovimento(prefix, id) {
+        async function eliminaMovimento(prefix, id) {
             if (confirm('Sei sicuro di voler eliminare questo movimento?')) {
-                azMovimenti = azMovimenti.filter(m => m.id !== id);
-                aggiornaMovimenti('az');
-                aggiornaStatistiche('az');
-                aggiornaAnniDisponibili();
-                salvaDati();
+                try {
+                    await eliminaDatoSupabase('movimenti', id);
+                    azMovimenti = azMovimenti.filter(m => m.id !== id);
+                    aggiornaMovimenti('az');
+                    aggiornaStatistiche('az');
+                    aggiornaAnniDisponibili();
+                    showToast('Movimento Eliminato', 'Movimento rimosso con successo', 'success');
+                } catch (err) {
+                    console.error('Errore eliminazione movimento:', err);
+                    showToast('Errore', 'Impossibile eliminare il movimento', 'error');
+                }
             }
         }
 
@@ -7006,32 +7044,61 @@
             document.getElementById('az-ricorrenza-options').style.display = this.checked ? 'block' : 'none';
         });
 
-        document.getElementById('scadenzaAziendaleForm').addEventListener('submit', function(e) {
+        document.getElementById('scadenzaAziendaleForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const scadenza = {
-                id: Date.now(),
+            const scadenzaData = {
                 titolo: document.getElementById('az-scadenza-titolo').value,
                 data: document.getElementById('az-scadenza-data').value,
                 tipo: document.getElementById('az-scadenza-tipo').value,
                 importo: parseFloat(document.getElementById('az-scadenza-importo').value) || null,
-                clienteId: document.getElementById('az-scadenza-cliente').value || null,
+                cliente_id: document.getElementById('az-scadenza-cliente').value || null,
                 promemoria: document.getElementById('az-scadenza-promemoria').value,
                 note: document.getElementById('az-scadenza-note').value,
                 ricorrente: document.getElementById('az-scadenza-ricorrente').checked,
                 frequenza: document.getElementById('az-scadenza-frequenza').value,
-                notificato3gg: false,
-                notificatoOggi: false
+                notificato_3gg: false,
+                notificato_oggi: false
             };
             
-            scadenzeAziendali.push(scadenza);
-            this.reset();
-            document.getElementById('az-ricorrenza-options').style.display = 'none';
-            document.getElementById('az-scadenza-data').valueAsDate = new Date();
-            aggiornaSelectClientiEventi();
-            generaCalendario();
-            salvaDati();
-            showToast('Evento Aggiunto', `"${scadenza.titolo}" aggiunto al calendario`, 'success');
+            try {
+                const { data, error } = await db
+                    .from('scadenze')
+                    .insert([{ ...scadenzaData, user_id: currentUser.id }])
+                    .select()
+                    .single();
+                
+                if (error) {
+                    console.error('Errore salvataggio scadenza:', error);
+                    showToast('Errore', 'Impossibile salvare la scadenza: ' + error.message, 'error');
+                    return;
+                }
+                
+                // Adatta i nomi per la compatibilità locale
+                scadenzeAziendali.push({ 
+                    id: data.id, 
+                    titolo: scadenzaData.titolo,
+                    data: scadenzaData.data,
+                    tipo: scadenzaData.tipo,
+                    importo: scadenzaData.importo,
+                    clienteId: scadenzaData.cliente_id,
+                    promemoria: scadenzaData.promemoria,
+                    note: scadenzaData.note,
+                    ricorrente: scadenzaData.ricorrente,
+                    frequenza: scadenzaData.frequenza,
+                    notificato3gg: false,
+                    notificatoOggi: false
+                });
+                this.reset();
+                document.getElementById('az-ricorrenza-options').style.display = 'none';
+                document.getElementById('az-scadenza-data').valueAsDate = new Date();
+                aggiornaSelectClientiEventi();
+                generaCalendario();
+                showToast('Evento Aggiunto', `"${scadenzaData.titolo}" aggiunto al calendario`, 'success');
+            } catch (err) {
+                console.error('Errore:', err);
+                showToast('Errore', 'Impossibile salvare la scadenza', 'error');
+            }
         });
 
         function generaCalendario() {
@@ -7245,11 +7312,17 @@
             `}).join('');
         }
 
-        function eliminaScadenzaAziendale(id) {
+        async function eliminaScadenzaAziendale(id) {
             if (confirm('Sei sicuro di voler eliminare questa scadenza?')) {
-                scadenzeAziendali = scadenzeAziendali.filter(s => s.id !== id);
-                generaCalendario();
-                salvaDati();
+                try {
+                    await eliminaDatoSupabase('scadenze', id);
+                    scadenzeAziendali = scadenzeAziendali.filter(s => s.id !== id);
+                    generaCalendario();
+                    showToast('Scadenza Eliminata', 'Scadenza rimossa con successo', 'success');
+                } catch (err) {
+                    console.error('Errore eliminazione scadenza:', err);
+                    showToast('Errore', 'Impossibile eliminare la scadenza', 'error');
+                }
             }
         }
 
@@ -7765,21 +7838,36 @@
         }
 
         // NOTE
-        document.getElementById('noteForm').addEventListener('submit', function(e) {
+        document.getElementById('noteForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const nota = {
-                id: Date.now(),
+            const notaData = {
                 titolo: document.getElementById('nota-titolo').value,
                 contenuto: document.getElementById('nota-contenuto').value,
                 data: new Date().toISOString()
             };
             
-            note.push(nota);
-            this.reset();
-            aggiornaNote();
-            salvaDati();
-            alert('Nota aggiunta con successo!');
+            try {
+                const { data, error } = await db
+                    .from('note')
+                    .insert([{ ...notaData, user_id: currentUser.id }])
+                    .select()
+                    .single();
+                
+                if (error) {
+                    console.error('Errore salvataggio nota:', error);
+                    showToast('Errore', 'Impossibile salvare la nota: ' + error.message, 'error');
+                    return;
+                }
+                
+                note.push({ id: data.id, ...notaData });
+                this.reset();
+                aggiornaNote();
+                showToast('Nota Salvata', `"${notaData.titolo}" aggiunta con successo`, 'success');
+            } catch (err) {
+                console.error('Errore:', err);
+                showToast('Errore', 'Impossibile salvare la nota', 'error');
+            }
         });
 
         function aggiornaNote() {
@@ -7802,11 +7890,17 @@
             `).join('');
         }
 
-        function eliminaNota(id) {
+        async function eliminaNota(id) {
             if (confirm('Sei sicuro di voler eliminare questa nota?')) {
-                note = note.filter(n => n.id !== id);
-                aggiornaNote();
-                salvaDati();
+                try {
+                    await eliminaDatoSupabase('note', id);
+                    note = note.filter(n => n.id !== id);
+                    aggiornaNote();
+                    showToast('Nota Eliminata', 'Nota rimossa con successo', 'success');
+                } catch (err) {
+                    console.error('Errore eliminazione nota:', err);
+                    showToast('Errore', 'Impossibile eliminare la nota', 'error');
+                }
             }
         }
 

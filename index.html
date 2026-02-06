@@ -1734,7 +1734,7 @@
                     <button class="tab" onclick="switchTab('azienda', 'clienti')">👥 Clienti</button>
                     <button class="tab" onclick="switchTab('azienda', 'fornitori')">🏭 Fornitori</button>
                     <button class="tab" onclick="switchTab('azienda', 'richieste')" id="tab-richieste">📬 Richieste <span id="badge-richieste" class="badge-notifica" style="display: none;">0</span></button>
-                    <button class="tab" onclick="switchTab('azienda', 'pipeline')">🎯 Pipeline</button>
+                    <button class="tab" onclick="switchTab('azienda', 'pipeline')" id="tab-pipeline">🎯 Pipeline <span id="badge-pipeline" class="badge-notifica" style="display: none;">0</span></button>
                     <button class="tab" onclick="switchTab('azienda', 'timetracker')">⏱️ Time Tracker</button>
                     <button class="tab" onclick="switchTab('azienda', 'note')">📝 Note</button>
                     <button class="tab" onclick="switchTab('azienda', 'documenti')">📁 Documenti</button>
@@ -4499,6 +4499,9 @@
             document.getElementById('pipe-vinti').textContent = pipelineLeads.filter(p => p.stato === 'vinto').length;
             const valore = pipelineLeads.filter(p => !['vinto','perso'].includes(p.stato)).reduce((s, p) => s + (p.valore || 0), 0);
             document.getElementById('pipe-valore').textContent = '€' + valore.toFixed(0);
+            
+            // Aggiorna badge
+            aggiornaBadgePipeline();
         }
 
         async function eliminaLead(id) {
@@ -8703,6 +8706,21 @@
                 badge.style.display = 'none';
             }
         }
+        
+        function aggiornaBadgePipeline() {
+            // Conta i lead attivi (non vinti e non persi)
+            const leadsAttivi = pipelineLeads.filter(l => l.stato !== 'vinto' && l.stato !== 'perso').length;
+            const badge = document.getElementById('badge-pipeline');
+            
+            if (badge) {
+                if (leadsAttivi > 0) {
+                    badge.textContent = leadsAttivi;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
 
         async function cambiaStatoRichiesta(id, nuovoStato) {
             const richiesta = richiesteSito.find(r => r.id === id);
@@ -8752,17 +8770,26 @@
             
             if (confirm(`Spostare "${richiesta.nome}" nella pipeline commerciale?`)) {
                 try {
+                    // Estrai valore dal budget se presente
+                    let valoreProgetto = 0;
+                    if (richiesta.budget) {
+                        const budgetMatch = richiesta.budget.match(/[\d.,]+/);
+                        if (budgetMatch) {
+                            valoreProgetto = parseFloat(budgetMatch[0].replace('.', '').replace(',', '.')) || 0;
+                        }
+                    }
+                    
                     // Prepara i dati del lead (stessa struttura del form pipeline)
                     // IMPORTANTE: stato deve corrispondere al CHECK constraint nel DB
                     // Stati validi nel DB: lead, contattato, preventivo, trattativa, vinto, perso
                     const lead = {
                         nome: richiesta.nome || 'Senza nome',
                         email: richiesta.email || '',
-                        telefono: '',
-                        valore: 0,
+                        telefono: richiesta.telefono || '',
+                        valore: valoreProgetto,
                         stato: 'lead',
                         fonte: 'sito',
-                        note: `Tipo: ${richiesta.tipo || 'N/D'}\n\nMessaggio:\n${richiesta.messaggio || ''}`
+                        note: `Tipo: ${richiesta.lavorazione || richiesta.tipo || 'N/D'}\nTimeline: ${richiesta.timeline || 'N/D'}\nBudget originale: ${richiesta.budget || 'N/D'}\n\nMessaggio:\n${richiesta.messaggio || ''}`
                     };
                     
                     console.log('📤 Tentativo inserimento lead in pipeline:', lead);

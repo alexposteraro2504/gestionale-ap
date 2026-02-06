@@ -4544,6 +4544,14 @@
                     contatorePreventivi = contData.contatore_preventivi || 1;
                 }
 
+                // Carica Time Tracker entries
+                const { data: ttData } = await db.from('ore_lavorate').select('*').eq('user_id', currentUser.id).order('data', { ascending: false });
+                if (ttData) timeEntries = ttData.map(t => ({ id: t.id, data: t.data, cliente: t.cliente, ore: t.ore, descrizione: t.descrizione, tariffa: t.tariffa }));
+
+                // Carica Documenti
+                const { data: docData } = await db.from('documenti').select('*').eq('user_id', currentUser.id).order('data', { ascending: false });
+                if (docData) documenti = docData.map(d => ({ id: d.id, nome: d.nome, tipo: d.tipo, data: d.data, riferimento: d.riferimento, note: d.note }));
+
                 // Carica email
                 const { data: emailData, error: emailError } = await db.from('emails').select('*').eq('user_id', currentUser.id).order('received_at', { ascending: false });
                 console.log('📧 Email caricate:', emailData ? emailData.length : 0, 'errore:', emailError);

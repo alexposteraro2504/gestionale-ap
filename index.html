@@ -8702,16 +8702,23 @@
                 const lavorazioniMap = {
                     'elaborazione': 'Elaborazione / pulizia dati',
                     'inserimento': 'Inserimento / migrazione dati',
-                    'conversione': 'Conversione documenti (PDF → Excel / Word)',
+                    'conversione': 'Conversione documenti',
                     'automazioni': 'Automazioni leggere',
-                    'nonsicuro': 'Non sono sicuro'
+                    'nonsicuro': 'Non sono sicuro',
+                    'analisi': 'Analisi Dati & Report',
+                    'dashboard': 'Dashboard Interattive',
+                    'excel': 'Excel Automation',
+                    'database': 'Database Management (SQL)',
+                    'cleaning': 'Pulizia & Preparazione Dati',
+                    'consulting': 'Consulenza Strategica',
+                    'informazioni': 'Richiesta Informazioni'
                 };
                 
                 // Mappa servizi per label leggibili (value HTML → testo completo)
                 const serviceTypeMap = {
                     'data-entry': 'Data Entry & Management',
                     'data-analysis': 'Data Analysis & Reporting',
-                    'dashboards': 'Interactive Dashboards (Power BI/Tableau)',
+                    'dashboards': 'Interactive Dashboards',
                     'excel-automation': 'Excel Automation',
                     'document-conversion': 'Document Conversion',
                     'database-management': 'Database Management (SQL)',
@@ -8737,35 +8744,54 @@
                     'within-week': 'Within 1 Week',
                     'within-2-weeks': 'Within 2 Weeks',
                     'within-month': 'Within 1 Month',
-                    'flexible': 'Flexible / No Rush',
+                    'flexible': 'Flexible',
                     '1-week': 'Within 1 Week',
                     '2-weeks': 'Within 2 Weeks',
                     '1-month': 'Within 1 Month',
+                    'ASAP (1-3 giorni)': 'ASAP (1-3 days)',
+                    'Entro 1 settimana': 'Within 1 Week',
+                    'Entro 2 settimane': 'Within 2 Weeks',
+                    'Entro 1 mese': 'Within 1 Month',
+                    'Flessibile': 'Flexible',
                     'ASAP (1-3 days)': 'ASAP (1-3 days)',
                     'Within 1 week': 'Within 1 Week',
                     'Within 2 weeks': 'Within 2 Weeks',
                     'Within 1 month': 'Within 1 Month',
-                    'Flexible / No rush': 'Flexible / No Rush'
+                    'Flexible / No rush': 'Flexible'
                 };
                 
                 // Controlla se è una richiesta dal form sito (tipo contiene " - ")
                 const isFormRequest = r.tipo && r.tipo.includes(' - ');
                 
                 // Parsing tipo e timeline per richieste dal form
-                let tipoDisplay = r.tipo || '';
+                let tipoDisplay = '';
                 let timelineDisplay = '';
                 let budgetDisplay = '';
                 let companyDisplay = '';
                 
+                // Prima prova a usare i campi diretti (dal gestionale)
+                if (r.lavorazione) {
+                    tipoDisplay = lavorazioniMap[r.lavorazione] || serviceTypeMap[r.lavorazione] || r.lavorazione;
+                }
+                if (r.timeline) {
+                    timelineDisplay = timelineMap[r.timeline] || r.timeline;
+                }
+                if (r.budget) {
+                    budgetDisplay = r.budget;
+                }
+                
+                // Se è una richiesta dal form sito, estrai dal campo tipo
                 if (isFormRequest) {
                     const parts = r.tipo.split(' - ');
                     const rawService = parts[0] ? parts[0].trim() : '';
                     const rawTimeline = parts[1] ? parts[1].trim() : '';
-                    tipoDisplay = serviceTypeMap[rawService] || rawService;
-                    timelineDisplay = timelineMap[rawTimeline] || rawTimeline;
+                    if (!tipoDisplay) tipoDisplay = serviceTypeMap[rawService] || rawService;
+                    if (!timelineDisplay) timelineDisplay = timelineMap[rawTimeline] || rawTimeline;
+                } else if (!tipoDisplay && r.tipo) {
+                    tipoDisplay = r.tipo;
                 }
                 
-                // Estrai company e budget dal messaggio (se presenti)
+                // Estrai company e budget dal messaggio (se presenti e non già settati)
                 let messaggioClean = r.messaggio || '';
                 const companyMatch = messaggioClean.match(/\n?\n?Azienda:\s*(.+)/);
                 const budgetMatch = messaggioClean.match(/\n?Budget:\s*(.+)/);
@@ -8775,8 +8801,10 @@
                     companyDisplay = companyMatch[1].trim();
                     messaggioClean = messaggioClean.replace(/\n?\n?Azienda:\s*.+/, '');
                 }
-                if (budgetMatch) {
+                if (budgetMatch && !budgetDisplay) {
                     budgetDisplay = budgetMatch[1].trim();
+                    messaggioClean = messaggioClean.replace(/\n?Budget:\s*.+/, '');
+                } else if (budgetMatch) {
                     messaggioClean = messaggioClean.replace(/\n?Budget:\s*.+/, '');
                 }
                 if (fileMatch) {
@@ -8806,15 +8834,14 @@
                         <div class="richiesta-header">
                             <div class="richiesta-cliente">${nomeDisplay}</div>
                             <div class="richiesta-meta">
-                                <span class="${isFormRequest ? 'richiesta-badge richiesta-badge-form' : 'richiesta-badge tipo-' + r.tipo}">${tipoDisplay}</span>
-                                ${isFormRequest && timelineDisplay ? `<span class="richiesta-badge richiesta-badge-timeline">⏱️ ${timelineDisplay}</span>` : ''}
+                                ${tipoDisplay ? `<span class="richiesta-badge richiesta-badge-form">${tipoDisplay}</span>` : ''}
+                                ${timelineDisplay ? `<span class="richiesta-badge richiesta-badge-timeline">⏱️ ${timelineDisplay}</span>` : ''}
                                 <span class="richiesta-badge stato-${statoClass}">${statoLabel}</span>
                             </div>
                         </div>
                         <div class="richiesta-contatti">
                             📅 ${new Date(r.data).toLocaleDateString('it-IT')} | 
                             📧 <a href="mailto:${r.email}">${r.email}</a>
-                            ${r.lavorazione ? ` | 🔧 ${lavorazioniMap[r.lavorazione] || r.lavorazione}` : ''}
                         </div>
                         <div class="richiesta-messaggio">${messaggioClean}</div>
                         <div class="richiesta-footer">

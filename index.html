@@ -1720,7 +1720,8 @@
             <div class="tabs" style="display: flex; flex-direction: column; gap: 2px;">
                 <!-- Riga 1: La Mia Azienda -->
                 <div style="display: flex; flex-wrap: wrap; gap: 2px; padding-bottom: 2px; border-bottom: 1px solid #e0e0e0;">
-                    <button class="tab active" onclick="switchTab('azienda', 'dashboard')">📊 Dashboard</button>
+                    <button class="tab active" onclick="switchTab('azienda', 'panoramica')">📈 Panoramica</button>
+                    <button class="tab" onclick="switchTab('azienda', 'dashboard')">📊 Dashboard</button>
                     <button class="tab" onclick="switchTab('azienda', 'kpi')">🎯 KPI</button>
                     <button class="tab" onclick="switchTab('azienda', 'confronto')">📊 Confronto</button>
                     <button class="tab" onclick="switchTab('azienda', 'movimenti')">💼 Movimenti</button>
@@ -1749,6 +1750,63 @@
             </div>
 
             <div class="content">
+                <!-- PANORAMICA FINANZIARIA -->
+                <div id="azienda-panoramica" class="tab-content active">
+                    <h2 style="margin-bottom: 20px;">📈 Panoramica Finanziaria</h2>
+                    <p style="color: #6c757d; margin-bottom: 25px;">Riepilogo completo delle finanze aziendali</p>
+                    
+                    <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+                        <label style="font-weight: 600; color: #1e3c72;">Seleziona Anno:</label>
+                        <select id="panoramica-anno-filter" style="padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; cursor: pointer;" onchange="aggiornaPanoramica()">
+                            <option value="tutti">Tutti gli anni</option>
+                        </select>
+                    </div>
+                    
+                    <div class="stats" style="margin-bottom: 30px;">
+                        <div class="stat-card">
+                            <h3>💰 Entrate</h3>
+                            <div class="value text-success" id="pan-entrate">€0,00</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>💸 Uscite</h3>
+                            <div class="value text-danger" id="pan-uscite">€0,00</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>🏛️ Tasse e Contributi</h3>
+                            <div class="value text-warning" id="pan-tasse">€0,00</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>📊 Saldo Netto</h3>
+                            <div class="value" id="pan-saldo">€0,00</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-bottom: 15px;">📊 Comparazione Finanziaria</h3>
+                    <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e0e0e0; margin-bottom: 30px;">
+                        <div class="chart-container" style="max-width: 600px; margin: 0 auto;">
+                            <canvas id="grafico-panoramica"></canvas>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-bottom: 15px;">📋 Attività Recenti</h3>
+                    <div style="background: white; border-radius: 12px; border: 1px solid #e0e0e0; overflow: hidden;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Categoria</th>
+                                    <th>Descrizione</th>
+                                    <th>Importo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pan-attivita-recenti">
+                                <tr><td colspan="5" style="text-align: center; padding: 30px; color: #6c757d;">Nessuna attività</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- TIME TRACKER -->
                 <div id="azienda-timetracker" class="tab-content">
                     <h2 style="margin-bottom: 20px;">⏱️ Time Tracker</h2>
@@ -2107,7 +2165,7 @@
                 </div>
 
                 <!-- DASHBOARD AZIENDA -->
-                <div id="azienda-dashboard" class="tab-content active">
+                <div id="azienda-dashboard" class="tab-content">
                     <h2 style="margin-bottom: 20px;">📊 Dashboard Aziendale</h2>
                     <p style="color: #6c757d; margin-bottom: 20px;">Indicatori chiave per monitorare la crescita della tua attività</p>
                     
@@ -4027,6 +4085,7 @@
             if (typeof aggiornaListaRichieste === 'function') aggiornaListaRichieste();
             if (typeof aggiornaBadgeRichieste === 'function') aggiornaBadgeRichieste();
             if (typeof aggiornaStatistiche === 'function') aggiornaStatistiche('az');
+            if (typeof aggiornaPanoramica === 'function') aggiornaPanoramica();
             if (typeof aggiornaTimeTracker === 'function') aggiornaTimeTracker();
             if (typeof aggiornaPipeline === 'function') aggiornaPipeline();
             if (typeof aggiornaDocumenti === 'function') aggiornaDocumenti();
@@ -4993,12 +5052,13 @@
             
             if (section === 'azienda') {
                 aggiornaStatistiche('az');
-                // Attiva il tab dashboard di default
+                // Attiva il tab panoramica di default
                 const parent = document.getElementById('azienda');
                 parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 parent.querySelector('.tab').classList.add('active');
-                document.getElementById('azienda-dashboard').classList.add('active');
+                document.getElementById('azienda-panoramica').classList.add('active');
+                aggiornaPanoramica();
             }
         }
 
@@ -5042,6 +5102,10 @@
             
             const targetContent = document.getElementById(section + '-' + tabName);
             if (targetContent) targetContent.classList.add('active');
+            
+            if (tabName === 'panoramica') {
+                aggiornaPanoramica();
+            }
             
             if (tabName === 'dashboard' || tabName === 'report') {
                 aggiornaStatistiche('az');
@@ -8248,6 +8312,142 @@
         function aggiornaGraficiGenerali(azEntrate, azUscite, azTasse) {
             // Function disabled - generale section removed
             return;
+        }
+
+        // ========== PANORAMICA FUNCTIONS ==========
+        let chartPanoramica = null;
+        
+        function aggiornaAnniDisponibiliPanoramica() {
+            const anni = new Set();
+            azMovimenti.forEach(m => anni.add(new Date(m.data).getFullYear()));
+            
+            const select = document.getElementById('panoramica-anno-filter');
+            if (!select) return;
+            
+            const valoreAttuale = select.value;
+            select.innerHTML = '<option value="tutti">Tutti gli anni</option>';
+            [...anni].sort((a,b) => b-a).forEach(anno => {
+                const option = document.createElement('option');
+                option.value = anno;
+                option.textContent = anno;
+                select.appendChild(option);
+            });
+            select.value = valoreAttuale || 'tutti';
+        }
+        
+        function aggiornaPanoramica() {
+            aggiornaAnniDisponibiliPanoramica();
+            
+            const annoEl = document.getElementById('panoramica-anno-filter');
+            const annoFiltro = annoEl ? annoEl.value : 'tutti';
+            
+            // Filtra movimenti
+            let movFiltrati = azMovimenti;
+            if (annoFiltro !== 'tutti') {
+                movFiltrati = azMovimenti.filter(m => new Date(m.data).getFullYear() === parseInt(annoFiltro));
+            }
+            
+            // Calcola entrate e uscite
+            const entrate = movFiltrati.filter(m => m.tipo === 'entrata').reduce((sum, m) => sum + m.importo, 0);
+            const uscite = movFiltrati.filter(m => m.tipo === 'uscita').reduce((sum, m) => sum + m.importo, 0);
+            
+            // Calcola tasse (regime forfettario)
+            let tasse = 0;
+            movFiltrati.filter(m => m.tipo === 'entrata').forEach(e => {
+                const data = new Date(e.data);
+                const imponibile = e.importo * regimeForfettario.coefficiente;
+                const anniTrascorsi = (data - regimeForfettario.dataApertura) / (1000 * 60 * 60 * 24 * 365);
+                const aliquotaIrpef = anniTrascorsi < regimeForfettario.anniAgevolazione ? 
+                    regimeForfettario.irpefAgevolata : regimeForfettario.irpefStandard;
+                tasse += (imponibile * aliquotaIrpef) + (imponibile * regimeForfettario.inps);
+            });
+            
+            const saldo = entrate - uscite - tasse;
+            
+            // Aggiorna card
+            document.getElementById('pan-entrate').textContent = `€${entrate.toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+            document.getElementById('pan-uscite').textContent = `€${uscite.toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+            document.getElementById('pan-tasse').textContent = `€${tasse.toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+            
+            const saldoEl = document.getElementById('pan-saldo');
+            saldoEl.textContent = `€${saldo.toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+            saldoEl.className = 'value ' + (saldo >= 0 ? 'text-success' : 'text-danger');
+            
+            // Aggiorna grafico
+            aggiornaGraficoPanoramica(entrate, uscite, tasse, saldo);
+            
+            // Aggiorna attività recenti
+            aggiornaAttivitaRecentiPanoramica();
+        }
+        
+        function aggiornaGraficoPanoramica(entrate, uscite, tasse, saldo) {
+            if (chartPanoramica) chartPanoramica.destroy();
+            
+            const canvas = document.getElementById('grafico-panoramica');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            chartPanoramica = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Entrate', 'Uscite', 'Tasse', 'Netto'],
+                    datasets: [{
+                        label: 'Importo (€)',
+                        data: [entrate, uscite, tasse, saldo],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b', saldo >= 0 ? '#3b82f6' : '#dc2626'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `€${context.raw.toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + value.toLocaleString('it-IT');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function aggiornaAttivitaRecentiPanoramica() {
+            const tuttiMovimenti = azMovimenti
+                .sort((a, b) => new Date(b.data) - new Date(a.data))
+                .slice(0, 10);
+            
+            const tbody = document.getElementById('pan-attivita-recenti');
+            if (!tbody) return;
+            
+            if (tuttiMovimenti.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #6c757d;">Nessuna attività</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = tuttiMovimenti.map(m => `
+                <tr>
+                    <td>${new Date(m.data).toLocaleDateString('it-IT')}</td>
+                    <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; ${m.tipo === 'entrata' ? 'background: #dcfce7; color: #166534;' : 'background: #fee2e2; color: #991b1b;'}">${m.tipo.toUpperCase()}</span></td>
+                    <td>${m.categoria || '-'}</td>
+                    <td>${m.descrizione || '-'}</td>
+                    <td style="font-weight: 600; ${m.tipo === 'entrata' ? 'color: #16a34a;' : 'color: #dc2626;'}">€${m.importo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                </tr>
+            `).join('');
         }
 
         function aggiornaAttivitaRecenti() {

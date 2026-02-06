@@ -3889,6 +3889,69 @@
         </div>
     </div>
 
+    <!-- Modal Modifica Richiesta -->
+    <div id="modalModificaRichiesta" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 15px; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; padding: 20px 25px; border-radius: 15px 15px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">✏️ Modifica Richiesta</h3>
+                <button onclick="chiudiModalModificaRichiesta()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">×</button>
+            </div>
+            <div style="padding: 25px;">
+                <div style="display: grid; gap: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome Cliente *</label>
+                        <input type="text" id="mod-rich-nome" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email</label>
+                            <input type="email" id="mod-rich-email" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Telefono</label>
+                            <input type="tel" id="mod-rich-telefono" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">💰 Budget / Valore Progetto</label>
+                            <input type="text" id="mod-rich-budget" placeholder="es. 2500 o $1,000 - $2,500" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Stato</label>
+                            <select id="mod-rich-stato" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                                <option value="dalavorare">📋 Da Lavorare</option>
+                                <option value="inlavorazione">🔄 In Lavorazione</option>
+                                <option value="completata">✅ Completata</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Servizio / Lavorazione</label>
+                        <select id="mod-rich-lavorazione" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <option value="">-- Seleziona --</option>
+                            <option value="analisi">📊 Data Analysis & Reporting</option>
+                            <option value="dashboard">📈 Interactive Dashboards</option>
+                            <option value="excel">⚙️ Excel Automation</option>
+                            <option value="database">🗃️ Database Management</option>
+                            <option value="cleaning">🧹 Data Cleaning</option>
+                            <option value="consulting">💡 Strategic Consulting</option>
+                            <option value="altro">📝 Altro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Note / Messaggio</label>
+                        <textarea id="mod-rich-messaggio" rows="4" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical;"></textarea>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button onclick="salvaModificaRichiesta()" style="flex: 1; padding: 12px; background: #6f42c1; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">💾 Salva Modifiche</button>
+                    <button onclick="chiudiModalModificaRichiesta()" style="padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">Annulla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Ore Lavorate -->
     <div id="modalOreLavorate" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
         <div style="background: white; border-radius: 15px; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
@@ -7160,6 +7223,66 @@
         let oreRichiestaCorrente = null;
         let oreSessioniCache = []; // Cache locale delle sessioni per la richiesta corrente
 
+        // === MODIFICA RICHIESTA ===
+        let richiestaInModifica = null;
+        
+        function apriModalModificaRichiesta(richiestaId) {
+            const richiesta = richiesteSito.find(r => r.id == richiestaId);
+            if (!richiesta) {
+                console.error('Richiesta non trovata:', richiestaId);
+                return;
+            }
+            
+            richiestaInModifica = richiesta;
+            
+            // Popola i campi
+            document.getElementById('mod-rich-nome').value = richiesta.nome || '';
+            document.getElementById('mod-rich-email').value = richiesta.email || '';
+            document.getElementById('mod-rich-telefono').value = richiesta.telefono || '';
+            document.getElementById('mod-rich-budget').value = richiesta.budget || '';
+            document.getElementById('mod-rich-stato').value = richiesta.stato || 'dalavorare';
+            document.getElementById('mod-rich-lavorazione').value = richiesta.lavorazione || '';
+            document.getElementById('mod-rich-messaggio').value = richiesta.messaggio || '';
+            
+            document.getElementById('modalModificaRichiesta').style.display = 'flex';
+        }
+        
+        function chiudiModalModificaRichiesta() {
+            document.getElementById('modalModificaRichiesta').style.display = 'none';
+            richiestaInModifica = null;
+        }
+        
+        async function salvaModificaRichiesta() {
+            if (!richiestaInModifica) return;
+            
+            const datiAggiornati = {
+                nome: document.getElementById('mod-rich-nome').value,
+                email: document.getElementById('mod-rich-email').value,
+                telefono: document.getElementById('mod-rich-telefono').value,
+                budget: document.getElementById('mod-rich-budget').value,
+                stato: document.getElementById('mod-rich-stato').value,
+                lavorazione: document.getElementById('mod-rich-lavorazione').value,
+                messaggio: document.getElementById('mod-rich-messaggio').value
+            };
+            
+            try {
+                await aggiornaDatoSupabase('richieste', richiestaInModifica.id, datiAggiornati);
+                
+                // Aggiorna localmente
+                Object.assign(richiestaInModifica, datiAggiornati);
+                
+                aggiornaListaRichieste();
+                aggiornaBadgeRichieste();
+                
+                showToast('Richiesta Aggiornata', `"${datiAggiornati.nome}" modificata con successo`, 'success');
+                chiudiModalModificaRichiesta();
+                
+            } catch (err) {
+                console.error('Errore aggiornamento richiesta:', err);
+                showToast('Errore', 'Impossibile salvare le modifiche', 'error');
+            }
+        }
+
         function apriModalOre(richiestaId) {
             const richiesta = richiesteSito.find(r => r.id === richiestaId || r.id === parseInt(richiestaId));
             if (!richiesta) {
@@ -8573,8 +8696,8 @@
                         <div class="richiesta-messaggio">${messaggioClean}</div>
                         <div class="richiesta-footer">
                             <div class="richiesta-azioni">
-                                ${r.stato === 'dalavorare' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'inlavorazione')">🔄 In Lavorazione</button><button class="btn-lavorazione" onclick="spostaInPipeline('${r.id}')" style="background: #2196F3;">📊 Pipeline</button>` : ''}
-                                ${r.stato === 'inlavorazione' ? `<button class="btn-completa" onclick="cambiaStatoRichiesta('${r.id}', 'completata')">✅ Completata</button><button class="btn-lavorazione" onclick="apriModalOre('${r.id}')" style="background: #f39c12;">⏱️ Ore</button><button class="btn-lavorazione" onclick="quickAddScadenzaLavoro('${r.id}')" style="background: #17a2b8;">📅 Scadenza</button>` : ''}
+                                ${r.stato === 'dalavorare' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'inlavorazione')">🔄 In Lavorazione</button><button class="btn-lavorazione" onclick="spostaInPipeline('${r.id}')" style="background: #2196F3;">📊 Pipeline</button><button class="btn-lavorazione" onclick="apriModalModificaRichiesta('${r.id}')" style="background: #6f42c1;">✏️ Modifica</button>` : ''}
+                                ${r.stato === 'inlavorazione' ? `<button class="btn-completa" onclick="cambiaStatoRichiesta('${r.id}', 'completata')">✅ Completata</button><button class="btn-lavorazione" onclick="apriModalOre('${r.id}')" style="background: #f39c12;">⏱️ Ore</button><button class="btn-lavorazione" onclick="quickAddScadenzaLavoro('${r.id}')" style="background: #17a2b8;">📅 Scadenza</button><button class="btn-lavorazione" onclick="apriModalModificaRichiesta('${r.id}')" style="background: #6f42c1;">✏️ Modifica</button>` : ''}
                                 ${r.stato === 'completata' ? `<button class="btn-lavorazione" onclick="cambiaStatoRichiesta('${r.id}', 'dalavorare')" style="background: #6c757d;">🔙 Riapri</button>` : ''}
                                 <button class="btn-crea-cliente" onclick="creaClienteDaRichiesta('${r.id}')">👤 Crea Cliente</button>
                                 <button class="btn-elimina-richiesta" onclick="eliminaRichiesta('${r.id}')">🗑️ Elimina</button>

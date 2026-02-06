@@ -956,31 +956,6 @@
             margin-bottom: var(--space-1);
         }
         
-        /* === THEME TOGGLE BUTTON === */
-        .theme-toggle {
-            position: fixed;
-            bottom: 90px;
-            right: var(--space-6);
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius-full);
-            background: white;
-            border: 1px solid var(--gray-200);
-            box-shadow: var(--shadow-lg);
-            cursor: pointer;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition-fast);
-            z-index: 9999;
-        }
-        
-        .theme-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: var(--shadow-xl);
-        }
-        
         /* === EMAIL SECTION === */
         .email-sidebar {
             background: white;
@@ -1032,10 +1007,14 @@
         }
         
         .email-item {
-            padding: var(--space-4);
+            padding: var(--space-2) var(--space-3) !important;
             border-bottom: 1px solid var(--gray-100);
             cursor: pointer;
             transition: all var(--transition-fast);
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: var(--space-3) !important;
         }
         
         .email-item:hover {
@@ -1047,66 +1026,77 @@
             border-left: 3px solid var(--primary-600);
         }
         
-        /* Email list items - COMPACT */
-        .email-lista-item,
-        [onclick*="apriEmail"] {
-            padding: var(--space-3) var(--space-4) !important;
-            border-bottom: 1px solid var(--gray-100);
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        
-        .email-lista-item:hover,
-        [onclick*="apriEmail"]:hover {
-            background: var(--gray-50);
-        }
-        
-        /* Email sender initials */
-        .email-avatar,
-        [style*="border-radius: 50%"][style*="width: 40px"] {
+        /* Email avatar */
+        .email-item .email-avatar {
             width: 32px !important;
             height: 32px !important;
             min-width: 32px !important;
-            font-size: 12px !important;
-        }
-        
-        /* Email list text */
-        .email-sender,
-        .email-subject,
-        .email-preview {
-            font-size: 13px !important;
-            line-height: 1.4 !important;
-        }
-        
-        .email-sender {
+            font-size: 11px !important;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            color: white;
             font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        /* Email content wrapper */
+        .email-item .email-content {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+        
+        /* Email header row */
+        .email-item .email-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1px;
+        }
+        
+        .email-item .email-from {
+            font-size: 13px !important;
+            font-weight: 500;
             color: var(--gray-800);
-        }
-        
-        .email-subject {
-            color: var(--gray-700);
-        }
-        
-        .email-preview {
-            color: var(--gray-500);
-            font-size: 12px !important;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
-        .email-date {
+        .email-item .email-date {
             font-size: 11px !important;
             color: var(--gray-400);
+            flex-shrink: 0;
+            margin-left: var(--space-2);
         }
         
-        /* Force compact email rows */
-        #emailLista > div,
-        .email-row {
-            padding: var(--space-2) var(--space-3) !important;
-            min-height: auto !important;
+        .email-item .email-subject {
+            font-size: 13px !important;
+            color: var(--gray-600);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 1px;
+        }
+        
+        .email-item .email-preview {
+            font-size: 12px !important;
+            color: var(--gray-400);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .email-item.unread .email-from {
+            font-weight: 600;
+        }
+        
+        .email-item.unread .email-subject {
+            font-weight: 500;
+            color: var(--gray-800);
         }
         
         /* === CALENDAR === */
@@ -3328,7 +3318,6 @@
     </div>
 
     <!-- THEME TOGGLE BUTTON -->
-    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Cambia tema">🌓</button>
 
     <!-- BACKUP BUTTON (rimosso da qui, ora è nell'header) -->
 

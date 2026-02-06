@@ -1189,7 +1189,7 @@
         }
         
         /* === MODALS === */
-        .modal, [id^="modal"] {
+        .modal, [id^="modal"], [id*="Modal"] {
             position: fixed;
             top: 0;
             left: 0;
@@ -1203,7 +1203,7 @@
             justify-content: center;
         }
         
-        .modal.active, [style*="display: flex"][id^="modal"] {
+        .modal.active, [style*="display: flex"][id^="modal"], [style*="display: flex"][id*="Modal"] {
             display: flex;
         }
         
@@ -1213,13 +1213,14 @@
             width: 90%;
             max-width: 550px;
             max-height: 90vh;
-            overflow-y: auto;
+            overflow: hidden;
             box-shadow: var(--shadow-xl);
         }
         
         .modal-header {
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-900) 100%);
+            color: white;
             padding: var(--space-5) var(--space-6);
-            border-bottom: 1px solid var(--gray-100);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1228,24 +1229,35 @@
         .modal-header h2, .modal-header h3 {
             font-size: 18px;
             font-weight: 600;
-            color: var(--gray-800);
+            color: white;
+            margin: 0;
         }
         
-        .modal-close {
-            background: none;
+        .close-btn, .modal-close {
+            background: rgba(255,255,255,0.2);
             border: none;
+            color: white;
             font-size: 24px;
-            color: var(--gray-400);
             cursor: pointer;
-            transition: color var(--transition-fast);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            line-height: 1;
         }
         
-        .modal-close:hover {
-            color: var(--gray-600);
+        .close-btn:hover, .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
         }
         
         .modal-body {
             padding: var(--space-6);
+            max-height: 60vh;
+            overflow-y: auto;
         }
         
         /* === STATS GRID === */

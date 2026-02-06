@@ -93,9 +93,10 @@
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%);
+            background: #f3f4f6;
             min-height: 100vh;
-            padding: var(--space-6);
+            padding: 0;
+            margin: 0;
             color: var(--gray-800);
             line-height: 1.6;
         }
@@ -166,12 +167,25 @@
         /* === LOGIN SCREEN === */
         .login-container {
             max-width: 420px;
-            margin: 80px auto;
+            margin: 0 auto;
             background: white;
             border-radius: var(--radius-2xl);
             box-shadow: var(--shadow-xl);
             overflow: hidden;
             animation: fadeUp 0.5s ease;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .login-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%);
+            z-index: 1000;
         }
         
         @keyframes fadeUp {
@@ -262,12 +276,14 @@
         }
         
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
+            max-width: 100%;
+            width: 100%;
+            margin: 0;
             background: white;
-            border-radius: var(--radius-2xl);
-            box-shadow: var(--shadow-xl);
+            border-radius: 0;
+            box-shadow: none;
             overflow: hidden;
+            min-height: 100vh;
         }
         
         /* === HEADER === */
@@ -1610,6 +1626,7 @@
     </div>
     
     <!-- LOGIN SCREEN -->
+    <div class="login-wrapper" id="loginWrapper">
     <div class="login-container" id="loginScreen">
         <div class="login-header">
             <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px;">
@@ -1674,6 +1691,7 @@
                 <button type="submit" class="login-btn">Registrati</button>
             </form>
         </div>
+    </div>
     </div>
 
     <!-- MAIN APPLICATION -->
@@ -4066,7 +4084,7 @@
 
         // Do Login
         async function doLogin() {
-            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('loginWrapper').style.display = 'none';
             document.getElementById('appContainer').classList.add('active');
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) themeToggle.style.display = 'flex';
@@ -4127,7 +4145,7 @@
 
         function showLoginScreen() {
             document.body.classList.remove('logged-in');
-            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('loginWrapper').style.display = 'block';
             document.getElementById('appContainer').classList.remove('active');
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) themeToggle.style.display = 'none';

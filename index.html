@@ -850,6 +850,112 @@
             color: white;
         }
         
+        /* === NOTIFICATION BADGES (red dots) === */
+        .badge-notifica {
+            background: var(--danger-500);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: var(--radius-full);
+            margin-left: 5px;
+            animation: pulse-badge 2s infinite;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+        }
+        
+        @keyframes pulse-badge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* === CALENDAR EVENT DOTS === */
+        .event-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+        
+        .event-dot.fiscale { background: #dc3545; }
+        .event-dot.lavoro { background: #3b82f6; }
+        .event-dot.followup { background: #f59e0b; }
+        .event-dot.personale { background: #10b981; }
+        .event-dot.pulizia { background: #8b5cf6; }
+        
+        .scadenza-indicator {
+            width: 6px;
+            height: 6px;
+            background: var(--danger-500);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 5px;
+        }
+        
+        /* Calendar day with events */
+        .calendar-day.has-event {
+            background: var(--primary-50);
+        }
+        
+        .calendar-day.has-event:hover {
+            background: var(--primary-100);
+        }
+        
+        .calendar-day .events-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            margin-top: 4px;
+        }
+        
+        /* === SCADENZA BADGES === */
+        .scadenza-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .scadenza-badge.fiscale { background: #dc3545; color: white; }
+        .scadenza-badge.lavoro { background: #3b82f6; color: white; }
+        .scadenza-badge.followup { background: #f59e0b; color: white; }
+        .scadenza-badge.personale { background: #10b981; color: white; }
+        .scadenza-badge.pulizia { background: #8b5cf6; color: white; }
+        
+        /* === SCADENZA ITEMS === */
+        .scadenza-item {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-3);
+            border: 1px solid var(--gray-200);
+            border-left: 4px solid var(--gray-300);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .scadenza-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .scadenza-item.fiscale { border-left-color: #dc3545; background: #fef2f2; }
+        .scadenza-item.lavoro { border-left-color: #3b82f6; background: #eff6ff; }
+        .scadenza-item.followup { border-left-color: #f59e0b; background: #fffbeb; }
+        .scadenza-item.personale { border-left-color: #10b981; background: #ecfdf5; }
+        .scadenza-item.pulizia { border-left-color: #8b5cf6; background: #f5f3ff; }
+        
+        .scadenza-item h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: var(--space-1);
+        }
+        
         /* === THEME TOGGLE BUTTON === */
         .theme-toggle {
             position: fixed;

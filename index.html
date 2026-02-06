@@ -9045,7 +9045,6 @@
                                 <span class="email-date" style="font-size: 11px; color: #86868b;">${date}</span>
                             </div>
                             <div class="email-subject" style="font-size: 13px; ${!email.is_read && !isSent ? 'font-weight: 500;' : 'color: #86868b;'}">${escapeHtml(subject)}</div>
-                            <div class="email-preview" style="font-size: 12px; color: #86868b;">${escapeHtml(preview)}${preview.length >= 60 ? '...' : ''}</div>
                         </div>
                         ${email.is_starred ? '<span style="color: #f39c12;">⭐</span>' : ''}
                     </div>

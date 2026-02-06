@@ -2393,54 +2393,85 @@
                         <h3 style="color: #2c3e50; margin-bottom: 20px;">➕ Nuova Richiesta</h3>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Data Ricezione</label>
-                                <input type="date" id="richiesta-data" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Nome Cliente</label>
+                                <label>Nome Cliente *</label>
                                 <input type="text" id="richiesta-nome" required placeholder="Es: Mario Rossi">
                             </div>
                             <div class="form-group">
-                                <label>Email</label>
+                                <label>Azienda</label>
+                                <input type="text" id="richiesta-azienda" placeholder="Es: Apple Inc.">
+                            </div>
+                            <div class="form-group">
+                                <label>Email *</label>
                                 <input type="email" id="richiesta-email" required placeholder="Es: mario@email.com">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Tipo Richiesta</label>
-                                <select id="richiesta-tipo" required>
-                                    <option value="">Seleziona...</option>
-                                    <option value="preventivo">Richiesta Preventivo</option>
-                                    <option value="informazioni">Richiesta Informazioni</option>
-                                    <option value="collaborazione">Proposta Collaborazione</option>
-                                    <option value="altro">Altro</option>
+                                <label>Tipo di Servizio *</label>
+                                <select id="richiesta-servizio" required>
+                                    <option value="">Seleziona un servizio...</option>
+                                    <option value="analisi">📊 Analisi Dati & Report</option>
+                                    <option value="dashboard">📈 Dashboard Interattive (Power BI/Tableau)</option>
+                                    <option value="excel">⚙️ Automazione Excel</option>
+                                    <option value="database">🗃️ Gestione Database (SQL)</option>
+                                    <option value="cleaning">🧹 Pulizia & Preparazione Dati</option>
+                                    <option value="consulting">💡 Consulenza Strategica</option>
+                                    <option value="informazioni">📝 Richiesta Informazioni</option>
+                                    <option value="nonsicuro">❓ Non Sono Sicuro / Serve Aiuto</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Lavorazione</label>
-                                <select id="richiesta-lavorazione" required>
-                                    <option value="">Seleziona...</option>
-                                    <option value="elaborazione">Elaborazione / pulizia dati</option>
-                                    <option value="inserimento">Inserimento / migrazione dati</option>
-                                    <option value="conversione">Conversione documenti (PDF → Excel / Word)</option>
-                                    <option value="automazioni">Automazioni leggere</option>
-                                    <option value="nonsicuro">Non sono sicuro</option>
+                                <label>Timeline Progetto *</label>
+                                <select id="richiesta-timeline" required>
+                                    <option value="">Seleziona timeline...</option>
+                                    <option value="asap">🔥 ASAP (1-3 giorni)</option>
+                                    <option value="1week">⏰ Entro 1 settimana</option>
+                                    <option value="2weeks">📅 Entro 2 settimane</option>
+                                    <option value="1month">📆 Entro 1 mese</option>
+                                    <option value="flexible">🌿 Flessibile / Senza fretta</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Priorità</label>
-                                <select id="richiesta-priorita">
-                                    <option value="normale">Normale</option>
-                                    <option value="alta">Alta</option>
-                                    <option value="bassa">Bassa</option>
+                                <label>Budget</label>
+                                <select id="richiesta-budget">
+                                    <option value="">Seleziona budget...</option>
+                                    <option value="under500">💵 Under $500</option>
+                                    <option value="500-1000">💰 $500 - $1,000</option>
+                                    <option value="1000-2500">💎 $1,000 - $2,500</option>
+                                    <option value="2500-5000">💸 $2,500 - $5,000</option>
+                                    <option value="5000+">🏆 $5,000+</option>
+                                    <option value="unsure">❓ Non sono sicuro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Data Ricezione</label>
+                                <input type="date" id="richiesta-data">
+                            </div>
+                            <div class="form-group">
+                                <label>Fonte</label>
+                                <select id="richiesta-fonte">
+                                    <option value="email">📧 Email diretta</option>
+                                    <option value="sito">🌐 Form sito web</option>
+                                    <option value="linkedin">💼 LinkedIn</option>
+                                    <option value="referral">👥 Referral</option>
+                                    <option value="altro">📝 Altro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Stato iniziale</label>
+                                <select id="richiesta-stato">
+                                    <option value="dalavorare">📋 Da Lavorare</option>
+                                    <option value="inlavorazione">🔄 In Lavorazione</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Messaggio</label>
-                            <textarea id="richiesta-messaggio" rows="4" required placeholder="Contenuto della richiesta..."></textarea>
+                            <label>Descrizione Progetto *</label>
+                            <textarea id="richiesta-messaggio" rows="4" required placeholder="Descrivi il progetto, le esigenze del cliente, eventuali dettagli tecnici..."></textarea>
                         </div>
-                        <button type="submit" class="btn">💾 Salva Richiesta</button>
+                        <button type="submit" class="btn" style="background: #27ae60;">💾 Salva Richiesta</button>
                     </form>
 
                     <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
@@ -3918,6 +3949,19 @@
                             <input type="text" id="mod-rich-budget" placeholder="es. 2500 o $1,000 - $2,500" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
                         </div>
                         <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">⏱️ Timeline</label>
+                            <select id="mod-rich-timeline" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                                <option value="">-- Seleziona --</option>
+                                <option value="ASAP (1-3 giorni)">🔥 ASAP (1-3 giorni)</option>
+                                <option value="Entro 1 settimana">⏰ Entro 1 settimana</option>
+                                <option value="Entro 2 settimane">📅 Entro 2 settimane</option>
+                                <option value="Entro 1 mese">📆 Entro 1 mese</option>
+                                <option value="Flessibile">🌿 Flessibile</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
                             <label style="display: block; margin-bottom: 5px; font-weight: 600;">Stato</label>
                             <select id="mod-rich-stato" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
                                 <option value="dalavorare">📋 Da Lavorare</option>
@@ -3925,18 +3969,31 @@
                                 <option value="completata">✅ Completata</option>
                             </select>
                         </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Fonte</label>
+                            <select id="mod-rich-fonte" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                                <option value="">-- Seleziona --</option>
+                                <option value="email">📧 Email diretta</option>
+                                <option value="sito">🌐 Form sito web</option>
+                                <option value="linkedin">💼 LinkedIn</option>
+                                <option value="referral">👥 Referral</option>
+                                <option value="pipeline">📊 Pipeline</option>
+                                <option value="altro">📝 Altro</option>
+                            </select>
+                        </div>
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Servizio / Lavorazione</label>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo di Servizio</label>
                         <select id="mod-rich-lavorazione" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
                             <option value="">-- Seleziona --</option>
-                            <option value="analisi">📊 Data Analysis & Reporting</option>
-                            <option value="dashboard">📈 Interactive Dashboards</option>
-                            <option value="excel">⚙️ Excel Automation</option>
-                            <option value="database">🗃️ Database Management</option>
-                            <option value="cleaning">🧹 Data Cleaning</option>
-                            <option value="consulting">💡 Strategic Consulting</option>
-                            <option value="altro">📝 Altro</option>
+                            <option value="analisi">📊 Analisi Dati & Report</option>
+                            <option value="dashboard">📈 Dashboard Interattive (Power BI/Tableau)</option>
+                            <option value="excel">⚙️ Automazione Excel</option>
+                            <option value="database">🗃️ Gestione Database (SQL)</option>
+                            <option value="cleaning">🧹 Pulizia & Preparazione Dati</option>
+                            <option value="consulting">💡 Consulenza Strategica</option>
+                            <option value="informazioni">📝 Richiesta Informazioni</option>
+                            <option value="nonsicuro">❓ Non Sono Sicuro / Serve Aiuto</option>
                         </select>
                     </div>
                     <div>
@@ -5451,28 +5508,83 @@
         });
 
         // Form Richieste
-        document.getElementById('richiestaForm').addEventListener('submit', function(e) {
+        document.getElementById('richiestaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const richiesta = {
-                id: Date.now().toString(),
-                data: document.getElementById('richiesta-data').value,
-                nome: document.getElementById('richiesta-nome').value,
-                email: document.getElementById('richiesta-email').value,
-                tipo: document.getElementById('richiesta-tipo').value,
-                lavorazione: document.getElementById('richiesta-lavorazione').value,
-                priorita: document.getElementById('richiesta-priorita').value,
-                messaggio: document.getElementById('richiesta-messaggio').value,
-                stato: 'dalavorare' // Stato iniziale: da lavorare
+            // Mappa budget per label leggibili
+            const budgetMap = {
+                'under500': 'Under $500',
+                '500-1000': '$500 - $1,000',
+                '1000-2500': '$1,000 - $2,500',
+                '2500-5000': '$2,500 - $5,000',
+                '5000+': '$5,000+',
+                'unsure': 'Non specificato'
             };
             
-            richiesteSito.push(richiesta);
-            this.reset();
-            document.getElementById('richiesta-data').valueAsDate = new Date();
-            aggiornaListaRichieste();
-            aggiornaBadgeRichieste();
-            salvaDati();
-            alert('✅ Richiesta salvata!');
+            // Mappa timeline per label
+            const timelineMap = {
+                'asap': 'ASAP (1-3 giorni)',
+                '1week': 'Entro 1 settimana',
+                '2weeks': 'Entro 2 settimane',
+                '1month': 'Entro 1 mese',
+                'flexible': 'Flessibile'
+            };
+            
+            // Mappa servizi per label
+            const servizioMap = {
+                'analisi': 'Analisi Dati & Report',
+                'dashboard': 'Dashboard Interattive (Power BI/Tableau)',
+                'excel': 'Automazione Excel',
+                'database': 'Gestione Database (SQL)',
+                'cleaning': 'Pulizia & Preparazione Dati',
+                'consulting': 'Consulenza Strategica',
+                'informazioni': 'Richiesta Informazioni',
+                'nonsicuro': 'Non Sono Sicuro / Serve Aiuto'
+            };
+            
+            const budgetValue = document.getElementById('richiesta-budget').value;
+            const timelineValue = document.getElementById('richiesta-timeline').value;
+            const servizioValue = document.getElementById('richiesta-servizio').value;
+            const azienda = document.getElementById('richiesta-azienda').value;
+            const nome = document.getElementById('richiesta-nome').value;
+            
+            const richiesta = {
+                user_id: currentUser.id,
+                data: document.getElementById('richiesta-data').value || new Date().toISOString(),
+                nome: azienda ? `${nome} - ${azienda}` : nome,
+                email: document.getElementById('richiesta-email').value,
+                lavorazione: servizioValue,
+                budget: budgetMap[budgetValue] || '',
+                timeline: timelineMap[timelineValue] || '',
+                fonte: document.getElementById('richiesta-fonte').value,
+                messaggio: document.getElementById('richiesta-messaggio').value,
+                stato: document.getElementById('richiesta-stato').value
+            };
+            
+            try {
+                const { data, error } = await db
+                    .from('richieste')
+                    .insert([richiesta])
+                    .select()
+                    .single();
+                
+                if (error) {
+                    console.error('Errore salvataggio richiesta:', error);
+                    showToast('Errore', 'Impossibile salvare la richiesta: ' + error.message, 'error');
+                    return;
+                }
+                
+                richiesteSito.unshift({ id: data.id, ...richiesta });
+                this.reset();
+                document.getElementById('richiesta-data').valueAsDate = new Date();
+                aggiornaListaRichieste();
+                aggiornaBadgeRichieste();
+                showToast('✅ Richiesta Salvata', `"${richiesta.nome}" aggiunta con successo`, 'success');
+                
+            } catch (err) {
+                console.error('Errore:', err);
+                showToast('Errore', 'Impossibile salvare la richiesta', 'error');
+            }
         });
 
         document.getElementById('clienteForm').addEventListener('submit', function(e) {
@@ -7247,7 +7359,9 @@
             document.getElementById('mod-rich-email').value = richiesta.email || '';
             document.getElementById('mod-rich-telefono').value = richiesta.telefono || '';
             document.getElementById('mod-rich-budget').value = richiesta.budget || '';
+            document.getElementById('mod-rich-timeline').value = richiesta.timeline || '';
             document.getElementById('mod-rich-stato').value = richiesta.stato || 'dalavorare';
+            document.getElementById('mod-rich-fonte').value = richiesta.fonte || '';
             document.getElementById('mod-rich-lavorazione').value = richiesta.lavorazione || '';
             document.getElementById('mod-rich-messaggio').value = richiesta.messaggio || '';
             
@@ -7267,7 +7381,9 @@
                 email: document.getElementById('mod-rich-email').value,
                 telefono: document.getElementById('mod-rich-telefono').value,
                 budget: document.getElementById('mod-rich-budget').value,
+                timeline: document.getElementById('mod-rich-timeline').value,
                 stato: document.getElementById('mod-rich-stato').value,
+                fonte: document.getElementById('mod-rich-fonte').value,
                 lavorazione: document.getElementById('mod-rich-lavorazione').value,
                 messaggio: document.getElementById('mod-rich-messaggio').value
             };

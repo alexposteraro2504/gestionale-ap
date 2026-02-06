@@ -7304,7 +7304,8 @@
                 
                 if (error) {
                     console.error('Errore salvataggio ore:', error);
-                    showToast('Errore', 'Impossibile salvare le ore', 'error');
+                    console.error('Dettaglio errore:', JSON.stringify(error, null, 2));
+                    showToast('Errore', `Impossibile salvare le ore: ${error.message || error.code || 'errore sconosciuto'}`, 'error');
                     return;
                 }
                 

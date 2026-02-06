@@ -4825,7 +4825,10 @@
                 
                 // Se lo stato è cambiato a "vinto", crea una richiesta in lavorazione
                 if (nuovoStato === 'vinto' && vecchioStato !== 'vinto') {
+                    console.log('🎯 Lead passato a VINTO! Creo richiesta...', leadInModifica);
                     await creaRichiestaDaLeadVinto(leadInModifica);
+                } else {
+                    console.log('Stato lead:', vecchioStato, '->', nuovoStato);
                 }
             } catch (e) {
                 console.error('Errore salvataggio lead:', e);
@@ -4838,6 +4841,7 @@
         
         // Crea una richiesta quando un lead viene segnato come vinto
         async function creaRichiestaDaLeadVinto(lead) {
+            console.log('📝 creaRichiestaDaLeadVinto chiamata con:', lead);
             try {
                 const nuovaRichiesta = {
                     user_id: currentUser.id,
@@ -4847,8 +4851,11 @@
                     messaggio: `Deal vinto dalla pipeline.\nValore: €${(lead.valore || 0).toLocaleString('it-IT')}\nNote: ${lead.note || 'Nessuna nota'}`,
                     stato: 'inlavorazione',
                     fonte: 'pipeline',
+                    budget: lead.valore ? `€${lead.valore}` : '',
                     data: new Date().toISOString()
                 };
+                
+                console.log('📤 Inserisco richiesta:', nuovaRichiesta);
                 
                 const { data, error } = await db
                     .from('richieste')

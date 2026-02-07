@@ -3480,31 +3480,61 @@
 
     <!-- Modal Modifica Lead -->
     <div id="modalModificaLead" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
-        <div style="background: white; border-radius: 15px; width: 90%; max-width: 500px; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <div style="background: white; border-radius: 15px; width: 90%; max-width: 550px; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
             <div style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin: 0; color: white;">✏️ Modifica Lead</h3>
                 <button onclick="chiudiModalLead()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer;">×</button>
             </div>
             <div style="padding: 25px; max-height: calc(90vh - 80px); overflow-y: auto;">
                 <div class="form-group">
-                    <label>Nome *</label>
+                    <label>Nome Cliente *</label>
                     <input type="text" id="edit-lead-nome" required>
                 </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="edit-lead-email">
-                </div>
-                <div class="form-group">
-                    <label>Telefono</label>
-                    <input type="tel" id="edit-lead-telefono">
-                </div>
-                <div class="form-row">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div class="form-group">
-                        <label>Valore (€)</label>
-                        <input type="number" id="edit-lead-valore" step="0.01" min="0">
+                        <label>Email</label>
+                        <input type="email" id="edit-lead-email">
                     </div>
                     <div class="form-group">
-                        <label>Stato</label>
+                        <label>Telefono</label>
+                        <input type="tel" id="edit-lead-telefono">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Budget (€)</label>
+                        <input type="text" id="edit-lead-budget" placeholder="es. 2500 o €2.500">
+                    </div>
+                    <div class="form-group">
+                        <label>Timeline</label>
+                        <select id="edit-lead-timeline">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Urgente">🔴 Urgente</option>
+                            <option value="1 settimana">1 settimana</option>
+                            <option value="2 settimane">2 settimane</option>
+                            <option value="1 mese">1 mese</option>
+                            <option value="2-3 mesi">2-3 mesi</option>
+                            <option value="Flessibile">Flessibile</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Tipo Lavorazione</label>
+                        <select id="edit-lead-lavorazione">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Sito Web">🌐 Sito Web</option>
+                            <option value="E-commerce">🛒 E-commerce</option>
+                            <option value="App Mobile">📱 App Mobile</option>
+                            <option value="Gestionale">💼 Gestionale</option>
+                            <option value="SEO/Marketing">📈 SEO/Marketing</option>
+                            <option value="Consulenza">💡 Consulenza</option>
+                            <option value="Manutenzione">🔧 Manutenzione</option>
+                            <option value="Altro">📌 Altro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Stato Pipeline</label>
                         <select id="edit-lead-stato">
                             <option value="lead">🆕 Lead</option>
                             <option value="contattato">📞 Contattato</option>
@@ -3520,12 +3550,14 @@
                         <option value="sito">🌐 Sito Web</option>
                         <option value="referral">👥 Referral</option>
                         <option value="social">📱 Social</option>
+                        <option value="linkedin">💼 LinkedIn</option>
+                        <option value="passaparola">🗣️ Passaparola</option>
                         <option value="altro">📌 Altro</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Note</label>
-                    <textarea id="edit-lead-note" rows="3" placeholder="Note sul lead..."></textarea>
+                    <label>Messaggio / Note</label>
+                    <textarea id="edit-lead-note" rows="4" placeholder="Dettagli della richiesta, note, messaggi..."></textarea>
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button onclick="salvaModificheLead()" class="btn btn-primary" style="flex: 1;">💾 Salva Modifiche</button>
@@ -4543,10 +4575,12 @@
             document.getElementById('edit-lead-nome').value = lead.nome || '';
             document.getElementById('edit-lead-email').value = lead.email || '';
             document.getElementById('edit-lead-telefono').value = lead.telefono || '';
-            document.getElementById('edit-lead-valore').value = lead.valore || 0;
+            document.getElementById('edit-lead-budget').value = lead.budget || (lead.valore ? `€${lead.valore}` : '');
+            document.getElementById('edit-lead-timeline').value = lead.timeline || '';
+            document.getElementById('edit-lead-lavorazione').value = lead.lavorazione || '';
             document.getElementById('edit-lead-stato').value = lead.stato || 'lead';
             document.getElementById('edit-lead-fonte').value = lead.fonte || 'sito';
-            document.getElementById('edit-lead-note').value = lead.note || '';
+            document.getElementById('edit-lead-note').value = lead.messaggio || lead.note || '';
             
             // Mostra modal
             document.getElementById('modalModificaLead').style.display = 'flex';
@@ -4562,13 +4596,21 @@
             
             const vecchioStato = leadInModifica.stato;
             
+            // Leggi budget e converti in valore numerico
+            const budgetStr = document.getElementById('edit-lead-budget').value;
+            const valoreNumerico = parseBudget(budgetStr);
+            
             // Aggiorna dati
             leadInModifica.nome = document.getElementById('edit-lead-nome').value;
             leadInModifica.email = document.getElementById('edit-lead-email').value;
             leadInModifica.telefono = document.getElementById('edit-lead-telefono').value;
-            leadInModifica.valore = parseFloat(document.getElementById('edit-lead-valore').value) || 0;
+            leadInModifica.budget = budgetStr;
+            leadInModifica.valore = valoreNumerico;
+            leadInModifica.timeline = document.getElementById('edit-lead-timeline').value;
+            leadInModifica.lavorazione = document.getElementById('edit-lead-lavorazione').value;
             leadInModifica.stato = document.getElementById('edit-lead-stato').value;
             leadInModifica.fonte = document.getElementById('edit-lead-fonte').value;
+            leadInModifica.messaggio = document.getElementById('edit-lead-note').value;
             leadInModifica.note = document.getElementById('edit-lead-note').value;
             
             const nuovoStato = leadInModifica.stato;
@@ -4610,10 +4652,12 @@
                     nome: lead.nome,
                     email: lead.email || '',
                     telefono: lead.telefono || '',
-                    messaggio: `Deal vinto dalla pipeline.\nValore: €${(lead.valore || 0).toLocaleString('it-IT')}\nNote: ${lead.note || 'Nessuna nota'}`,
+                    messaggio: lead.messaggio || lead.note || '',
                     stato: 'inlavorazione',
-                    fonte: 'pipeline',
-                    budget: lead.valore ? `€${lead.valore}` : '',
+                    fonte: lead.fonte || 'pipeline',
+                    budget: lead.budget || (lead.valore ? `€${lead.valore}` : ''),
+                    timeline: lead.timeline || '',
+                    lavorazione: lead.lavorazione || '',
                     data: new Date().toISOString()
                 };
                 

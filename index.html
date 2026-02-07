@@ -5439,9 +5439,15 @@
                     noteFattura: document.getElementById('miei-note-fattura').value
                 };
                 
-                // Salva su Supabase
+                // Salva su Supabase - prima controlla se esiste, poi insert o update
                 try {
-                    const { error } = await db.from('miei_dati').upsert({
+                    // Controlla se esistono già dati per questo utente
+                    const { data: existing } = await db.from('miei_dati')
+                        .select('id')
+                        .eq('user_id', currentUser.id)
+                        .maybeSingle();
+                    
+                    const datiDaSalvare = {
                         user_id: currentUser.id,
                         nome: mieiDati.nome,
                         piva: mieiDati.piva,
@@ -5458,7 +5464,21 @@
                         iban: mieiDati.iban,
                         note_preventivo: mieiDati.notePreventivo,
                         note_fattura: mieiDati.noteFattura
-                    }, { onConflict: 'user_id' });
+                    };
+                    
+                    let error;
+                    if (existing) {
+                        // Update esistente
+                        const result = await db.from('miei_dati')
+                            .update(datiDaSalvare)
+                            .eq('user_id', currentUser.id);
+                        error = result.error;
+                    } else {
+                        // Insert nuovo
+                        const result = await db.from('miei_dati')
+                            .insert(datiDaSalvare);
+                        error = result.error;
+                    }
                     
                     if (error) {
                         console.error('Errore salvataggio miei dati:', error);
@@ -9999,21 +10019,46 @@
                 
                 // Aggiorna contatori
                 try {
-                    await db.from('contatori').upsert({
-                        user_id: currentUser.id,
-                        contatore_fatture: contatoreFatture,
-                        contatore_preventivi: contatorePreventivi
-                    });
+                    const { data: existingContatori } = await db.from('contatori')
+                        .select('id')
+                        .eq('user_id', currentUser.id)
+                        .maybeSingle();
+                    
+                    if (existingContatori) {
+                        await db.from('contatori').update({
+                            contatore_fatture: contatoreFatture,
+                            contatore_preventivi: contatorePreventivi
+                        }).eq('user_id', currentUser.id);
+                    } else {
+                        await db.from('contatori').insert({
+                            user_id: currentUser.id,
+                            contatore_fatture: contatoreFatture,
+                            contatore_preventivi: contatorePreventivi
+                        });
+                    }
                 } catch (e) {
                     console.warn('Errore aggiornamento contatori:', e);
                 }
                 
                 // Aggiorna miei dati
                 try {
-                    await db.from('miei_dati').upsert({
-                        user_id: currentUser.id,
-                        ...mieiDati
-                    });
+                    // Controlla se esistono già dati
+                    const { data: existingMiei } = await db.from('miei_dati')
+                        .select('id')
+                        .eq('user_id', currentUser.id)
+                        .maybeSingle();
+                    
+                    if (existingMiei) {
+                        await db.from('miei_dati').update({
+                            user_id: currentUser.id,
+                            ...mieiDati
+                        }).eq('user_id', currentUser.id);
+                    } else {
+                        await db.from('miei_dati').insert({
+                            user_id: currentUser.id,
+                            ...mieiDati
+                        });
+                    }
                 } catch (e) {
                     console.warn('Errore aggiornamento miei_dati:', e);
                 }

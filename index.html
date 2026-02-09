@@ -3328,10 +3328,11 @@
                                     <th>Soggetto</th>
                                     <th>Descrizione</th>
                                     <th>Importo</th>
+                                    <th>Azioni</th>
                                 </tr>
                             </thead>
                             <tbody id="search-results-table">
-                                <tr><td colspan="6" style="text-align: center; padding: 30px;">Usa i filtri per cercare</td></tr>
+                                <tr><td colspan="7" style="text-align: center; padding: 30px;">Usa i filtri per cercare</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -7263,20 +7264,33 @@
             const tbody = document.getElementById('search-results-table');
             
             if (risultati.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">Nessun risultato trovato</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;">Nessun risultato trovato</td></tr>';
                 return;
             }
             
-            tbody.innerHTML = risultati.map(m => `
+            tbody.innerHTML = risultati.sort((a, b) => new Date(b.data) - new Date(a.data)).map(m => {
+                const soggetto = m.soggetto || m.riferimento || '-';
+                const tipoSoggettoIcon = m.tipo_soggetto === 'cliente' ? '👤' : (m.tipo_soggetto === 'fornitore' ? '🏭' : '');
+                return `
                 <tr>
                     <td>${new Date(m.data).toLocaleDateString('it-IT')}</td>
                     <td><span class="${m.tipo}">${m.tipo.toUpperCase()}</span></td>
                     <td>${m.categoria}</td>
-                    <td>${m.riferimento || '-'}</td>
+                    <td>${tipoSoggettoIcon} ${soggetto}</td>
                     <td>${m.descrizione || '-'}</td>
                     <td class="${m.tipo}">€${m.importo.toFixed(2)}</td>
+                    <td style="display: flex; gap: 5px;">
+                        <button onclick="modificaMovimentoDaRicerca('${m.id}')" style="background: #3b82f6; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">✏️</button>
+                        <button onclick="eliminaMovimento('az', '${m.id}')" style="background: #ef4444; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">🗑️</button>
+                    </td>
                 </tr>
-            `).join('');
+            `}).join('');
+        }
+        
+        // Funzione per modificare movimento dalla ricerca
+        function modificaMovimentoDaRicerca(id) {
+            modificaMovimento(id);
+            switchTab('azienda', 'movimenti');
         }
 
         function resetRicerca() {
@@ -7288,7 +7302,7 @@
             document.getElementById('search-importo-min').value = '';
             document.getElementById('search-importo-max').value = '';
             document.getElementById('search-count').textContent = '0';
-            document.getElementById('search-results-table').innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">Usa i filtri per cercare</td></tr>';
+            document.getElementById('search-results-table').innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;">Usa i filtri per cercare</td></tr>';
         }
 
         // Funzione per inizializzare i promemoria di pulizia email

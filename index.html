@@ -3094,16 +3094,16 @@
                         
                         <h4 style="color: #2c3e50; margin: 20px 0 15px 0;">Servizi/Prodotti</h4>
                         <div id="preventivo-righe">
-                            <div class="form-row preventivo-riga">
-                                <div class="form-group" style="flex: 3;">
+                            <div class="form-row preventivo-riga" style="align-items: flex-end;">
+                                <div class="form-group" style="flex: 5;">
                                     <label>Descrizione</label>
                                     <input type="text" class="prev-riga-descrizione" required placeholder="Descrizione servizio/prodotto">
                                 </div>
-                                <div class="form-group" style="flex: 1;">
-                                    <label>Quantità</label>
-                                    <input type="number" class="prev-riga-quantita" value="1" min="1" required>
+                                <div class="form-group" style="flex: 0.7; min-width: 70px;">
+                                    <label>Qtà</label>
+                                    <input type="number" class="prev-riga-quantita" value="1" min="1" max="99" required style="text-align: center;">
                                 </div>
-                                <div class="form-group" style="flex: 1;">
+                                <div class="form-group" style="flex: 1.3; min-width: 100px;">
                                     <label>Prezzo (€)</label>
                                     <input type="number" class="prev-riga-prezzo" step="0.01" required>
                                 </div>
@@ -5669,7 +5669,10 @@
             
             const sortedMovimenti = [...movimenti].sort((a, b) => new Date(b.data) - new Date(a.data));
             
-            tbody.innerHTML = sortedMovimenti.map(m => {
+            // Mostra solo ultimi 5 movimenti
+            const ultimi5 = sortedMovimenti.slice(0, 5);
+            
+            tbody.innerHTML = ultimi5.map(m => {
                 // Supporta sia il vecchio campo 'riferimento' che il nuovo 'soggetto'
                 const soggetto = m.soggetto || m.riferimento || '-';
                 const tipoSoggettoIcon = m.tipo_soggetto === 'cliente' ? '👤' : (m.tipo_soggetto === 'fornitore' ? '🏭' : '');
@@ -5681,9 +5684,19 @@
                     <td>${tipoSoggettoIcon} ${soggetto}</td>
                     <td>${m.descrizione || '-'}</td>
                     <td class="${m.tipo}">€${m.importo.toFixed(2)}</td>
-                    <td><button class="delete-btn" onclick="eliminaMovimento('az', ${m.id})">Elimina</button></td>
+                    <td style="display: flex; gap: 5px;">
+                        <button class="edit-btn" onclick="modificaMovimento('${m.id}')" style="background: #3b82f6; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">✏️</button>
+                        <button class="delete-btn" onclick="eliminaMovimento('az', '${m.id}')" style="background: #ef4444; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">🗑️</button>
+                    </td>
                 </tr>
             `}).join('');
+            
+            // Aggiungi nota se ci sono più di 5 movimenti
+            if (sortedMovimenti.length > 5) {
+                tbody.innerHTML += `<tr><td colspan="7" style="text-align: center; padding: 15px; background: #f8fafc; color: #64748b; font-size: 13px;">
+                    Mostrati ultimi 5 di ${sortedMovimenti.length} movimenti. Usa <strong>🔍 Ricerca</strong> per trovare movimenti specifici.
+                </td></tr>`;
+            }
             
             if (dashboardTbody) {
                 dashboardTbody.innerHTML = sortedMovimenti.slice(0, 5).map(m => {
@@ -5698,6 +5711,49 @@
                     </tr>
                 `}).join('');
             }
+        }
+        
+        // Funzione per modificare un movimento
+        function modificaMovimento(id) {
+            const m = azMovimenti.find(mov => mov.id == id);
+            if (!m) {
+                console.error('Movimento non trovato:', id);
+                return;
+            }
+            
+            // Popola il form
+            document.getElementById('az-dataMovimento').value = m.data;
+            document.getElementById('az-tipoMovimento').value = m.tipo;
+            document.getElementById('az-categoriaMovimento').value = m.categoria;
+            document.getElementById('az-importoMovimento').value = m.importo;
+            document.getElementById('az-descrizioneMovimento').value = m.descrizione || '';
+            
+            // Popola soggetto se presente
+            if (m.tipo_soggetto) {
+                document.getElementById('az-tipoSoggetto').value = m.tipo_soggetto;
+                aggiornaSoggettiMovimento();
+                // Trova l'id del soggetto dal nome
+                setTimeout(() => {
+                    const soggettoSelect = document.getElementById('az-soggettoMovimento');
+                    const options = soggettoSelect.options;
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].text === m.soggetto) {
+                            soggettoSelect.value = options[i].value;
+                            break;
+                        }
+                    }
+                }, 100);
+            }
+            
+            // Elimina il movimento (verrà ricreato al salvataggio)
+            azMovimenti = azMovimenti.filter(mov => mov.id != id);
+            eliminaDatoSupabase('movimenti', id).catch(err => console.error('Errore eliminazione:', err));
+            
+            aggiornaMovimenti('az');
+            
+            // Scroll al form
+            document.getElementById('az-movimentoForm').scrollIntoView({ behavior: 'smooth' });
+            showToast('Modifica Movimento', 'Modifica i dati e clicca "Aggiungi Movimento" per salvare', 'info');
         }
 
         function aggiornaClienti() {
@@ -6544,10 +6600,11 @@
             if (confirm('Sei sicuro di voler eliminare questo movimento?')) {
                 try {
                     await eliminaDatoSupabase('movimenti', id);
-                    azMovimenti = azMovimenti.filter(m => m.id !== id);
+                    azMovimenti = azMovimenti.filter(m => m.id != id);
                     aggiornaMovimenti('az');
                     aggiornaStatistiche('az');
                     aggiornaAnniDisponibili();
+                    aggiornaPanoramica();
                     showToast('Movimento Eliminato', 'Movimento rimosso con successo', 'success');
                 } catch (err) {
                     console.error('Errore eliminazione movimento:', err);
@@ -8337,19 +8394,18 @@
             const container = document.getElementById('preventivo-righe');
             const nuovaRiga = document.createElement('div');
             nuovaRiga.className = 'form-row preventivo-riga';
+            nuovaRiga.style.alignItems = 'flex-end';
             nuovaRiga.innerHTML = `
-                <div class="form-group" style="flex: 3;">
+                <div class="form-group" style="flex: 5;">
                     <input type="text" class="prev-riga-descrizione" required placeholder="Descrizione">
                 </div>
-                <div class="form-group" style="flex: 1;">
-                    <input type="number" class="prev-riga-quantita" value="1" min="1" required>
+                <div class="form-group" style="flex: 0.7; min-width: 70px;">
+                    <input type="number" class="prev-riga-quantita" value="1" min="1" max="99" required style="text-align: center;">
                 </div>
-                <div class="form-group" style="flex: 1;">
+                <div class="form-group" style="flex: 1.3; min-width: 100px;">
                     <input type="number" class="prev-riga-prezzo" step="0.01" required>
                 </div>
-                <div class="form-group" style="flex: 0.5;">
-                    <button type="button" class="delete-btn" onclick="this.closest('.preventivo-riga').remove()">X</button>
-                </div>
+                <button type="button" style="background: #e74c3c; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; margin-bottom: 10px;" onclick="this.closest('.preventivo-riga').remove()">×</button>
             `;
             container.appendChild(nuovaRiga);
         }
@@ -8382,16 +8438,119 @@
             righe.forEach(r => {
                 const subtotale = r.quantita * r.prezzo;
                 totale += subtotale;
-                righeHTML += `<tr><td style="padding: 12px; border-bottom: 1px solid #e0e0e0;">${r.descrizione}</td><td style="padding: 12px; border-bottom: 1px solid #e0e0e0; text-align: center;">${r.quantita}</td><td style="padding: 12px; border-bottom: 1px solid #e0e0e0; text-align: right;">€${r.prezzo.toFixed(2)}</td><td style="padding: 12px; border-bottom: 1px solid #e0e0e0; text-align: right;">€${subtotale.toFixed(2)}</td></tr>`;
+                righeHTML += `<tr>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #eee;">${r.descrizione}</td>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #eee; text-align: center;">${r.quantita}</td>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #eee; text-align: right;">€${r.prezzo.toFixed(2)}</td>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #eee; text-align: right; font-weight: 600;">€${subtotale.toFixed(2)}</td>
+                </tr>`;
             });
             const dataPreventivo = new Date(data);
             const dataScadenza = new Date(dataPreventivo);
             dataScadenza.setDate(dataScadenza.getDate() + parseInt(validita));
             preventivoCorrenteData = { numero, data, validita, cliente, oggetto, righe, totale, note };
-            let mittenteDati = mieiDati.nome ? `<strong>${mieiDati.nome}</strong><br>${mieiDati.piva ? 'P.IVA: ' + mieiDati.piva + '<br>' : ''}${mieiDati.via ? mieiDati.via + '<br>' : ''}${mieiDati.cap || mieiDati.citta ? mieiDati.cap + ' ' + mieiDati.citta + '<br>' : ''}${mieiDati.email ? mieiDati.email : ''}` : '<span style="color: #dc3545;">[Inserisci i tuoi dati]</span>';
+            
+            // Logo (usa il logo salvato o un placeholder)
+            const logoHTML = mieiDati.logo 
+                ? `<img src="${mieiDati.logo}" style="max-height: 60px; max-width: 200px; object-fit: contain;">` 
+                : `<div style="font-size: 24px; font-weight: 700; color: #2c3e50;">${mieiDati.nome || 'LA TUA AZIENDA'}</div>`;
+            
             const preview = document.getElementById('preventivo-preview');
             preview.style.display = 'block';
-            preview.innerHTML = `<div class="invoice-preview" style="border-color: #3498db;"><div style="background: #3498db; color: white; padding: 10px 20px; margin: -40px -40px 20px -40px; border-radius: 10px 10px 0 0;"><h3 style="margin: 0;">📋 PREVENTIVO</h3></div><div class="invoice-header"><div><div class="invoice-number" style="color: #3498db;">PREVENTIVO N. ${numero}</div><p style="margin-top: 10px;">Data: ${dataPreventivo.toLocaleDateString('it-IT')}</p><p style="color: #e74c3c;"><strong>Valido fino al: ${dataScadenza.toLocaleDateString('it-IT')}</strong></p>${oggetto ? `<p><strong>Oggetto:</strong> ${oggetto}</p>` : ''}</div><div style="text-align: right;">${mittenteDati}</div></div><div style="margin: 20px 0;"><strong>Cliente:</strong><br>${cliente.nome}<br>P.IVA/CF: ${cliente.piva}<br>${cliente.indirizzo || ''}</div><table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #3498db; color: white;"><th style="padding: 12px; text-align: left;">Descrizione</th><th style="padding: 12px; text-align: center; width: 100px;">Qtà</th><th style="padding: 12px; text-align: right; width: 120px;">Prezzo</th><th style="padding: 12px; text-align: right; width: 120px;">Totale</th></tr></thead><tbody>${righeHTML}</tbody></table><div class="invoice-total" style="color: #3498db;">TOTALE: €${totale.toFixed(2)}</div>${note || mieiDati.notePreventivo ? `<div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;"><strong>Note:</strong><br>${mieiDati.notePreventivo || ''} ${note || ''}</div>` : ''}<div style="margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap;"><button class="btn btn-primary" onclick="window.print()" style="background: #3498db;">🖨️ Stampa</button><button class="btn" onclick="salvaPreventivoInArchivio()" style="background: #27ae60; color: white;">💾 Salva</button><button class="btn" onclick="copiaDatiPreventivo()" style="background: #9b59b6; color: white;">📋 Copia</button></div></div>`;
+            preview.innerHTML = `
+                <div class="invoice-preview" style="border: none; box-shadow: 0 0 30px rgba(0,0,0,0.1); border-radius: 0; max-width: 800px; margin: 20px auto; font-family: 'Inter', -apple-system, sans-serif;">
+                    
+                    <!-- Header con sfondo colorato -->
+                    <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 30px 40px; margin: -40px -40px 0 -40px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                ${mieiDati.logo ? `<img src="${mieiDati.logo}" style="max-height: 50px; max-width: 180px; object-fit: contain; filter: brightness(0) invert(1);">` : `<div style="font-size: 22px; font-weight: 700;">${mieiDati.nome || 'LA TUA AZIENDA'}</div>`}
+                            </div>
+                            <div style="text-align: right; font-size: 13px; opacity: 0.9;">
+                                ${mieiDati.via || ''}${mieiDati.via ? '<br>' : ''}
+                                ${mieiDati.cap || ''} ${mieiDati.citta || ''}${(mieiDati.cap || mieiDati.citta) ? '<br>' : ''}
+                                ${mieiDati.email || ''}${mieiDati.email ? '<br>' : ''}
+                                ${mieiDati.telefono || ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Titolo documento -->
+                    <div style="background: #f8fafc; padding: 20px 40px; margin: 0 -40px; border-bottom: 3px solid #3b82f6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #1e3a8a; letter-spacing: 2px;">PREVENTIVO</div>
+                                <div style="color: #64748b; margin-top: 5px;">N. ${numero}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 14px; color: #64748b;">Data emissione</div>
+                                <div style="font-size: 18px; font-weight: 600; color: #1e40af;">${dataPreventivo.toLocaleDateString('it-IT')}</div>
+                                <div style="font-size: 12px; color: #dc2626; margin-top: 5px;">Valido fino al ${dataScadenza.toLocaleDateString('it-IT')}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Info mittente e cliente -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 30px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div>
+                            <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600; margin-bottom: 10px;">Da</div>
+                            <div style="font-weight: 600; color: #1e293b;">${mieiDati.nome || 'Nome Azienda'}</div>
+                            <div style="color: #64748b; font-size: 14px; margin-top: 5px;">
+                                ${mieiDati.piva ? 'P.IVA: ' + mieiDati.piva : ''}${mieiDati.piva ? '<br>' : ''}
+                                ${mieiDati.via || ''}${mieiDati.via ? '<br>' : ''}
+                                ${mieiDati.cap || ''} ${mieiDati.citta || ''}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600; margin-bottom: 10px;">Cliente</div>
+                            <div style="font-weight: 600; color: #1e293b;">${cliente.nome}</div>
+                            <div style="color: #64748b; font-size: 14px; margin-top: 5px;">
+                                ${cliente.piva ? 'P.IVA/CF: ' + cliente.piva : ''}${cliente.piva ? '<br>' : ''}
+                                ${cliente.indirizzo || ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${oggetto ? `<div style="padding: 20px 0; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600;">Oggetto:</span> <span style="color: #1e293b; font-weight: 500;">${oggetto}</span></div>` : ''}
+                    
+                    <!-- Tabella servizi -->
+                    <table style="width: 100%; border-collapse: collapse; margin: 30px 0;">
+                        <thead>
+                            <tr style="background: #f1f5f9;">
+                                <th style="padding: 15px 10px; text-align: left; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600;">Descrizione</th>
+                                <th style="padding: 15px 10px; text-align: center; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; width: 80px;">Qtà</th>
+                                <th style="padding: 15px 10px; text-align: right; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; width: 120px;">Prezzo Unit.</th>
+                                <th style="padding: 15px 10px; text-align: right; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; width: 120px;">Importo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${righeHTML}
+                        </tbody>
+                    </table>
+                    
+                    <!-- Totale -->
+                    <div style="display: flex; justify-content: flex-end; margin: 20px 0 30px 0;">
+                        <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 20px 40px; border-radius: 10px;">
+                            <div style="font-size: 12px; opacity: 0.8;">TOTALE</div>
+                            <div style="font-size: 28px; font-weight: 700;">€${totale.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    
+                    ${(note || mieiDati.notePreventivo) ? `
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #3b82f6;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; margin-bottom: 10px;">Note e Condizioni</div>
+                        <div style="color: #475569; font-size: 14px; line-height: 1.6;">${mieiDati.notePreventivo || ''} ${note || ''}</div>
+                    </div>
+                    ` : ''}
+                    
+                    <!-- Pulsanti azione -->
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                        <button class="btn btn-primary" onclick="window.print()" style="background: #3b82f6;">🖨️ Stampa</button>
+                        <button class="btn" onclick="salvaPreventivoInArchivio()" style="background: #10b981; color: white;">💾 Salva</button>
+                        <button class="btn" onclick="copiaDatiPreventivo()" style="background: #8b5cf6; color: white;">📋 Copia</button>
+                    </div>
+                </div>
+            `;
             preview.scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -8411,8 +8570,190 @@
         function aggiornaArchivioPreventivi() {
             const tbody = document.getElementById('archivio-preventivi');
             if (!tbody) return;
-            if (preventiviEmessi.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">Nessun preventivo</td></tr>'; return; }
-            tbody.innerHTML = preventiviEmessi.sort((a, b) => new Date(b.data) - new Date(a.data)).map(p => `<tr><td><strong>${p.numero}</strong></td><td>${new Date(p.data).toLocaleDateString('it-IT')}</td><td>${p.clienteNome}</td><td>${p.oggetto || '-'}</td><td style="text-align: right;"><strong>€${p.totale.toFixed(2)}</strong></td><td><button class="btn" onclick="eliminaPreventivo(${p.id})" style="padding: 5px 10px; font-size: 12px;">🗑️</button></td></tr>`).join('');
+            if (preventiviEmessi.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">Nessun preventivo</td></tr>'; 
+                return; 
+            }
+            tbody.innerHTML = preventiviEmessi.sort((a, b) => new Date(b.data) - new Date(a.data)).map(p => `
+                <tr>
+                    <td><strong>${p.numero}</strong></td>
+                    <td>${new Date(p.data).toLocaleDateString('it-IT')}</td>
+                    <td>${p.clienteNome}</td>
+                    <td>${p.oggetto || '-'}</td>
+                    <td style="text-align: right;"><strong>€${p.totale.toFixed(2)}</strong></td>
+                    <td style="display: flex; gap: 5px; flex-wrap: wrap;">
+                        <button class="btn" onclick="visualizzaPreventivo(${p.id})" style="padding: 5px 10px; font-size: 12px; background: #3b82f6; color: white;">👁️ Vedi</button>
+                        <button class="btn" onclick="modificaPreventivo(${p.id})" style="padding: 5px 10px; font-size: 12px; background: #f59e0b; color: white;">✏️ Modifica</button>
+                        <button class="btn" onclick="stampaPreventivo(${p.id})" style="padding: 5px 10px; font-size: 12px; background: #10b981; color: white;">🖨️ Stampa</button>
+                        <button class="btn" onclick="eliminaPreventivo(${p.id})" style="padding: 5px 10px; font-size: 12px; background: #ef4444; color: white;">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function visualizzaPreventivo(id) {
+            const p = preventiviEmessi.find(prev => prev.id === id);
+            if (!p) return;
+            
+            const cliente = clienti.find(c => c.id == p.clienteId) || { nome: p.clienteNome, piva: '', indirizzo: '' };
+            const dataPreventivo = new Date(p.data);
+            const dataScadenza = new Date(dataPreventivo);
+            dataScadenza.setDate(dataScadenza.getDate() + 30);
+            
+            let righeHTML = '';
+            p.righe.forEach(r => {
+                const subtotale = r.quantita * r.prezzo;
+                righeHTML += `<tr>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #eee;">${r.descrizione}</td>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #eee; text-align: center;">${r.quantita}</td>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #eee; text-align: right;">€${r.prezzo.toFixed(2)}</td>
+                    <td style="padding: 15px 10px; border-bottom: 1px solid #eee; text-align: right; font-weight: 600;">€${subtotale.toFixed(2)}</td>
+                </tr>`;
+            });
+            
+            const preview = document.getElementById('preventivo-preview');
+            preview.style.display = 'block';
+            preview.innerHTML = generaTemplatePreventivo(p.numero, dataPreventivo, dataScadenza, cliente, p.oggetto, righeHTML, p.totale, p.note, true);
+            preview.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function modificaPreventivo(id) {
+            const p = preventiviEmessi.find(prev => prev.id === id);
+            if (!p) return;
+            
+            // Popola il form con i dati del preventivo
+            document.getElementById('preventivo-numero').value = p.numero;
+            document.getElementById('preventivo-data').value = p.data;
+            document.getElementById('preventivo-cliente').value = p.clienteId;
+            document.getElementById('preventivo-oggetto').value = p.oggetto || '';
+            document.getElementById('preventivo-note').value = p.note || '';
+            
+            // Ricostruisci le righe
+            const container = document.getElementById('preventivo-righe');
+            container.innerHTML = '';
+            p.righe.forEach((r, index) => {
+                const riga = document.createElement('div');
+                riga.className = 'form-row preventivo-riga';
+                riga.style.alignItems = 'flex-end';
+                riga.innerHTML = `
+                    <div class="form-group" style="flex: 5;">
+                        ${index === 0 ? '<label>Descrizione</label>' : ''}
+                        <input type="text" class="prev-riga-descrizione" required value="${r.descrizione}">
+                    </div>
+                    <div class="form-group" style="flex: 0.7; min-width: 70px;">
+                        ${index === 0 ? '<label>Qtà</label>' : ''}
+                        <input type="number" class="prev-riga-quantita" value="${r.quantita}" min="1" max="99" required style="text-align: center;">
+                    </div>
+                    <div class="form-group" style="flex: 1.3; min-width: 100px;">
+                        ${index === 0 ? '<label>Prezzo (€)</label>' : ''}
+                        <input type="number" class="prev-riga-prezzo" step="0.01" required value="${r.prezzo}">
+                    </div>
+                    ${index > 0 ? `<button type="button" style="background: #e74c3c; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; margin-bottom: 10px;" onclick="this.closest('.preventivo-riga').remove()">×</button>` : ''}
+                `;
+                container.appendChild(riga);
+            });
+            
+            // Rimuovi il vecchio preventivo (verrà risalvato)
+            preventiviEmessi = preventiviEmessi.filter(prev => prev.id !== id);
+            salvaDati();
+            aggiornaArchivioPreventivi();
+            
+            // Scroll al form
+            document.getElementById('preventivoForm').scrollIntoView({ behavior: 'smooth' });
+            showToast('Modifica Preventivo', 'Modifica i dati e clicca "Genera Anteprima" per salvare', 'info');
+        }
+        
+        function stampaPreventivo(id) {
+            visualizzaPreventivo(id);
+            setTimeout(() => window.print(), 500);
+        }
+        
+        function generaTemplatePreventivo(numero, dataPreventivo, dataScadenza, cliente, oggetto, righeHTML, totale, note, soloVisualizzazione = false) {
+            return `
+                <div class="invoice-preview" style="border: none; box-shadow: 0 0 30px rgba(0,0,0,0.1); border-radius: 0; max-width: 800px; margin: 20px auto; font-family: 'Inter', -apple-system, sans-serif;">
+                    <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 30px 40px; margin: -40px -40px 0 -40px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                ${mieiDati.logo ? `<img src="${mieiDati.logo}" style="max-height: 50px; max-width: 180px; object-fit: contain; filter: brightness(0) invert(1);">` : `<div style="font-size: 22px; font-weight: 700;">${mieiDati.nome || 'LA TUA AZIENDA'}</div>`}
+                            </div>
+                            <div style="text-align: right; font-size: 13px; opacity: 0.9;">
+                                ${mieiDati.via || ''}${mieiDati.via ? '<br>' : ''}
+                                ${mieiDati.cap || ''} ${mieiDati.citta || ''}${(mieiDati.cap || mieiDati.citta) ? '<br>' : ''}
+                                ${mieiDati.email || ''}${mieiDati.email ? '<br>' : ''}
+                                ${mieiDati.telefono || ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #f8fafc; padding: 20px 40px; margin: 0 -40px; border-bottom: 3px solid #3b82f6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #1e3a8a; letter-spacing: 2px;">PREVENTIVO</div>
+                                <div style="color: #64748b; margin-top: 5px;">N. ${numero}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 14px; color: #64748b;">Data emissione</div>
+                                <div style="font-size: 18px; font-weight: 600; color: #1e40af;">${dataPreventivo.toLocaleDateString('it-IT')}</div>
+                                <div style="font-size: 12px; color: #dc2626; margin-top: 5px;">Valido fino al ${dataScadenza.toLocaleDateString('it-IT')}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 30px 0; border-bottom: 1px solid #e2e8f0;">
+                        <div>
+                            <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600; margin-bottom: 10px;">Da</div>
+                            <div style="font-weight: 600; color: #1e293b;">${mieiDati.nome || 'Nome Azienda'}</div>
+                            <div style="color: #64748b; font-size: 14px; margin-top: 5px;">
+                                ${mieiDati.piva ? 'P.IVA: ' + mieiDati.piva : ''}${mieiDati.piva ? '<br>' : ''}
+                                ${mieiDati.via || ''}${mieiDati.via ? '<br>' : ''}
+                                ${mieiDati.cap || ''} ${mieiDati.citta || ''}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600; margin-bottom: 10px;">Cliente</div>
+                            <div style="font-weight: 600; color: #1e293b;">${cliente.nome}</div>
+                            <div style="color: #64748b; font-size: 14px; margin-top: 5px;">
+                                ${cliente.piva ? 'P.IVA/CF: ' + cliente.piva : ''}${cliente.piva ? '<br>' : ''}
+                                ${cliente.indirizzo || ''}
+                            </div>
+                        </div>
+                    </div>
+                    ${oggetto ? `<div style="padding: 20px 0; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600;">Oggetto:</span> <span style="color: #1e293b; font-weight: 500;">${oggetto}</span></div>` : ''}
+                    <table style="width: 100%; border-collapse: collapse; margin: 30px 0;">
+                        <thead>
+                            <tr style="background: #f1f5f9;">
+                                <th style="padding: 15px 10px; text-align: left; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600;">Descrizione</th>
+                                <th style="padding: 15px 10px; text-align: center; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; width: 80px;">Qtà</th>
+                                <th style="padding: 15px 10px; text-align: right; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; width: 120px;">Prezzo Unit.</th>
+                                <th style="padding: 15px 10px; text-align: right; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; width: 120px;">Importo</th>
+                            </tr>
+                        </thead>
+                        <tbody>${righeHTML}</tbody>
+                    </table>
+                    <div style="display: flex; justify-content: flex-end; margin: 20px 0 30px 0;">
+                        <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 20px 40px; border-radius: 10px;">
+                            <div style="font-size: 12px; opacity: 0.8;">TOTALE</div>
+                            <div style="font-size: 28px; font-weight: 700;">€${totale.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    ${(note || mieiDati.notePreventivo) ? `
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #3b82f6;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; margin-bottom: 10px;">Note e Condizioni</div>
+                        <div style="color: #475569; font-size: 14px; line-height: 1.6;">${mieiDati.notePreventivo || ''} ${note || ''}</div>
+                    </div>
+                    ` : ''}
+                    ${soloVisualizzazione ? `
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                        <button class="btn btn-primary" onclick="window.print()" style="background: #3b82f6;">🖨️ Stampa</button>
+                        <button class="btn" onclick="document.getElementById('preventivo-preview').style.display='none'" style="background: #6b7280; color: white;">✕ Chiudi</button>
+                    </div>
+                    ` : `
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                        <button class="btn btn-primary" onclick="window.print()" style="background: #3b82f6;">🖨️ Stampa</button>
+                        <button class="btn" onclick="salvaPreventivoInArchivio()" style="background: #10b981; color: white;">💾 Salva</button>
+                        <button class="btn" onclick="copiaDatiPreventivo()" style="background: #8b5cf6; color: white;">📋 Copia</button>
+                    </div>
+                    `}
+                </div>
+            `;
         }
 
         function eliminaPreventivo(id) {

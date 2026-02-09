@@ -1577,8 +1577,16 @@
             }
             
             .form-row {
-                flex-direction: column;
-                gap: 10px;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            /* Search form specific - 2 columns on tablet */
+            .search-box .form-row {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
             }
             
             .tabs > div {
@@ -1719,8 +1727,14 @@
             
             /* Forms mobile */
             .form-row {
-                flex-direction: column;
+                display: grid;
+                grid-template-columns: 1fr;
                 gap: 15px;
+            }
+            
+            /* Search form - 2 columns even on mobile for better usability */
+            .search-box .form-row {
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .form-group {

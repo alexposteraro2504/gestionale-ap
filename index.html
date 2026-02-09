@@ -1555,26 +1555,429 @@
         }
         
         /* === RESPONSIVE === */
-        @media (max-width: 768px) {
-            body {
-                padding: var(--space-3);
-            }
-            
+        /* ============================================
+           RESPONSIVE DESIGN - MOBILE & TABLET
+           ============================================ */
+        
+        /* Viewport meta tag support */
+        @viewport {
+            width: device-width;
+            initial-scale: 1;
+        }
+        
+        /* === TABLET (768px - 1024px) === */
+        @media (max-width: 1024px) {
             .content {
                 padding: var(--space-4);
             }
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .tabs > div {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            table {
+                font-size: 13px;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+        
+        /* === MOBILE (< 768px) === */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                font-size: 14px;
+            }
+            
+            .container {
+                border-radius: 0;
+            }
+            
+            /* Header mobile */
+            header {
+                padding: 15px;
+            }
+            
+            header .header-content {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            header .logo {
+                justify-content: center;
+            }
+            
+            header .logo svg {
+                max-width: 200px;
+                height: auto;
+            }
+            
+            .user-section {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .users-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            /* Main tabs mobile */
+            .main-tabs {
+                flex-direction: row;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .main-tabs::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .main-tab {
+                padding: 12px 20px;
+                font-size: 14px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            
+            /* Sub-tabs mobile - horizontal scroll */
+            .tabs {
+                padding: 10px;
+            }
+            
+            .tabs > div {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                gap: 8px;
+                padding-bottom: 10px;
+            }
+            
+            .tabs > div::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .tab {
+                padding: 10px 14px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+                border-radius: 20px;
+            }
+            
+            /* Content mobile */
+            .content {
+                padding: 15px;
+            }
+            
+            .tab-content h2 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            
+            /* Stats grid mobile */
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-card .value {
+                font-size: 24px;
+            }
+            
+            .stat-card .label {
+                font-size: 11px;
+            }
+            
+            /* Forms mobile */
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .form-group {
+                width: 100%;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 12px;
+            }
+            
+            .btn, button {
+                padding: 12px 20px;
+                font-size: 14px;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* Tables mobile - horizontal scroll */
+            .table-container,
+            table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            table {
+                min-width: 600px;
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+                white-space: nowrap;
+            }
+            
+            /* Richieste cards mobile */
+            .richiesta-card {
+                padding: 15px;
             }
             
             .richiesta-header {
                 flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .richiesta-badges {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .richiesta-badge {
+                font-size: 11px;
+                padding: 4px 8px;
             }
             
             .richiesta-footer {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .richiesta-footer .btn-lavorazione {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+            }
+            
+            /* Email section mobile */
+            .email-layout {
+                flex-direction: column;
+            }
+            
+            .email-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 15px;
+            }
+            
+            .email-sidebar .sidebar-item {
+                padding: 10px 15px;
+            }
+            
+            .email-list {
+                width: 100%;
+                max-height: 300px;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .email-detail {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .email-item {
+                padding: 12px;
+            }
+            
+            /* Modals mobile */
+            .modal > div,
+            [id^="modal"] > div {
+                width: 95% !important;
+                max-width: none !important;
+                margin: 10px;
+                max-height: 90vh;
+            }
+            
+            .modal .modal-body,
+            [id^="modal"] > div > div:last-child {
+                max-height: calc(90vh - 60px);
+                overflow-y: auto;
+            }
+            
+            /* Calendar mobile */
+            .calendar-grid {
+                font-size: 12px;
+            }
+            
+            .calendar-day {
+                min-height: 40px;
+                padding: 5px;
+            }
+            
+            /* Invoice preview mobile */
+            .invoice-preview {
+                padding: 20px !important;
+                margin: 10px !important;
+            }
+            
+            .invoice-preview table {
+                min-width: 100%;
+            }
+            
+            /* Pipeline table mobile */
+            #pipe-lista td {
+                padding: 8px 5px;
+            }
+            
+            /* Hide less important columns on mobile */
+            .hide-mobile {
+                display: none;
+            }
+            
+            /* AI Button mobile */
+            .ai-button {
+                bottom: 15px !important;
+                right: 15px !important;
+                width: 45px !important;
+                height: 45px !important;
+            }
+            
+            /* Toast notifications mobile */
+            .toast-container {
+                left: 10px !important;
+                right: 10px !important;
+                bottom: 70px !important;
+            }
+            
+            /* Login mobile */
+            .login-wrapper {
+                padding: 20px;
+            }
+            
+            .login-container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                top: auto;
+                transform: none;
+                border-radius: 15px;
+            }
+            
+            .login-header {
+                padding: 20px;
+            }
+            
+            .login-header svg {
+                max-width: 200px;
+                height: auto;
+            }
+            
+            .login-form {
+                padding: 20px;
+            }
+        }
+        
+        /* === SMALL MOBILE (< 480px) === */
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .stat-card .value {
+                font-size: 22px;
+            }
+            
+            .main-tab {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .tab {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+            
+            h3 {
+                font-size: 16px;
+            }
+            
+            /* Stack action buttons */
+            td button,
+            .richiesta-footer button {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+        }
+        
+        /* === PRINT STYLES === */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+            
+            header, .tabs, .main-tabs, .btn, button,
+            .ai-button, .toast-container, .user-section {
+                display: none !important;
+            }
+            
+            .invoice-preview {
+                box-shadow: none !important;
+                border: none !important;
+            }
+            
+            .content {
+                padding: 0;
             }
         }
         

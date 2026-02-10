@@ -8014,16 +8014,49 @@
             }
             
             richiestaInModifica = richiesta;
+            console.log('📝 Modifica richiesta:', richiesta);
             
             // Popola i campi
             document.getElementById('mod-rich-nome').value = richiesta.nome || '';
             document.getElementById('mod-rich-email').value = richiesta.email || '';
             document.getElementById('mod-rich-telefono').value = richiesta.telefono || '';
             document.getElementById('mod-rich-budget').value = richiesta.budget || '';
-            document.getElementById('mod-rich-timeline').value = richiesta.timeline || '';
+            
+            // Timeline - mappa i valori con emoji ai valori senza emoji del select
+            let timelineValue = richiesta.timeline || '';
+            // Rimuovi emoji se presenti per matching
+            const timelineMap = {
+                '🔥 ASAP (1-3 giorni)': 'ASAP (1-3 giorni)',
+                '⏰ Entro 1 settimana': 'Entro 1 settimana',
+                '📅 Entro 2 settimane': 'Entro 2 settimane',
+                '📅 Entro 1 mese': 'Entro 1 mese',
+                '🌿 Flessibile / Senza fretta': 'Flessibile / Senza fretta'
+            };
+            if (timelineMap[timelineValue]) {
+                timelineValue = timelineMap[timelineValue];
+            }
+            document.getElementById('mod-rich-timeline').value = timelineValue;
+            
             document.getElementById('mod-rich-stato').value = richiesta.stato || 'dalavorare';
             document.getElementById('mod-rich-fonte').value = richiesta.fonte || '';
-            document.getElementById('mod-rich-lavorazione').value = richiesta.lavorazione || '';
+            
+            // Lavorazione - mappa i valori con emoji
+            let lavorazioneValue = richiesta.lavorazione || '';
+            const lavorazioneMap = {
+                '📊 Analisi Dati & Report': 'Analisi Dati & Report',
+                '📈 Dashboard Interattive (Power BI/Tableau)': 'Dashboard Interattive (Power BI/Tableau)',
+                '⚙️ Automazione Excel': 'Automazione Excel',
+                '🗄️ Gestione Database (SQL)': 'Gestione Database (SQL)',
+                '🧹 Pulizia & Preparazione Dati': 'Pulizia & Preparazione Dati',
+                '💡 Consulenza Strategica': 'Consulenza Strategica',
+                '📋 Richiesta Informazioni': 'Richiesta Informazioni',
+                '❓ Non Sono Sicuro / Serve Aiuto': 'Non Sono Sicuro / Serve Aiuto'
+            };
+            if (lavorazioneMap[lavorazioneValue]) {
+                lavorazioneValue = lavorazioneMap[lavorazioneValue];
+            }
+            document.getElementById('mod-rich-lavorazione').value = lavorazioneValue;
+            
             document.getElementById('mod-rich-messaggio').value = richiesta.messaggio || '';
             
             document.getElementById('modalModificaRichiesta').style.display = 'flex';

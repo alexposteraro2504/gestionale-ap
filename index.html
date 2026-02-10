@@ -3973,7 +3973,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div class="form-group">
                         <label>Budget (€)</label>
-                        <input type="text" id="edit-lead-budget" placeholder="es. 2500 o €2.500">
+                        <input type="text" id="edit-lead-budget" placeholder="es. €2.500 o $3,000">
                     </div>
                     <div class="form-group">
                         <label>Timeline Progetto</label>
@@ -5086,12 +5086,18 @@
                     'perso': 'Perso'
                 };
                 lista.innerHTML = pipelineLeads.map(p => {
-                    // Mostra budget - formatta come valore economico
+                    // Mostra budget - preserva la valuta originale (€ o $)
                     let budgetDisplay = '-';
                     if (p.budget) {
-                        // Se budget già contiene €, mostralo così, altrimenti aggiungi €
-                        budgetDisplay = p.budget.includes('€') ? p.budget : `€${p.budget}`;
+                        // Se budget già contiene simbolo valuta, mostralo così
+                        if (p.budget.includes('€') || p.budget.includes('$')) {
+                            budgetDisplay = p.budget;
+                        } else {
+                            // Default a € se nessun simbolo presente
+                            budgetDisplay = `€${p.budget}`;
+                        }
                     } else if (p.valore) {
+                        // Se non c'è budget testuale, usa valore con € di default
                         budgetDisplay = `€${p.valore.toLocaleString('it-IT')}`;
                     }
                     return `
@@ -5146,11 +5152,12 @@
             document.getElementById('edit-lead-email').value = lead.email || '';
             document.getElementById('edit-lead-telefono').value = lead.telefono || '';
             
-            // Budget - mostra con € se non già presente
+            // Budget - preserva il simbolo valuta originale (€ o $)
             let budgetValue = lead.budget || '';
             if (!budgetValue && lead.valore) {
                 budgetValue = `€${lead.valore.toLocaleString('it-IT')}`;
-            } else if (budgetValue && !budgetValue.includes('€')) {
+            } else if (budgetValue && !budgetValue.includes('€') && !budgetValue.includes('$')) {
+                // Se non ha simbolo, aggiungi € di default
                 budgetValue = `€${budgetValue}`;
             }
             document.getElementById('edit-lead-budget').value = budgetValue;
@@ -5177,8 +5184,8 @@
             
             // Leggi budget e converti in valore numerico
             let budgetStr = document.getElementById('edit-lead-budget').value.trim();
-            // Assicurati che il budget abbia il simbolo €
-            if (budgetStr && !budgetStr.includes('€')) {
+            // Se non ha simbolo valuta, aggiungi € di default
+            if (budgetStr && !budgetStr.includes('€') && !budgetStr.includes('$')) {
                 budgetStr = `€${budgetStr}`;
             }
             const valoreNumerico = parseBudget(budgetStr);

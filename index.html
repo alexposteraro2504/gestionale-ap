@@ -5066,11 +5066,14 @@
                     'vinto': 'Vinto',
                     'perso': 'Perso'
                 };
-                lista.innerHTML = pipelineLeads.map(p => `
+                lista.innerHTML = pipelineLeads.map(p => {
+                    // Mostra budget testuale se esiste, altrimenti valore numerico
+                    const budgetDisplay = p.budget ? `€${p.budget}` : (p.valore ? `€${p.valore.toFixed(0)}` : '-');
+                    return `
                     <tr>
                         <td>${p.nome}</td>
                         <td>${p.email || '-'}</td>
-                        <td>€${(p.valore || 0).toFixed(0)}</td>
+                        <td>${budgetDisplay}</td>
                         <td>${statoEmoji[p.stato] || ''} ${statoLabel[p.stato] || p.stato}</td>
                         <td>${p.fonte || '-'}</td>
                         <td style="display: flex; gap: 5px;">
@@ -5079,7 +5082,7 @@
                             <button class="delete-btn" onclick="eliminaLead('${p.id}')">🗑️</button>
                         </td>
                     </tr>
-                `).join('');
+                `}).join('');
             }
             
             // Stats

@@ -5142,7 +5142,7 @@
             const budgetStr = document.getElementById('edit-lead-budget').value;
             const valoreNumerico = parseBudget(budgetStr);
             
-            // Aggiorna dati
+            // Aggiorna dati locali
             leadInModifica.nome = document.getElementById('edit-lead-nome').value;
             leadInModifica.email = document.getElementById('edit-lead-email').value;
             leadInModifica.telefono = document.getElementById('edit-lead-telefono').value;
@@ -5157,13 +5157,16 @@
             
             const nuovoStato = leadInModifica.stato;
             
-            // Salva su Supabase
+            // Salva su Supabase - includi tutti i campi
             try {
                 await aggiornaDatoSupabase('pipeline_leads', leadInModifica.id, {
                     nome: leadInModifica.nome,
                     email: leadInModifica.email,
                     telefono: leadInModifica.telefono,
+                    budget: leadInModifica.budget,
                     valore: leadInModifica.valore,
+                    timeline: leadInModifica.timeline,
+                    lavorazione: leadInModifica.lavorazione,
                     stato: leadInModifica.stato,
                     fonte: leadInModifica.fonte,
                     note: leadInModifica.note

@@ -2285,16 +2285,22 @@
                             </div>
                             <div class="form-group">
                                 <label>Cliente</label>
-                                <select id="tt-cliente">
+                                <select id="tt-cliente" onchange="aggiornaRichiesteTimeTracker()">
                                     <option value="">Seleziona cliente...</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Ore</label>
-                                <input type="number" id="tt-ore" step="0.25" min="0.25" required placeholder="Es: 2.5">
+                                <label>Progetto/Richiesta</label>
+                                <select id="tt-richiesta">
+                                    <option value="">-- Nessun progetto --</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-row">
+                            <div class="form-group">
+                                <label>Ore</label>
+                                <input type="number" id="tt-ore" step="0.25" min="0.25" required placeholder="Es: 2.5">
+                            </div>
                             <div class="form-group" style="flex: 2;">
                                 <label>Descrizione attività</label>
                                 <input type="text" id="tt-descrizione" required placeholder="Cosa hai fatto?">
@@ -2313,6 +2319,7 @@
                             <tr>
                                 <th>Data</th>
                                 <th>Cliente</th>
+                                <th>Progetto</th>
                                 <th>Descrizione</th>
                                 <th>Ore</th>
                                 <th>Valore</th>
@@ -2320,7 +2327,7 @@
                             </tr>
                         </thead>
                         <tbody id="tt-lista">
-                            <tr><td colspan="6" style="text-align: center; padding: 30px; color: #6c757d;">Nessuna attività registrata</td></tr>
+                            <tr><td colspan="7" style="text-align: center; padding: 30px; color: #6c757d;">Nessuna attività registrata</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -3471,9 +3478,23 @@
                     <h2 style="margin-bottom: 20px;">📝 Note e Appunti</h2>
                     
                     <form id="noteForm" style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 30px;">
-                        <div class="form-group">
-                            <label>Titolo</label>
-                            <input type="text" id="nota-titolo" required placeholder="Titolo della nota...">
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 2;">
+                                <label>Titolo</label>
+                                <input type="text" id="nota-titolo" required placeholder="Titolo della nota...">
+                            </div>
+                            <div class="form-group">
+                                <label>Cliente (opzionale)</label>
+                                <select id="nota-cliente" onchange="aggiornaRichiesteNote()">
+                                    <option value="">-- Nessun cliente --</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Progetto/Richiesta</label>
+                                <select id="nota-richiesta">
+                                    <option value="">-- Nessun progetto --</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Contenuto</label>
@@ -4602,6 +4623,13 @@
                     clienti.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
             }
             
+            // Popola select clienti nelle Note
+            const notaCliente = document.getElementById('nota-cliente');
+            if (notaCliente && clienti) {
+                notaCliente.innerHTML = '<option value="">-- Nessun cliente --</option>' + 
+                    clienti.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
+            }
+            
             const richiestaData = document.getElementById('richiesta-data');
             if (richiestaData) richiestaData.valueAsDate = new Date();
             
@@ -4910,12 +4938,13 @@
             if (!lista) return;
             
             if (timeEntries.length === 0) {
-                lista.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #6c757d;">Nessuna attività registrata</td></tr>';
+                lista.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px; color: #6c757d;">Nessuna attività registrata</td></tr>';
             } else {
-                lista.innerHTML = timeEntries.map(t => `
+                lista.innerHTML = timeEntries.slice(0, 10).map(t => `
                     <tr>
                         <td>${new Date(t.data).toLocaleDateString('it-IT')}</td>
                         <td>${t.cliente || '-'}</td>
+                        <td>${t.richiesta_nome || '-'}</td>
                         <td>${t.descrizione}</td>
                         <td>${t.ore}h</td>
                         <td>€${(t.ore * t.tariffa).toFixed(2)}</td>
@@ -4929,11 +4958,76 @@
             const oreOggi = timeEntries.filter(t => t.data === oggi).reduce((s, t) => s + t.ore, 0);
             document.getElementById('tt-ore-oggi').textContent = oreOggi.toFixed(1) + 'h';
             
-            const oreMese = timeEntries.reduce((s, t) => s + t.ore, 0);
+            // Calcolo ore settimana
+            const inizioSettimana = new Date();
+            inizioSettimana.setDate(inizioSettimana.getDate() - inizioSettimana.getDay());
+            inizioSettimana.setHours(0, 0, 0, 0);
+            const oreSettimana = timeEntries.filter(t => new Date(t.data) >= inizioSettimana).reduce((s, t) => s + t.ore, 0);
+            document.getElementById('tt-ore-settimana').textContent = oreSettimana.toFixed(1) + 'h';
+            
+            // Calcolo ore mese corrente
+            const inizioMese = new Date();
+            inizioMese.setDate(1);
+            inizioMese.setHours(0, 0, 0, 0);
+            const oreMese = timeEntries.filter(t => new Date(t.data) >= inizioMese).reduce((s, t) => s + t.ore, 0);
             document.getElementById('tt-ore-mese').textContent = oreMese.toFixed(1) + 'h';
             
-            const valoreMese = timeEntries.reduce((s, t) => s + (t.ore * t.tariffa), 0);
+            const valoreMese = timeEntries.filter(t => new Date(t.data) >= inizioMese).reduce((s, t) => s + (t.ore * t.tariffa), 0);
             document.getElementById('tt-valore-mese').textContent = '€' + valoreMese.toFixed(0);
+        }
+        
+        // Funzione per aggiornare la select delle richieste nel Time Tracker
+        function aggiornaRichiesteTimeTracker() {
+            const clienteNome = document.getElementById('tt-cliente').value;
+            const richiestaSelect = document.getElementById('tt-richiesta');
+            
+            if (!clienteNome) {
+                richiestaSelect.innerHTML = '<option value="">-- Nessun progetto --</option>';
+                return;
+            }
+            
+            // Filtra richieste in lavorazione per questo cliente
+            const richiesteCliente = richiesteSito.filter(r => 
+                r.nome && r.nome.toLowerCase().includes(clienteNome.toLowerCase()) && 
+                r.stato === 'inlavorazione'
+            );
+            
+            if (richiesteCliente.length === 0) {
+                richiestaSelect.innerHTML = '<option value="">-- Nessun progetto attivo --</option>';
+            } else {
+                richiestaSelect.innerHTML = '<option value="">-- Seleziona progetto --</option>' +
+                    richiesteCliente.map(r => {
+                        const label = r.lavorazione || r.messaggio?.substring(0, 30) || 'Progetto #' + r.id;
+                        return `<option value="${r.id}">${label}</option>`;
+                    }).join('');
+            }
+        }
+        
+        // Funzione per aggiornare la select delle richieste nelle Note
+        function aggiornaRichiesteNote() {
+            const clienteNome = document.getElementById('nota-cliente').value;
+            const richiestaSelect = document.getElementById('nota-richiesta');
+            
+            if (!clienteNome) {
+                richiestaSelect.innerHTML = '<option value="">-- Nessun progetto --</option>';
+                return;
+            }
+            
+            // Filtra richieste per questo cliente
+            const richiesteCliente = richiesteSito.filter(r => 
+                r.nome && r.nome.toLowerCase().includes(clienteNome.toLowerCase())
+            );
+            
+            if (richiesteCliente.length === 0) {
+                richiestaSelect.innerHTML = '<option value="">-- Nessun progetto --</option>';
+            } else {
+                richiestaSelect.innerHTML = '<option value="">-- Seleziona progetto --</option>' +
+                    richiesteCliente.map(r => {
+                        const label = r.lavorazione || r.messaggio?.substring(0, 30) || 'Progetto #' + r.id;
+                        const statoIcon = r.stato === 'inlavorazione' ? '🔄' : (r.stato === 'completata' ? '✅' : '📋');
+                        return `<option value="${r.id}">${statoIcon} ${label}</option>`;
+                    }).join('');
+            }
         }
 
         async function eliminaTimeEntry(id) {
@@ -5176,9 +5270,15 @@
             if (ttForm) {
                 ttForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
+                    const richiestaSelect = document.getElementById('tt-richiesta');
+                    const richiestaId = richiestaSelect.value;
+                    const richiestaText = richiestaId ? richiestaSelect.options[richiestaSelect.selectedIndex].text : '';
+                    
                     const entry = {
                         data: document.getElementById('tt-data').value,
                         cliente: document.getElementById('tt-cliente').value,
+                        richiesta_id: richiestaId || null,
+                        richiesta_nome: richiestaText,
                         ore: parseFloat(document.getElementById('tt-ore').value),
                         descrizione: document.getElementById('tt-descrizione').value,
                         tariffa: parseFloat(document.getElementById('tt-tariffa').value) || 25
@@ -5189,6 +5289,7 @@
                         aggiornaTimeTracker();
                         this.reset();
                         document.getElementById('tt-data').valueAsDate = new Date();
+                        document.getElementById('tt-richiesta').innerHTML = '<option value="">-- Nessun progetto --</option>';
                     }
                 });
                 document.getElementById('tt-data').valueAsDate = new Date();
@@ -7209,34 +7310,107 @@
 
         // ESPORTAZIONE DATI
         function esportaCSV() {
-            let csv = 'Data,Tipo,Categoria,Riferimento,Descrizione,Importo\n';
-            azMovimenti.forEach(m => {
-                csv += `${m.data},${m.tipo},${m.categoria},"${m.riferimento || ''}","${m.descrizione || ''}",${m.importo}\n`;
+            // Header con BOM per Excel
+            let csv = '\uFEFFData,Tipo,Categoria,Soggetto,Descrizione,Importo\n';
+            
+            const sortedMov = [...azMovimenti].sort((a, b) => new Date(b.data) - new Date(a.data));
+            
+            sortedMov.forEach(m => {
+                const soggetto = m.soggetto || m.riferimento || '';
+                csv += `${m.data},"${m.tipo}","${m.categoria}","${soggetto}","${(m.descrizione || '').replace(/"/g, '""')}",${m.importo}\n`;
             });
             
-            const blob = new Blob([csv], { type: 'text/csv' });
+            // Aggiungi totali
+            const entrate = sortedMov.filter(m => m.tipo === 'entrata').reduce((s, m) => s + m.importo, 0);
+            const uscite = sortedMov.filter(m => m.tipo === 'uscita').reduce((s, m) => s + m.importo, 0);
+            csv += `\n,,,,"TOTALE ENTRATE",${entrate}\n`;
+            csv += `,,,,"TOTALE USCITE",${uscite}\n`;
+            csv += `,,,,"SALDO",${entrate - uscite}\n`;
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `movimenti_aziendali_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `movimenti_${mieiDati.nome || 'azienda'}_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
-            alert('File CSV scaricato con successo!');
+            showToast('Export Completato', 'File CSV scaricato con successo', 'success');
         }
 
         function esportaExcel() {
-            let html = '<table><tr><th>Data</th><th>Tipo</th><th>Categoria</th><th>Soggetto</th><th>Descrizione</th><th>Importo</th></tr>';
-            azMovimenti.forEach(m => {
-                html += `<tr><td>${m.data}</td><td>${m.tipo}</td><td>${m.categoria}</td><td>${m.riferimento || ''}</td><td>${m.descrizione || ''}</td><td>${m.importo}</td></tr>`;
+            const sortedMov = [...azMovimenti].sort((a, b) => new Date(b.data) - new Date(a.data));
+            const entrate = sortedMov.filter(m => m.tipo === 'entrata').reduce((s, m) => s + m.importo, 0);
+            const uscite = sortedMov.filter(m => m.tipo === 'uscita').reduce((s, m) => s + m.importo, 0);
+            
+            let html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    table { border-collapse: collapse; width: 100%; }
+                    th { background-color: #1e3a8a; color: white; font-weight: bold; padding: 12px 8px; text-align: left; }
+                    td { padding: 10px 8px; border-bottom: 1px solid #e5e7eb; }
+                    tr:nth-child(even) { background-color: #f9fafb; }
+                    .entrata { color: #16a34a; font-weight: bold; }
+                    .uscita { color: #dc2626; font-weight: bold; }
+                    .totale-row { background-color: #f1f5f9 !important; font-weight: bold; }
+                    .header-info { margin-bottom: 20px; }
+                    h1 { color: #1e3a8a; margin-bottom: 5px; }
+                    .subtitle { color: #64748b; margin-bottom: 20px; }
+                </style>
+            </head>
+            <body>
+                <div class="header-info">
+                    <h1>${mieiDati.nome || 'Report Movimenti'}</h1>
+                    <div class="subtitle">Report generato il ${new Date().toLocaleDateString('it-IT')} - ${sortedMov.length} movimenti</div>
+                </div>
+                
+                <table>
+                    <tr>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Categoria</th>
+                        <th>Soggetto</th>
+                        <th>Descrizione</th>
+                        <th style="text-align: right;">Importo (€)</th>
+                    </tr>`;
+            
+            sortedMov.forEach(m => {
+                const soggetto = m.soggetto || m.riferimento || '-';
+                html += `
+                    <tr>
+                        <td>${new Date(m.data).toLocaleDateString('it-IT')}</td>
+                        <td class="${m.tipo}">${m.tipo.toUpperCase()}</td>
+                        <td>${m.categoria}</td>
+                        <td>${soggetto}</td>
+                        <td>${m.descrizione || '-'}</td>
+                        <td style="text-align: right;" class="${m.tipo}">€${m.importo.toFixed(2)}</td>
+                    </tr>`;
             });
-            html += '</table>';
+            
+            html += `
+                    <tr class="totale-row">
+                        <td colspan="5" style="text-align: right;">TOTALE ENTRATE:</td>
+                        <td style="text-align: right; color: #16a34a;">€${entrate.toFixed(2)}</td>
+                    </tr>
+                    <tr class="totale-row">
+                        <td colspan="5" style="text-align: right;">TOTALE USCITE:</td>
+                        <td style="text-align: right; color: #dc2626;">€${uscite.toFixed(2)}</td>
+                    </tr>
+                    <tr class="totale-row">
+                        <td colspan="5" style="text-align: right; font-size: 1.1em;">SALDO NETTO:</td>
+                        <td style="text-align: right; font-size: 1.1em; color: ${(entrate - uscite) >= 0 ? '#16a34a' : '#dc2626'};">€${(entrate - uscite).toFixed(2)}</td>
+                    </tr>
+                </table>
+            </body>
+            </html>`;
             
             const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `movimenti_aziendali_${new Date().toISOString().split('T')[0]}.xls`;
+            a.download = `report_${mieiDati.nome || 'azienda'}_${new Date().toISOString().split('T')[0]}.xls`;
             a.click();
-            alert('File Excel scaricato con successo!');
+            showToast('Export Completato', 'File Excel scaricato con successo', 'success');
         }
 
         // RICERCA
@@ -8167,9 +8341,16 @@
         document.getElementById('noteForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const richiestaSelect = document.getElementById('nota-richiesta');
+            const richiestaId = richiestaSelect.value;
+            const richiestaText = richiestaId ? richiestaSelect.options[richiestaSelect.selectedIndex].text : '';
+            
             const notaData = {
                 titolo: document.getElementById('nota-titolo').value,
                 contenuto: document.getElementById('nota-contenuto').value,
+                cliente: document.getElementById('nota-cliente').value || null,
+                richiesta_id: richiestaId || null,
+                richiesta_nome: richiestaText,
                 data: new Date().toISOString()
             };
             
@@ -8188,6 +8369,7 @@
                 
                 note.push({ id: data.id, ...notaData });
                 this.reset();
+                document.getElementById('nota-richiesta').innerHTML = '<option value="">-- Nessun progetto --</option>';
                 aggiornaNote();
                 showToast('Nota Salvata', `"${notaData.titolo}" aggiunta con successo`, 'success');
             } catch (err) {
@@ -8208,7 +8390,15 @@
             
             container.innerHTML = sortedNote.map(n => `
                 <div class="note-item">
-                    <h4>${n.titolo}</h4>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <h4 style="margin: 0;">${n.titolo}</h4>
+                        ${n.cliente || n.richiesta_nome ? `
+                        <div style="display: flex; gap: 5px;">
+                            ${n.cliente ? `<span style="background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 11px;">👤 ${n.cliente}</span>` : ''}
+                            ${n.richiesta_nome ? `<span style="background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 4px; font-size: 11px;">📁 ${n.richiesta_nome.replace(/^[🔄✅📋]\s*/, '')}</span>` : ''}
+                        </div>
+                        ` : ''}
+                    </div>
                     <p>${n.contenuto}</p>
                     <div class="note-date">${new Date(n.data).toLocaleString('it-IT')}</div>
                     <button class="delete-btn" onclick="eliminaNota(${n.id})" style="margin-top: 10px;">Elimina</button>
@@ -9351,7 +9541,7 @@
         function aggiornaAttivitaRecentiPanoramica() {
             const tuttiMovimenti = azMovimenti
                 .sort((a, b) => new Date(b.data) - new Date(a.data))
-                .slice(0, 10);
+                .slice(0, 5);
             
             const tbody = document.getElementById('pan-attivita-recenti');
             if (!tbody) return;
@@ -9375,7 +9565,7 @@
         function aggiornaAttivitaRecenti() {
             const tuttiMovimenti = azMovimenti
                 .sort((a, b) => new Date(b.data) - new Date(a.data))
-                .slice(0, 10);
+                .slice(0, 5);
             
             const tbody = document.getElementById('gen-attivita-recenti');
             

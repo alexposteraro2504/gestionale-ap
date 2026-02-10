@@ -4743,6 +4743,25 @@
                 if (emailError) console.error('❌ Errore caricamento email:', emailError);
                 if (emailData) emailsInbox = emailData;
 
+                // Carica Pipeline Leads
+                const { data: pipeData, error: pipeError } = await db.from('pipeline_leads').select('*').eq('user_id', currentUser.id);
+                console.log('🎯 Pipeline caricate:', pipeData ? pipeData.length : 0, 'errore:', pipeError);
+                if (pipeError) console.error('❌ Errore caricamento pipeline:', pipeError);
+                if (pipeData) pipelineLeads = pipeData.map(p => ({ 
+                    id: p.id, 
+                    nome: p.nome, 
+                    email: p.email, 
+                    telefono: p.telefono, 
+                    budget: p.budget,
+                    valore: p.valore || 0, 
+                    timeline: p.timeline,
+                    lavorazione: p.lavorazione,
+                    stato: p.stato, 
+                    fonte: p.fonte, 
+                    note: p.note,
+                    messaggio: p.note
+                }));
+
                 console.log('✅ Dati caricati da Supabase');
             } catch (error) {
                 console.error('Errore caricamento:', error);

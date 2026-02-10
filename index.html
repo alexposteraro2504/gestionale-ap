@@ -5086,8 +5086,14 @@
                     'perso': 'Perso'
                 };
                 lista.innerHTML = pipelineLeads.map(p => {
-                    // Mostra budget testuale se esiste, altrimenti valore numerico
-                    const budgetDisplay = p.budget ? `€${p.budget}` : (p.valore ? `€${p.valore.toFixed(0)}` : '-');
+                    // Mostra budget - formatta come valore economico
+                    let budgetDisplay = '-';
+                    if (p.budget) {
+                        // Se budget già contiene €, mostralo così, altrimenti aggiungi €
+                        budgetDisplay = p.budget.includes('€') ? p.budget : `€${p.budget}`;
+                    } else if (p.valore) {
+                        budgetDisplay = `€${p.valore.toLocaleString('it-IT')}`;
+                    }
                     return `
                     <tr>
                         <td>${p.nome}</td>
@@ -5139,7 +5145,16 @@
             document.getElementById('edit-lead-nome').value = lead.nome || '';
             document.getElementById('edit-lead-email').value = lead.email || '';
             document.getElementById('edit-lead-telefono').value = lead.telefono || '';
-            document.getElementById('edit-lead-budget').value = lead.budget || (lead.valore ? `€${lead.valore}` : '');
+            
+            // Budget - mostra con € se non già presente
+            let budgetValue = lead.budget || '';
+            if (!budgetValue && lead.valore) {
+                budgetValue = `€${lead.valore.toLocaleString('it-IT')}`;
+            } else if (budgetValue && !budgetValue.includes('€')) {
+                budgetValue = `€${budgetValue}`;
+            }
+            document.getElementById('edit-lead-budget').value = budgetValue;
+            
             document.getElementById('edit-lead-timeline').value = lead.timeline || '';
             document.getElementById('edit-lead-lavorazione').value = lead.lavorazione || '';
             document.getElementById('edit-lead-stato').value = lead.stato || 'lead';
@@ -5161,7 +5176,11 @@
             const vecchioStato = leadInModifica.stato;
             
             // Leggi budget e converti in valore numerico
-            const budgetStr = document.getElementById('edit-lead-budget').value;
+            let budgetStr = document.getElementById('edit-lead-budget').value.trim();
+            // Assicurati che il budget abbia il simbolo €
+            if (budgetStr && !budgetStr.includes('€')) {
+                budgetStr = `€${budgetStr}`;
+            }
             const valoreNumerico = parseBudget(budgetStr);
             
             // Aggiorna dati locali

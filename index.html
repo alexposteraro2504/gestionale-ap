@@ -8014,7 +8014,10 @@
             }
             
             richiestaInModifica = richiesta;
-            console.log('📝 Modifica richiesta:', richiesta);
+            console.log('📝 Modifica richiesta - DATI COMPLETI:', JSON.stringify(richiesta, null, 2));
+            console.log('📝 Budget:', richiesta.budget);
+            console.log('📝 Timeline:', richiesta.timeline);
+            console.log('📝 Lavorazione:', richiesta.lavorazione);
             
             // Popola i campi
             document.getElementById('mod-rich-nome').value = richiesta.nome || '';
@@ -8022,40 +8025,53 @@
             document.getElementById('mod-rich-telefono').value = richiesta.telefono || '';
             document.getElementById('mod-rich-budget').value = richiesta.budget || '';
             
-            // Timeline - mappa i valori con emoji ai valori senza emoji del select
+            // Timeline - prova prima il valore diretto, poi mappa i valori con emoji
+            const timelineSelect = document.getElementById('mod-rich-timeline');
             let timelineValue = richiesta.timeline || '';
-            // Rimuovi emoji se presenti per matching
-            const timelineMap = {
-                '🔥 ASAP (1-3 giorni)': 'ASAP (1-3 giorni)',
-                '⏰ Entro 1 settimana': 'Entro 1 settimana',
-                '📅 Entro 2 settimane': 'Entro 2 settimane',
-                '📅 Entro 1 mese': 'Entro 1 mese',
-                '🌿 Flessibile / Senza fretta': 'Flessibile / Senza fretta'
-            };
-            if (timelineMap[timelineValue]) {
-                timelineValue = timelineMap[timelineValue];
+            
+            // Prima prova il valore diretto
+            timelineSelect.value = timelineValue;
+            
+            // Se non ha funzionato, prova a mappare
+            if (!timelineSelect.value && timelineValue) {
+                const timelineMap = {
+                    '🔥 ASAP (1-3 giorni)': 'ASAP (1-3 giorni)',
+                    '⏰ Entro 1 settimana': 'Entro 1 settimana',
+                    '📅 Entro 2 settimane': 'Entro 2 settimane',
+                    '📅 Entro 1 mese': 'Entro 1 mese',
+                    '🌿 Flessibile / Senza fretta': 'Flessibile / Senza fretta'
+                };
+                if (timelineMap[timelineValue]) {
+                    timelineSelect.value = timelineMap[timelineValue];
+                }
             }
-            document.getElementById('mod-rich-timeline').value = timelineValue;
             
             document.getElementById('mod-rich-stato').value = richiesta.stato || 'dalavorare';
             document.getElementById('mod-rich-fonte').value = richiesta.fonte || '';
             
-            // Lavorazione - mappa i valori con emoji
+            // Lavorazione - prova prima il valore diretto, poi mappa
+            const lavorazioneSelect = document.getElementById('mod-rich-lavorazione');
             let lavorazioneValue = richiesta.lavorazione || '';
-            const lavorazioneMap = {
-                '📊 Analisi Dati & Report': 'Analisi Dati & Report',
-                '📈 Dashboard Interattive (Power BI/Tableau)': 'Dashboard Interattive (Power BI/Tableau)',
-                '⚙️ Automazione Excel': 'Automazione Excel',
-                '🗄️ Gestione Database (SQL)': 'Gestione Database (SQL)',
-                '🧹 Pulizia & Preparazione Dati': 'Pulizia & Preparazione Dati',
-                '💡 Consulenza Strategica': 'Consulenza Strategica',
-                '📋 Richiesta Informazioni': 'Richiesta Informazioni',
-                '❓ Non Sono Sicuro / Serve Aiuto': 'Non Sono Sicuro / Serve Aiuto'
-            };
-            if (lavorazioneMap[lavorazioneValue]) {
-                lavorazioneValue = lavorazioneMap[lavorazioneValue];
+            
+            // Prima prova il valore diretto
+            lavorazioneSelect.value = lavorazioneValue;
+            
+            // Se non ha funzionato, prova a mappare
+            if (!lavorazioneSelect.value && lavorazioneValue) {
+                const lavorazioneMap = {
+                    '📊 Analisi Dati & Report': 'Analisi Dati & Report',
+                    '📈 Dashboard Interattive (Power BI/Tableau)': 'Dashboard Interattive (Power BI/Tableau)',
+                    '⚙️ Automazione Excel': 'Automazione Excel',
+                    '🗄️ Gestione Database (SQL)': 'Gestione Database (SQL)',
+                    '🧹 Pulizia & Preparazione Dati': 'Pulizia & Preparazione Dati',
+                    '💡 Consulenza Strategica': 'Consulenza Strategica',
+                    '📋 Richiesta Informazioni': 'Richiesta Informazioni',
+                    '❓ Non Sono Sicuro / Serve Aiuto': 'Non Sono Sicuro / Serve Aiuto'
+                };
+                if (lavorazioneMap[lavorazioneValue]) {
+                    lavorazioneSelect.value = lavorazioneMap[lavorazioneValue];
+                }
             }
-            document.getElementById('mod-rich-lavorazione').value = lavorazioneValue;
             
             document.getElementById('mod-rich-messaggio').value = richiesta.messaggio || '';
             
